@@ -76,7 +76,7 @@ void GvFree(GameView gv)
 Round GvGetRound(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-
+    
 	return 0;
 }
 
