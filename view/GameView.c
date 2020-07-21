@@ -24,6 +24,7 @@
 #define NO_PLAYER 10;
 #define MAX_ROUND_STRING 40;
 #define HEALTH_UNKNOWN 100;
+#define PLAY 7;
 
 typedef int Score;
 typedef int Health;
@@ -100,10 +101,10 @@ Round GvGetRound(GameView gv) {
 Player GvGetPlayer(GameView gv) {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     
-	int index = strlen(gv->Game_State) - 7;
+	int index = strlen(gv->Game_State) - PLAY;
 
 	char pre_player = gv->Game_State[index];
-	int curr_player = -1;
+	int curr_player = NO_PLAYER;
 
 	switch(pre_player){
 		case 'D':
@@ -126,16 +127,36 @@ Player GvGetPlayer(GameView gv) {
 			break;
 	}
 
-	gv->curr_Player->player = curr_player;
-
-	return gv->curr_Player->player;
+	return curr_player;
 }
 
 int GvGetScore(GameView gv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-
-	return 0;
+	int i = 0;
+	while (gv->Game_State[i]) {
+		char gameScore = gv->Game_State[i];
+		switch (gameScore) {
+		case 'D':
+			gv->curr_score = GAME_START_SCORE - 
+			break;
+		case 'G':
+			gv->curr_score = GAME_START_SCORE - 
+			break;
+		case 'S':
+			gv->curr_score = GAME_START_SCORE - 
+			break;
+		case 'H':
+			gv->curr_score = GAME_START_SCORE - 
+			break;
+		case 'M':
+			gv->curr_score = GAME_START_SCORE - 
+			break;
+		default:
+			gv->curr_score = GAME_START_SCORE;
+			break;
+		}
+		i++;
+	}
 }
 
 int GvGetHealth(GameView gv, Player player)
