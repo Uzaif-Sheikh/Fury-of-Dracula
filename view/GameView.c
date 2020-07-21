@@ -23,13 +23,13 @@
 
 #define NO_PLAYER 10;
 #define MAX_ROUND_STRING 40;
+#define HEALTH_UNKNOWN 100;
 
 typedef int Score;
-typedef int CurrentPlayer;
 typedef int Health;
 
 struct game_Player {	
-	CurrentPlayer player;
+	Player player;
 	Health health;
 	PlaceId Location;
 } ; 
@@ -40,7 +40,7 @@ typedef struct game_Player *Game_Player;
 struct gameView {
 	// TODO: ADD FIELDS HERE
 	Round curr_round;
-	Game_Player curr_Player;
+	Game_Player Player[NUM_PLAYERS];
     	Score curr_score;
 	char* Game_State;
 };
@@ -50,15 +50,17 @@ struct gameView {
 // Constructor/Destructor
 
 static Game_Player new_player () {
+	
 	Game_Player play = malloc(sizeof(struct game_Player));
 	if (play == NULL) {
 		fprintf(stderr, "Couldn't allocate Player!\n");
 		exit(EXIT_FAILURE);
 	}
 	play->player = NO_PLAYER;
-	play->health = GAME_START_HUNTER_LIFE_POINTS;
+	play->health = HEALTH_UNKNOWN;
 	play->Location = UNKNOWN_PLACE;
 	return play;
+
 }
 
 GameView GvNew(char *pastPlays, Message messages[]) {
@@ -72,7 +74,9 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 	
 	strcpy(gameView->Game_State, pastPlays);
     	gameView->curr_score = GAME_START_SCORE;
-	gameView->curr_Player = new_player();
+	for (int i = 0; i < NUM_PLAYERS; i++) {
+	    gameView->Player[i] = new_player();
+	}
 	return gameView;
 }
 
@@ -130,6 +134,7 @@ Player GvGetPlayer(GameView gv) {
 int GvGetScore(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+
 	return 0;
 }
 
