@@ -22,6 +22,8 @@
 #include <string.h>
 
 #define NO_PLAYER 10;
+#define MAX_ROUND_STRING 40;
+
 typedef int Score;
 typedef int CurrentPlayer;
 typedef int Health;
@@ -76,13 +78,17 @@ void GvFree(GameView gv)
 Round GvGetRound(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    
-	return 0;
+    int size_Game_State = strlen(gv->Game_State);
+	int Round_number = (size_Game_State)/MAX_ROUND_STRING;
+    gv->curr_round = Round_number;
+
+	return gv->curr_round;
 }
 
 Player GvGetPlayer(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+    
 	return PLAYER_LORD_GODALMING;
 }
 
