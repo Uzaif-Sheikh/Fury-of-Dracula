@@ -24,15 +24,16 @@
 #define NO_PLAYER 10;
 #define MAX_ROUND_STRING 40;
 #define HEALTH_UNKNOWN 100;
-#define PLAY 7;
 
 typedef int Score;
 typedef int Health;
 
 struct game_Player {	
-	Player player;
 	Health health;
 	PlaceId Location;
+	int Trap_Encounter;
+	int Player_Ecounter;
+	int Vampire_Ecounter;
 } ; 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
@@ -57,7 +58,7 @@ static Game_Player new_player () {
 		fprintf(stderr, "Couldn't allocate Player!\n");
 		exit(EXIT_FAILURE);
 	}
-	play->player = NO_PLAYER;
+	
 	play->health = HEALTH_UNKNOWN;
 	play->Location = UNKNOWN_PLACE;
 	return play;
@@ -101,10 +102,10 @@ Round GvGetRound(GameView gv) {
 Player GvGetPlayer(GameView gv) {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     
-	int index = strlen(gv->Game_State) - PLAY;
+	int index = strlen(gv->Game_State) - 7;
 
 	char pre_player = gv->Game_State[index];
-	int curr_player = NO_PLAYER;
+	int curr_player = -1;
 
 	switch(pre_player){
 		case 'D':
@@ -127,36 +128,16 @@ Player GvGetPlayer(GameView gv) {
 			break;
 	}
 
+	
+
 	return curr_player;
 }
 
 int GvGetScore(GameView gv)
 {
-	int i = 0;
-	while (gv->Game_State[i]) {
-		char gameScore = gv->Game_State[i];
-		switch (gameScore) {
-		case 'D':
-			gv->curr_score = GAME_START_SCORE - 
-			break;
-		case 'G':
-			gv->curr_score = GAME_START_SCORE - 
-			break;
-		case 'S':
-			gv->curr_score = GAME_START_SCORE - 
-			break;
-		case 'H':
-			gv->curr_score = GAME_START_SCORE - 
-			break;
-		case 'M':
-			gv->curr_score = GAME_START_SCORE - 
-			break;
-		default:
-			gv->curr_score = GAME_START_SCORE;
-			break;
-		}
-		i++;
-	}
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+
+	return 0;
 }
 
 int GvGetHealth(GameView gv, Player player)
