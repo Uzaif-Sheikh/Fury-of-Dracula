@@ -19,12 +19,31 @@
 #include "Map.h"
 #include "Places.h"
 // add your own #includes here
+#include <string.h>
 
+#define NO_PLAYER 10;
+typedef int Score;
+typedef int CurrentPlayer;
+typedef int Health;
+
+typedef struct game_Player {
+	
+	CurrentPlayer player;
+	Health health;
+
+} Game_Player; 
 // TODO: ADD YOUR OWN STRUCTS HERE
+
+
 
 struct gameView {
 	// TODO: ADD FIELDS HERE
+	Round curr_round;
+	Game_Player curr_Player;
+    Score curr_score;
+	char* Game_State;
 };
+
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
@@ -32,13 +51,17 @@ struct gameView {
 GameView GvNew(char *pastPlays, Message messages[])
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	GameView new = malloc(sizeof(*new));
-	if (new == NULL) {
+	GameView gameView = malloc(sizeof(*gameView));
+	
+	if (gameView == NULL) {
 		fprintf(stderr, "Couldn't allocate GameView!\n");
 		exit(EXIT_FAILURE);
 	}
-
-	return new;
+	
+	strcpy(gameView->Game_State, pastPlays);
+    gameView->curr_score = GAME_START_SCORE;
+	gameView->curr_Player.player = NO_PLAYER;
+	return gameView;
 }
 
 void GvFree(GameView gv)
@@ -53,6 +76,7 @@ void GvFree(GameView gv)
 Round GvGetRound(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+
 	return 0;
 }
 
