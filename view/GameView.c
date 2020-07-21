@@ -19,12 +19,33 @@
 #include "Map.h"
 #include "Places.h"
 // add your own #includes here
+#include <string.h>
 
+#define NO_PLAYER 10;
+#define MAX_ROUND_STRING 40;
+
+typedef int Score;
+typedef int CurrentPlayer;
+typedef int Health;
+
+typedef struct game_Player {
+	
+	CurrentPlayer player;
+	Health health;
+
+} Game_Player; 
 // TODO: ADD YOUR OWN STRUCTS HERE
+
+
 
 struct gameView {
 	// TODO: ADD FIELDS HERE
+	Round curr_round;
+	Game_Player curr_Player;
+    	Score curr_score;
+	char* Game_State;
 };
+
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
@@ -32,13 +53,17 @@ struct gameView {
 GameView GvNew(char *pastPlays, Message messages[])
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	GameView new = malloc(sizeof(*new));
-	if (new == NULL) {
+	GameView gameView = malloc(sizeof(*gameView));
+	
+	if (gameView == NULL) {
 		fprintf(stderr, "Couldn't allocate GameView!\n");
 		exit(EXIT_FAILURE);
 	}
-
-	return new;
+	
+	strcpy(gameView->Game_State, pastPlays);
+    	gameView->curr_score = GAME_START_SCORE;
+	gameView->curr_Player.player = NO_PLAYER;
+	return gameView;
 }
 
 void GvFree(GameView gv)
@@ -53,13 +78,46 @@ void GvFree(GameView gv)
 Round GvGetRound(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+    	int size_Game_State = strlen(gv->Game_State);
+	int Round_number = (size_Game_State)/MAX_ROUND_STRING;
+    	gv->curr_round = Round_number;
+
+	return gv->curr_round;
 }
 
 Player GvGetPlayer(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return PLAYER_LORD_GODALMING;
+    
+	int index = strlen(gv->Game_State) - 7;
+
+	char pre_player = gv->Game_State[index];
+	int curr_player = -1;
+
+	switch(pre_player){
+		case 'D':
+			curr_player = PLAYER_LORD_GODALMING;
+			break;
+		case 'G':
+			curr_player = PLAYER_DR_SEWARD;
+			break;
+		case 'S':
+			curr_player = PLAYER_VAN_HELSING;
+			break;
+		case 'H':
+			curr_player = PLAYER_MINA_HARKER;
+			break;
+		case 'M':
+			curr_player = PLAYER_DRACULA;
+			break;
+		default:
+			curr_player = NO_PLAYER;
+			break;
+	}
+
+	gv->curr_Player.player = curr_player;
+
+	return gv->curr_Player.player;
 }
 
 int GvGetScore(GameView gv)
