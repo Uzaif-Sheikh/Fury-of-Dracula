@@ -28,15 +28,14 @@ typedef int Score;
 typedef int CurrentPlayer;
 typedef int Health;
 
-typedef struct game_Player {
-	
+struct game_Player {	
 	CurrentPlayer player;
 	Health health;
-
-} Game_Player; 
+	PlaceId Location;
+} ; 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
-
+typedef struct game_Player *Game_Player;
 
 struct gameView {
 	// TODO: ADD FIELDS HERE
@@ -50,10 +49,21 @@ struct gameView {
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
-GameView GvNew(char *pastPlays, Message messages[])
-{
+static Game_Player new_player () {
+	Game_Player play = malloc(sizeof(struct game_Player));
+	if (play == NULL) {
+		fprintf(stderr, "Couldn't allocate Player!\n");
+		exit(EXIT_FAILURE);
+	}
+	play->player = NO_PLAYER;
+	play->health = GAME_START_HUNTER_LIFE_POINTS;
+	play->Location = UNKNOWN_PLACE;
+	return play;
+}
+
+GameView GvNew(char *pastPlays, Message messages[]) {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	GameView gameView = malloc(sizeof(*gameView));
+	GameView gameView = malloc(sizeof(gameView));
 	
 	if (gameView == NULL) {
 		fprintf(stderr, "Couldn't allocate GameView!\n");
@@ -62,12 +72,11 @@ GameView GvNew(char *pastPlays, Message messages[])
 	
 	strcpy(gameView->Game_State, pastPlays);
     	gameView->curr_score = GAME_START_SCORE;
-	gameView->curr_Player.player = NO_PLAYER;
+	gameView->curr_Player = new_player();
 	return gameView;
 }
 
-void GvFree(GameView gv)
-{
+void GvFree(GameView gv) {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	free(gv);
 }
@@ -75,8 +84,7 @@ void GvFree(GameView gv)
 ////////////////////////////////////////////////////////////////////////
 // Game State Information
 
-Round GvGetRound(GameView gv)
-{
+Round GvGetRound(GameView gv) {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     	int size_Game_State = strlen(gv->Game_State);
 	int Round_number = (size_Game_State)/MAX_ROUND_STRING;
@@ -85,8 +93,7 @@ Round GvGetRound(GameView gv)
 	return gv->curr_round;
 }
 
-Player GvGetPlayer(GameView gv)
-{
+Player GvGetPlayer(GameView gv) {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     
 	int index = strlen(gv->Game_State) - 7;
@@ -115,9 +122,9 @@ Player GvGetPlayer(GameView gv)
 			break;
 	}
 
-	gv->curr_Player.player = curr_player;
+	gv->curr_Player->player = curr_player;
 
-	return gv->curr_Player.player;
+	return gv->curr_Player->player;
 }
 
 int GvGetScore(GameView gv)
