@@ -42,7 +42,7 @@ struct gameView {
 	// TODO: ADD FIELDS HERE
 	Round curr_round;
 	Game_Player curr_Player;
-    Score curr_score;
+    	Score curr_score;
 	char* Game_State;
 };
 
@@ -61,7 +61,7 @@ GameView GvNew(char *pastPlays, Message messages[])
 	}
 	
 	strcpy(gameView->Game_State, pastPlays);
-    gameView->curr_score = GAME_START_SCORE;
+    	gameView->curr_score = GAME_START_SCORE;
 	gameView->curr_Player.player = NO_PLAYER;
 	return gameView;
 }
@@ -78,9 +78,9 @@ void GvFree(GameView gv)
 Round GvGetRound(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    int size_Game_State = strlen(gv->Game_State);
+    	int size_Game_State = strlen(gv->Game_State);
 	int Round_number = (size_Game_State)/MAX_ROUND_STRING;
-    gv->curr_round = Round_number;
+    	gv->curr_round = Round_number;
 
 	return gv->curr_round;
 }
@@ -89,7 +89,35 @@ Player GvGetPlayer(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     
-	return PLAYER_LORD_GODALMING;
+	int index = strlen(gv->Game_State) - 7;
+
+	char pre_player = gv->Game_State[index];
+	int curr_player = -1;
+
+	switch(pre_player){
+		case 'D':
+			curr_player = PLAYER_LORD_GODALMING;
+			break;
+		case 'G':
+			curr_player = PLAYER_DR_SEWARD;
+			break;
+		case 'S':
+			curr_player = PLAYER_VAN_HELSING;
+			break;
+		case 'H':
+			curr_player = PLAYER_MINA_HARKER;
+			break;
+		case 'M':
+			curr_player = PLAYER_DRACULA;
+			break;
+		default:
+			curr_player = NO_PLAYER;
+			break;
+	}
+
+	gv->curr_Player.player = curr_player;
+
+	return gv->curr_Player.player;
 }
 
 int GvGetScore(GameView gv)
