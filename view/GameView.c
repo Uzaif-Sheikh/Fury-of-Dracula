@@ -32,7 +32,6 @@ typedef int Trap_Encounter;
 typedef int Player_Encounter;
 typedef int Vampire_Encounter;
 typedef int Rest;
-typedef char Trail;
 
 struct game_Player {	
 	Health health;
@@ -41,7 +40,7 @@ struct game_Player {
 	Player_Encounter Player_Ecounter;
 	Vampire_Encounter Vampire_Ecounter;
 	Rest Rest;
-	Trail Trail[6];
+	PlaceId Trail[6];
 } ; 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
