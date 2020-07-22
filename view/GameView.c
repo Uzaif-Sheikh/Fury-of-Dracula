@@ -266,7 +266,7 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
 	for(int next_loc = last_loc; next_loc >= 0 ; 
 	next_loc = next_loc - MAX_ROUND_STRING) {
 
-		strncpy(location, gv->Game_State[j + 1], 2);
+		strncpy(location, gv->Game_State[next_loc + 1], 2);
 		Loc_History[countLocs] = placeAbbrevToId(location);
 		countLocs++;
 	}
