@@ -26,7 +26,6 @@
 #define HEALTH_UNKNOWN 100;
 #define MAX_PLAY_LENGTH 8;
 #define PLAYER_MOVES_ACTIONS 7;
-#define MAX_TRAIL 6;
 
 typedef int Score;
 typedef int Health;
@@ -39,10 +38,11 @@ struct game_Player {
 	Health health;
 	PlaceId Location;
 	Trap_Encounter Trap_Encounter;
-	Player_Encounter Player_Ecounter;
-	Vampire_Encounter Vampire_Ecounter;
+	Player_Encounter Player_Encounter;
+	Vampire_Encounter Vampire_Encounter;
 	Rest Rest;
-	PlaceId Trail[MAX_TRAIL];
+	PlaceId Trail[TRAIL_SIZE];
+	PlaceId *Player_Locations;
 } ; 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
@@ -146,6 +146,9 @@ Player GvGetPlayer(GameView gv) {
 int GvGetScore(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	int GetGameSCore = GAME_START_SCORE;
+	GetGameSCore -= (gv->curr_round)*(SCORE_LOSS_DRACULA_TURN);
+	
 
 	return 0;
 }
@@ -153,7 +156,37 @@ int GvGetScore(GameView gv)
 int GvGetHealth(GameView gv, Player player)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+	int GetHealthPlayer = HEALTH_UNKNOWN;
+
+	if (player == PLAYER_DRACULA) {
+		
+		GetHealthPlayer = GAME_START_BLOOD_POINTS;
+		
+		GetHealthPlayer -= (gv->Player[PLAYER_DRACULA]->
+		Player_Encounter)*(LIFE_LOSS_HUNTER_ENCOUNTER);
+		
+		if (gv->Player[PLAYER_DRACULA]->Trail[TRAIL_SIZE-1] == SEA) {
+			GetHealthPlayer -= LIFE_LOSS_SEA;
+		}
+		
+		if (gv->Player[PLAYER_DRACULA]->Trail[TRAIL_SIZE-1] 
+		== CASTLE_DRACULA) {
+			GetHealthPlayer += LIFE_GAIN_CASTLE_DRACULA;	
+		}
+	}
+
+	else {
+		GetHealthPlayer = GAME_START_HUNTER_LIFE_POINTS;
+		
+		GetHealthPlayer -= (gv->Player[player]->
+		Trap_Encounter)*(LIFE_LOSS_TRAP_ENCOUNTER);
+		
+		GetHealthPlayer -= (gv->Player[player]->
+		Player_Encounter)*(LIFE_LOSS_DRACULA_ENCOUNTER);
+
+	}
+	
+	return GetHealthPlayer;
 }
 
 PlaceId GvGetPlayerLocation(GameView gv, Player player)
@@ -239,8 +272,8 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 
 // TODO
 
-void PastPlayAnalysis(GameView gv)
-{
+void PastPlayAnalysis(GameView gv) {
+	
 	char *play = malloc(MAX_PLAY_LENGTH);
 	
 	play = strtok(gv->Game_State, " ");
@@ -249,45 +282,47 @@ void PastPlayAnalysis(GameView gv)
 
 	while (play != '\0') {
 		// Adjust Dracula's Trail
+		PlayerLocationsAdd (gv, character, play);
 		if (character == PLAYER_DRACULA) { 
 			adjDraculasTrail(gv, play, dracTrailNum);
 		}
         	Encounters(gv, play, character);
-		PlayerHealthUpdate (gv, character, play);
-		
+
+		if (character != PLAYER_DRACULA) {
+			RestCheck (gv, character, play);
+		}
 
 		play = strtok(NULL, " ");
 	}
 }
 
-void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum) {
-
+void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum) 
+{
 	char *location = strncpy(location, playString[1], 2);
 	for(int i = 0; playString[i] != '\0'; i++) {
 		gv->Player[PLAYER_DRACULA]->Trail[trailNum] = placeAbbrevToId(location);
 		trailNum++;
 
-		if (trailNum == MAX_TRAIL) {
+		if (trailNum == TRAIL_SIZE) {
 			trailNum = 0;
 		}
 
 	}
 }
 
-void Encounters (GameView gv, char *playString, Player Character) {
-     	
-	char *Encounter_Check = strncpy(Encounter_Check, playString[3], 4);
+void Encounters (GameView gv, char *playString, Player Character) 
+{
+     	char *Encounter_Check = strncpy(Encounter_Check, playString[3], 4);
 	
 	for (int i = 0; Encounter_Check[i] != '\0'; i++) {
 		
 		switch (Encounter_Check[i]) {
-			
 			case 'V':
-				gv->Player[Character]->Vampire_Ecounter++;
+				gv->Player[Character]->Vampire_Encounter++;
 				break;
 			
 			case 'D':
-				gv->Player[Character]->Player_Ecounter++;
+				gv->Player[Character]->Player_Encounter++;
 				break;
 			
 			case 'T':
@@ -305,23 +340,24 @@ void Encounters (GameView gv, char *playString, Player Character) {
 Player DeterminePlayer (GameView gv, char PlayerAbbrev) {
 	
     Player curr_Player_turn;
+	
 	switch (PlayerAbbrev) {
 		
 		case 'D':
 	        	curr_Player_turn = PLAYER_DRACULA;
-				break;
+			break;
 		case 'G':
-				curr_Player_turn = PLAYER_LORD_GODALMING;
-				break;
+			curr_Player_turn = PLAYER_LORD_GODALMING;
+			break;
 		case 'S':
-				curr_Player_turn = PLAYER_DR_SEWARD;
-				break;
+			curr_Player_turn = PLAYER_DR_SEWARD;
+			break;
 		case 'H':
-				curr_Player_turn = PLAYER_VAN_HELSING;
-				break;
+			curr_Player_turn = PLAYER_VAN_HELSING;
+			break;
 		case 'M':
-				curr_Player_turn = PLAYER_MINA_HARKER;
-				break;
+			curr_Player_turn = PLAYER_MINA_HARKER;
+			break;
 		default:
 			curr_Player_turn = NO_PLAYER;
 			break;
@@ -331,6 +367,12 @@ Player DeterminePlayer (GameView gv, char PlayerAbbrev) {
 			    
 }
 
-void PlayerHealthUpdate (gv, character, play) {
+void RestCheck (gv, character, play) {
+
+
+
+}
+
+void PlayerLocationsAdd (gv, character, play) {
 
 }
