@@ -42,7 +42,6 @@ struct game_Player {
 	Vampire_Encounter Vampire_Encounter;
 	Rest Rest;
 	PlaceId Trail[TRAIL_SIZE];
-	// PlaceId *Player_Locations;
 } ; 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
