@@ -148,9 +148,27 @@ int GvGetScore(GameView gv)
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	int GetGameSCore = GAME_START_SCORE;
 	GetGameSCore -= (gv->curr_round)*(SCORE_LOSS_DRACULA_TURN);
-	
 
-	return 0;
+	int health_zero = 0;
+
+	for(int i = 0;i < 4;i++){
+		if(GvGetHealth(gv,i) == 0) health_zero++;
+	}
+	
+	GetGameSCore -= (health_zero)*(SCORE_LOSS_HUNTER_HOSPITAL);
+
+	int num_of_vampire = (GvGetRound(gv)%13) + 1;
+
+	int vampire_left = -1;
+
+	for(int j = 0;j < 4;j++){
+		vampire_left = num_of_vampire - gv->Player[j]->Vampire_Encounter;
+	}
+	if(vampire_left < 0) vampire_left = 0;
+
+	GetGameSCore -= (vampire_left)*(SCORE_LOSS_VAMPIRE_MATURES);
+
+	return GetGameSCore;
 }
 
 int GvGetHealth(GameView gv, Player player)
@@ -374,5 +392,6 @@ void RestCheck (gv, character, play) {
 }
 
 void PlayerLocationsAdd (gv, character, play) {
+	char *location = strncpy(location, play[1], 2);
 
 }
