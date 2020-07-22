@@ -27,13 +27,20 @@
 
 typedef int Score;
 typedef int Health;
+typedef int Trap_Encounter;
+typedef int Player_Encounter;
+typedef int Vampire_Encounter;
+typedef int Rest;
+typedef char Trail;
 
 struct game_Player {	
 	Health health;
 	PlaceId Location;
-	int Trap_Encounter;
-	int Player_Ecounter;
-	int Vampire_Ecounter;
+	Trap_Encounter Trap_Encounter;
+	Player_Encounter Player_Ecounter;
+	Vampire_Encounter Vampire_Ecounter;
+	Rest Rest;
+	Trail Trail[6];
 } ; 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
