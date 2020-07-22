@@ -25,6 +25,8 @@
 #define MAX_ROUND_STRING 40;
 #define HEALTH_UNKNOWN 100;
 #define MAX_PLAY_LENGTH 8;
+#define PLAYER_MOVES_ACTIONS 7;
+#define MAX_TRAIL 6;
 
 typedef int Score;
 typedef int Health;
@@ -40,7 +42,7 @@ struct game_Player {
 	Player_Encounter Player_Ecounter;
 	Vampire_Encounter Vampire_Ecounter;
 	Rest Rest;
-	PlaceId Trail[6];
+	PlaceId Trail[MAX_TRAIL];
 } ; 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
@@ -109,12 +111,13 @@ Round GvGetRound(GameView gv) {
 Player GvGetPlayer(GameView gv) {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     
-	int index = strlen(gv->Game_State) - 7;
+	int index = strlen(gv->Game_State) - PLAYER_MOVES_ACTIONS;
 
 	char pre_player = gv->Game_State[index];
-	int curr_player = -1;
+	int curr_player = NO_PLAYER;
 
 	switch(pre_player){
+		
 		case 'D':
 			curr_player = PLAYER_LORD_GODALMING;
 			break;
@@ -238,19 +241,19 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 
 void PastPlayAnalysis(GameView gv)
 {
-	char *play = malloc(sizeof(MAX_PLAY_LENGTH));
+	char *play = malloc(MAX_PLAY_LENGTH);
+	
 	play = strtok(gv->Game_State, " ");
 	PlaceId dracTrailNum = 0;
-    Player character = DeterminePlayer (gv, play[0]);
+    	Player character = DeterminePlayer (gv, play[0]);
 
 	while (play != '\0') {
 		// Adjust Dracula's Trail
 		if (character == PLAYER_DRACULA) { 
 			adjDraculasTrail(gv, play, dracTrailNum);
 		}
-        Encounters(gv, play, character);
-
-        PlayerHealthUpdate (gv, character, play);
+        	Encounters(gv, play, character);
+		PlayerHealthUpdate (gv, character, play);
 		
 
 		play = strtok(NULL, " ");
@@ -264,7 +267,7 @@ void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum) {
 		gv->Player[PLAYER_DRACULA]->Trail[trailNum] = placeAbbrevToId(location);
 		trailNum++;
 
-		if (trailNum == 6) {
+		if (trailNum == MAX_TRAIL) {
 			trailNum = 0;
 		}
 
