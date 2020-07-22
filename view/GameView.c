@@ -24,6 +24,7 @@
 #define NO_PLAYER 10;
 #define MAX_ROUND_STRING 40;
 #define HEALTH_UNKNOWN 100;
+#define MAX_PLAY_LENGTH 8;
 
 typedef int Score;
 typedef int Health;
@@ -235,3 +236,14 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 // Your own interface functions
 
 // TODO
+
+void PastPlayAnalysis(GameView gv)
+{
+	char *play = malloc(sizeof(MAX_PLAY_LENGTH));
+	play = strtok(gv->Game_State, " ");
+
+	for(int i = 0; i != '\0'; i++) {
+
+	}
+
+}
