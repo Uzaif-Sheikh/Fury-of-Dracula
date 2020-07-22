@@ -157,14 +157,14 @@ int GvGetScore(GameView gv)
 	
 	GetGameSCore -= (health_zero)*(SCORE_LOSS_HUNTER_HOSPITAL);
 
-	int num_of_vampire = (GvGetRound(gv)%13) + 1;
+	int num_of_vampire = (GvGetRound(gv)/13) + 1;
 
 	int vampire_left = -1;
-
+	int total_vampire_encounter = 0;
 	for(int j = 0;j < 4;j++){
-		vampire_left = num_of_vampire - gv->Player[j]->Vampire_Encounter;
+		total_vampire_encounter += gv->Player[j]->Vampire_Encounter;
 	}
-	if(vampire_left < 0) vampire_left = 0;
+	vampire_left = num_of_vampire - total_vampire_encounter;
 
 	GetGameSCore -= (vampire_left)*(SCORE_LOSS_VAMPIRE_MATURES);
 
