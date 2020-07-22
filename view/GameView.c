@@ -209,7 +209,65 @@ int GvGetHealth(GameView gv, Player player)
 PlaceId GvGetPlayerLocation(GameView gv, Player player)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return NOWHERE;
+	char character = DeterminePlayerAb(player);
+	char last_turn = FindLastTurn(gv, character);
+        char location[2];
+	int PlayerLocation;
+	
+	if (gv->curr_round == 0 && last_turn == NULL) {
+		return NOWHERE;
+	}
+	
+	else if (player != PLAYER_DRACULA) {
+		
+		if (GvGetHealth(gv,player) == 0) {
+			PlayerLocation = ST_JOSEPH_AND_ST_MARY;
+		}
+		
+		int i;
+		for(i = strlen(gv->Game_State); i >= 0; i--) {
+			if (gv->Game_State[i] == character) {
+				break;
+			}
+		}
+		strncpy(location, gv->Game_State[i + 1], 2);
+		PlayerLocation = placeAbbrevToId(location);
+	}
+
+	
+
+	else {
+		int i;
+		for(i = strlen(gv->Game_State); i >= 0; i--) {
+			if (gv->Game_State[i] == character) {
+				break;
+			}
+		}
+		
+		strncpy(location, gv->Game_State[i + 1], 2);
+		
+		if (strcmp(location,"C?") == 0){
+			PlayerLocation = CITY_UNKNOWN;
+
+		}
+		
+		else if (strcmp(location,"S?") == 0){
+			PlayerLocation = SEA_UNKNOWN;
+		}
+
+		else if (strcmp(location,"HI") == 0){
+			PlayerLocation = SEA_UNKNOWN;
+		}
+
+		
+		PlayerLocation = placeAbbrevToId(location);
+
+
+
+
+	}
+
+	return PlayerLocation;
 }
 
 PlaceId GvGetVampireLocation(GameView gv)
@@ -469,4 +527,14 @@ Player DeterminePlayerAb (Player player) {
 
 	return curr_Player_turn;
 			    
+}
+
+char FindLastTurn(GameView gv, char character) {
+	
+	for(int i = strlen(gv->Game_State); i >= 0; i--) {
+		if (gv->Game_State[i] == character) {
+			return gv->Game_State[i];
+		}
+	}
+	return NULL;
 }
