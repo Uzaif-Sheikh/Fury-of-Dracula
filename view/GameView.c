@@ -42,7 +42,7 @@ struct game_Player {
 	Vampire_Encounter Vampire_Encounter;
 	Rest Rest;
 	PlaceId Trail[TRAIL_SIZE];
-	PlaceId *Player_Locations;
+	// PlaceId *Player_Locations;
 } ; 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
@@ -242,9 +242,31 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
                             int *numReturnedLocs, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
-	*canFree = false;
-	return 0;
+	PlaceId *lastNumLoc = calloc(gv->curr_round,sizeof(*lastNumLoc));
+	char location[2];
+	char character = DeterminePlayerAb(player);
+
+	int i;
+	for(i = strlen(gv->Game_State); i >= 0; i--) {
+		if (gv->Game_State[i] == character) {
+			break;
+		}
+	}
+	
+	int countLocs = 0;
+	for(int j = i; j >= 0 ; j = j - MAX_ROUND_STRING) {
+		if(countLocs == numLocs) {
+			break;
+		}
+
+		strncpy(location, gv->Game_State[j + 1], 2);
+		lastNumLoc[countLocs] = placeAbbrevToId(location);
+		countLocs++;
+	}
+	
+	*numReturnedLocs = countLocs;
+	*canFree = true;
+	return lastNumLoc;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -274,15 +296,15 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 
 void PastPlayAnalysis(GameView gv) {
 	
-	char *play = malloc(MAX_PLAY_LENGTH);
+	char *play = malloc(8);
 	
 	play = strtok(gv->Game_State, " ");
 	PlaceId dracTrailNum = 0;
-    	Player character = DeterminePlayer (gv, play[0]);
+    	Player character = DeterminePlayer(gv, play[0]);
 
 	while (play != '\0') {
 		// Adjust Dracula's Trail
-		PlayerLocationsAdd (gv, character, play);
+		// PlayerLocationsAdd(gv, character, play);
 		if (character == PLAYER_DRACULA) { 
 			adjDraculasTrail(gv, play, dracTrailNum);
 		}
@@ -312,7 +334,8 @@ void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum)
 
 void Encounters (GameView gv, char *playString, Player Character) 
 {
-     	char *Encounter_Check = strncpy(Encounter_Check, playString[3], 4);
+     	char *Encounter_Check;
+	strncpy(Encounter_Check, playString[3], 4);
 	
 	for (int i = 0; Encounter_Check[i] != '\0'; i++) {
 		
@@ -367,12 +390,44 @@ Player DeterminePlayer (GameView gv, char PlayerAbbrev) {
 			    
 }
 
-void RestCheck (gv, character, play) {
-
-
+void RestCheck (gv, character, play) 
+{
 
 }
 
-void PlayerLocationsAdd (gv, character, play) {
+// void PlayerLocationsAdd (GameView gv, Player character, char *play) 
+// {
+// 	char *location = strncpy(location, play[1], 2);
+// 	laceAbbrevToId(location);
+// 	gv->Player[character]->Player_Locations[0]
 
+// }
+
+Player DeterminePlayerAb (Player player) {
+	
+    char curr_Player_turn;
+	
+	switch (player) {
+		
+		case PLAYER_DRACULA:
+	        	curr_Player_turn = 'D';
+			break;
+		case PLAYER_LORD_GODALMING:
+			curr_Player_turn = 'G';
+			break;
+		case PLAYER_DR_SEWARD:
+			curr_Player_turn = "S";
+			break;
+		case PLAYER_VAN_HELSING:
+			curr_Player_turn = 'H';
+			break;
+		case PLAYER_MINA_HARKER:
+			curr_Player_turn = 'M';
+			break;
+		default:
+			return;
+	}
+
+	return curr_Player_turn;
+			    
 }
