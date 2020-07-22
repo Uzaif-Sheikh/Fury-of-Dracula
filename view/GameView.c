@@ -242,7 +242,7 @@ void PastPlayAnalysis(GameView gv)
 	char *play = malloc(sizeof(MAX_PLAY_LENGTH));
 	play = strtok(gv->Game_State, " ");
 
-	for(int i = 0; i != '\0'; i++) {
+	for(int i = 0; play[i] != ' '; i++) {
 
 	}
 
