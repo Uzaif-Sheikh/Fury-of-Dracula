@@ -240,23 +240,30 @@ void PastPlayAnalysis(GameView gv)
 {
 	char *play = malloc(sizeof(MAX_PLAY_LENGTH));
 	play = strtok(gv->Game_State, " ");
+	PlaceId dracTrailNum = 0;
 
-	while (play !=)
+	while (play != '\0') {
 		// Adjust Dracula's Trail
-		PlaceId draculaTrail = 0;
-		char *location = strncpy(location, play[1], 2);
-		for(int i = 0; play[i] != '\0'; i++) {
-			if (play[0] == 'D') {
-				gv->Player[PLAYER_DRACULA]->Trail[draculaTrail] = placeAbbrevToId(location);
-				draculaTrail++;
+		adjDraculasTrail(gv, play, dracTrailNum);
 
-				if (draculaTrail == 6) {
-					draculaTrail = 0;
-				}
-			}
 
+		
+
+		play = strtok(NULL, " ");
+	}
+}
+
+void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum) {
+	char *location = strncpy(location, playString[1], 2);
+	for(int i = 0; playString[i] != '\0'; i++) {
+		if (playString[0] == 'D') {
+			gv->Player[PLAYER_DRACULA]->Trail[trailNum] = placeAbbrevToId(location);
+			trailNum++;
 		}
 
+		if (trailNum == 6) {
+			trailNum = 0;
+		}
 
-
+	}
 }
