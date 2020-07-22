@@ -241,12 +241,16 @@ void PastPlayAnalysis(GameView gv)
 	char *play = malloc(sizeof(MAX_PLAY_LENGTH));
 	play = strtok(gv->Game_State, " ");
 	PlaceId dracTrailNum = 0;
+    Player character = DeterminePlayer (gv, play[0]);
 
 	while (play != '\0') {
 		// Adjust Dracula's Trail
-		adjDraculasTrail(gv, play, dracTrailNum);
+		if (character == PLAYER_DRACULA) { 
+			adjDraculasTrail(gv, play, dracTrailNum);
+		}
+        Encounters(gv, play, character);
 
-
+        PlayerHealthUpdate (gv, character, play);
 		
 
 		play = strtok(NULL, " ");
@@ -254,16 +258,76 @@ void PastPlayAnalysis(GameView gv)
 }
 
 void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum) {
+
 	char *location = strncpy(location, playString[1], 2);
 	for(int i = 0; playString[i] != '\0'; i++) {
-		if (playString[0] == 'D') {
-			gv->Player[PLAYER_DRACULA]->Trail[trailNum] = placeAbbrevToId(location);
-			trailNum++;
-		}
+		gv->Player[PLAYER_DRACULA]->Trail[trailNum] = placeAbbrevToId(location);
+		trailNum++;
 
 		if (trailNum == 6) {
 			trailNum = 0;
 		}
 
 	}
+}
+
+void Encounters (GameView gv, char *playString, Player Character) {
+     	
+	char *Encounter_Check = strncpy(Encounter_Check, playString[3], 4);
+	
+	for (int i = 0; Encounter_Check[i] != '\0'; i++) {
+		
+		switch (Encounter_Check[i]) {
+			
+			case 'V':
+				gv->Player[Character]->Vampire_Ecounter++;
+				break;
+			
+			case 'D':
+				gv->Player[Character]->Player_Ecounter++;
+				break;
+			
+			case 'T':
+				gv->Player[Character]->Trap_Encounter++;
+			
+			default:
+				break;
+		}
+
+	}
+
+
+}
+
+Player DeterminePlayer (GameView gv, char PlayerAbbrev) {
+	
+    Player curr_Player_turn;
+	switch (PlayerAbbrev) {
+		
+		case 'D':
+	        	curr_Player_turn = PLAYER_DRACULA;
+				break;
+		case 'G':
+				curr_Player_turn = PLAYER_LORD_GODALMING;
+				break;
+		case 'S':
+				curr_Player_turn = PLAYER_DR_SEWARD;
+				break;
+		case 'H':
+				curr_Player_turn = PLAYER_VAN_HELSING;
+				break;
+		case 'M':
+				curr_Player_turn = PLAYER_MINA_HARKER;
+				break;
+		default:
+			curr_Player_turn = NO_PLAYER;
+			break;
+	}
+
+	return curr_Player_turn;
+			    
+}
+
+void PlayerHealthUpdate (gv, character, play) {
+
 }
