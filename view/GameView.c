@@ -241,6 +241,7 @@ PlaceId *GvGetLastMoves(GameView gv, Player player, int numMoves,
                         int *numReturnedMoves, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	
 	*numReturnedMoves = 0;
 	*canFree = false;
 	return NULL;
@@ -250,9 +251,30 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
                               int *numReturnedLocs, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
-	*canFree = false;
-	return NULL;
+	PlaceId *Loc_History = calloc(gv->curr_round,sizeof(*Loc_History));
+	char location[2];
+	char character = DeterminePlayerAb(player);
+
+	int last_loc;
+	for(last_loc = strlen(gv->Game_State); last_loc >= 0; last_loc--) {
+		if (gv->Game_State[last_loc] == character) {
+			break;
+		}
+	}
+	
+	int countLocs = 0;
+	for(int next_loc = last_loc; next_loc >= 0 ; 
+	next_loc = next_loc - MAX_ROUND_STRING) {
+
+		strncpy(location, gv->Game_State[j + 1], 2);
+		Loc_History[countLocs] = placeAbbrevToId(location);
+		countLocs++;
+	}
+	
+	*numReturnedLocs = countLocs;
+	*canFree = true;
+	return Loc_History;
+
 }
 
 PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
