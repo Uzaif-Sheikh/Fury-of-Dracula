@@ -519,8 +519,8 @@ char DeterminePlayerAbr(Player player)
 // 	return NULL;
 // }
 
-// Get the last turn of a player. The return is the position
-// NUMBER within the pastPlay string of the last appearance
+// Get the last turn of a  given player. The return is the position
+// within the pastPlay string of the last appearance
 // of the characters abbreviated name. If the player has not
 // played yet, NOT_PLAYED_YET is returned
 int LastPlay(GameView gv, char character) 
