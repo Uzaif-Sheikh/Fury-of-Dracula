@@ -529,10 +529,9 @@ int LastPlay(GameView gv, char character)
 	for(lastPlay = strlen(gv->Game_State - PLAYER_MOVES_ACTIONS); 
 			lastPlay >= 0; lastPlay -= PLAYER_MOVES_ACTIONS) {
 				
-		if (strcmp(gv->Game_State[lastPlay], character) == 0) break;
+		if (strcmp(gv->Game_State[lastPlay], character) == 0) 
+			return lastPlay;
 	}
-
-	return lastPlay;
 }
 
 // Given that a HIDE move is revealed, find the LOCATION
