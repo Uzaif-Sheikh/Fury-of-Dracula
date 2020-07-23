@@ -219,7 +219,7 @@ PlaceId GvGetPlayerLocation(GameView gv, Player player)
 	if (player != PLAYER_DRACULA) {
 		
 		if (GvGetHealth(gv,player) == 0) {
-			PlayerLocation = ST_JOSEPH_AND_ST_MARY;					// [2] & is PlaceId a number?
+			PlayerLocation = ST_JOSEPH_AND_ST_MARY;
 		} else { 
 			strncpy(location, gv->Game_State[lastTurn + 1], 2);
 			PlayerLocation = placeAbbrevToId(location);
@@ -480,7 +480,7 @@ Player DeterminePlayerId(GameView gv, char PlayerAbbrev)
 // }
 
 // Given playerId, find player abbreviation
-Player DeterminePlayerAbr(Player player) 					// [1] Should this be of type Player?
+char DeterminePlayerAbr(Player player)
 {	
     char curr_Player_turn;
 	
@@ -533,7 +533,7 @@ int LastPlay(GameView gv, char character)
 	return lastPlay;
 }
 
-// Given that a HIDE move is revealed, find the LOCATION								// How do we know if the hide move is revealed? Do we need?
+// Given that a HIDE move is revealed, find the LOCATION
 PlaceId RevealHideLocation(GameView gv, int lastTurn) {
 	
 	// TO DO:
