@@ -526,7 +526,9 @@ char DeterminePlayerAbr(Player player)
 int LastPlay(GameView gv, char character) 
 {
 	int lastPlay = NOT_PLAYED_YET;
-	for(lastPlay = strlen(gv->Game_State); lastPlay >= 0; lastPlay -= 7) {
+	for(lastPlay = strlen(gv->Game_State - PLAYER_MOVES_ACTIONS); 
+			lastPlay >= 0; lastPlay -= PLAYER_MOVES_ACTIONS) {
+				
 		if (strcmp(gv->Game_State[lastPlay], character) == 0) break;
 	}
 
