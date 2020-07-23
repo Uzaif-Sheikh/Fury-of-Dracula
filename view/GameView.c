@@ -526,7 +526,7 @@ Player DeterminePlayerAbr(Player player) 					// [1] Should this be of type Play
 int LastPlay(GameView gv, char character) 
 {
 	int lastPlay = NOT_PLAYED_YET;
-	for(lastPlay = strlen(gv->Game_State); lastPlay >= 0; lastPlay--) {
+	for(lastPlay = strlen(gv->Game_State); lastPlay >= 0; lastPlay -= 7) {
 		if (strcmp(gv->Game_State[lastPlay], character) == 0) break;
 	}
 
