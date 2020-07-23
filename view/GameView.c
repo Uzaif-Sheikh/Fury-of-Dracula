@@ -527,7 +527,7 @@ int LastPlay(GameView gv, char character)
 {
 	int lastPlay = NOT_PLAYED_YET;
 	for(lastPlay = strlen(gv->Game_State - PLAYER_MOVES_ACTIONS); 
-			lastPlay >= 0; lastPlay -= PLAYER_MOVES_ACTIONS) {
+			lastPlay >= 0; lastPlay -= (PLAYER_MOVES_ACTIONS + 1)) {
 				
 		if (strcmp(gv->Game_State[lastPlay], character) == 0) 
 			return lastPlay;
