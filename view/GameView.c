@@ -388,12 +388,13 @@ void PastPlayAnalysis(GameView gv)
         	Encounters(gv, play, character);
 
 		strcpy(play_before, play);
-		char *prev_loc;
 		
+		char *prev_loc;
 		strncpy(prev_loc, play_before[1], 2); 
-		char *curr_loc;
-
+		
 		play = strtok(NULL, " ");
+		
+		char *curr_loc;
 		strncpy(curr_loc, play_before[1], 2);
 
 		if (character != PLAYER_DRACULA) {
