@@ -148,8 +148,8 @@ int GvGetScore(GameView gv)
 
 	int health_zero = 0;
 
-	for(int i = 0;i < 4;i++){
-		if(GvGetHealth(gv,i) == 0) health_zero++;
+	for (int i = 0; i < 4; i++) {
+		if (GvGetHealth(gv,i) == 0) health_zero++;
 	}
 	
 	GetGameSCore -= (health_zero)*(SCORE_LOSS_HUNTER_HOSPITAL);
@@ -158,9 +158,10 @@ int GvGetScore(GameView gv)
 
 	int vampire_left = -1;
 	int total_vampire_encounter = 0;
-	for(int j = 0;j < 4;j++){
+	for (int j = 0;j < 4;j++) {
 		total_vampire_encounter += gv->Player[j]->Vampire_Encounter;
 	}
+
 	vampire_left = num_of_vampire - total_vampire_encounter;
 
 	GetGameSCore -= (vampire_left)*(SCORE_LOSS_VAMPIRE_MATURES);
@@ -198,7 +199,8 @@ int GvGetHealth(GameView gv, Player player)
 		
 		GetHealthPlayer -= (gv->Player[player]->
 		Player_Encounter)*(LIFE_LOSS_DRACULA_ENCOUNTER);
-
+                
+		GetHealthPlayer += (LIFE_GAIN_REST)*(gv->Player[player]->Rest);
 	}
 	
 	return GetHealthPlayer;
@@ -253,6 +255,7 @@ PlaceId GvGetPlayerLocation(GameView gv, Player player)
 PlaceId GvGetVampireLocation(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+
 	return NOWHERE;
 }
 
@@ -370,6 +373,7 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 void PastPlayAnalysis(GameView gv) 
 {	
 	char *play = malloc(8);
+	char *play_before = malloc(8);
 	
 	play = strtok(gv->Game_State, " ");
 	PlaceId dracTrailNum = 0;
@@ -383,18 +387,27 @@ void PastPlayAnalysis(GameView gv)
 		}
         	Encounters(gv, play, character);
 
-		if (character != PLAYER_DRACULA) {
-			RestCheck (gv, character, play);
-		}
+		strcpy(play_before, play);
+		char *prev_loc;
+		
+		strncpy(prev_loc, play_before[1], 2); 
+		char *curr_loc;
 
 		play = strtok(NULL, " ");
+		strncpy(curr_loc, play_before[1], 2);
+
+		if (character != PLAYER_DRACULA) {
+			if (strcmp(prev_loc, curr_loc) == 0)
+				gv->Player[character]->Rest++;
+		}
 	}
 }
 
 // Update Draculas trail
 void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum) 
 {
-	char *location = strncpy(location, playString[1], 2);
+	char *location;
+	strncpy(location, playString[1], 2);
 	for(int i = 0; playString[i] != '\0'; i++) {
 		gv->Player[PLAYER_DRACULA]->Trail[trailNum] = placeAbbrevToId(location);
 		trailNum++;
@@ -461,11 +474,6 @@ Player DeterminePlayerId(GameView gv, char PlayerAbbrev)
 	return curr_Player_turn;		    
 }
 
-// void RestCheck (gv, character, play) 
-// {
-
-// }
-
 // void PlayerLocationsAdd (GameView gv, Player character, char *play) 
 // {
 // 	char *location = strncpy(location, play[1], 2);
@@ -521,8 +529,8 @@ char DeterminePlayerAbr(Player player)
 int LastPlay(GameView gv, char character) 
 {
 	int lastPlay = NOT_PLAYED_YET;
-	for(lastPlay = strlen(gv->Game_State - PLAYER_MOVES_ACTIONS); 
-			lastPlay >= 0; lastPlay -= (PLAYER_MOVES_ACTIONS + 1)) {
+	for (lastPlay = strlen(gv->Game_State - PLAYER_MOVES_ACTIONS); 
+	    lastPlay >= 0; lastPlay -= (PLAYER_MOVES_ACTIONS + 1)) {
 				
 		if (strcmp(gv->Game_State[lastPlay], character) == 0) 
 			return lastPlay;
@@ -569,16 +577,18 @@ PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn) {
 
 	PlaceId Loc;
 
-	if (gv->Game_State[PreviousTurn] == "HI") {
-		Loc = RevealHideLocation(gv, PreviousTurn);
-	}
-
-	else if ((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
+	if ((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
 	&& isdigit(gv->Game_State[PreviousTurn+1])) {
                 
 		int DB_move = gv->Game_State[PreviousTurn+1];
 		Loc = RevealDoubleBackLocation(gv, PreviousTurn - DB_move);
 	}
+
+	else if (gv->Game_State[PreviousTurn] == "HI") {
+		Loc = RevealHideLocation(gv, PreviousTurn);
+	}
+
+	
 
 	return Loc;
 }
