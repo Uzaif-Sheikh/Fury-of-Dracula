@@ -39,8 +39,11 @@ struct game_Player {
 	Health health;
 	PlaceId Location;
 	Trap_Encounter Trap_Encounter;
+	Trap_Encounter *Trap_Locations;
 	Player_Encounter Player_Encounter;
+	Player_Encounter *Player_Encounter;
 	Vampire_Encounter Vampire_Encounter;
+	Vampire_Encounter *Vampire_Locations;
 	Rest Rest;
 	PlaceId Trail[TRAIL_SIZE];
 } ; 
@@ -238,7 +241,7 @@ PlaceId GvGetPlayerLocation(GameView gv, Player player)
 		else if ((strcmp(location[0],"D") == 0) && isdigit(location[1]))	
 			PlayerLocation = RevealDoubleBackLocation(gv, lastTurn);
 		
-		else if (strcmp(location,"TP") == 0)
+		else if (strcmp(location,"CD") == 0 || strcmp(location,"TP") == 0)
 			PlayerLocation = CASTLE_DRACULA;
 		
 		else if (strcmp(location,"C?") == 0) 
@@ -373,7 +376,6 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 void PastPlayAnalysis(GameView gv) 
 {	
 	char *play = malloc(8);
-	char *play_before = malloc(8);
 	
 	play = strtok(gv->Game_State, " ");
 	PlaceId dracTrailNum = 0;
@@ -386,16 +388,16 @@ void PastPlayAnalysis(GameView gv)
 			adjDraculasTrail(gv, play, dracTrailNum);
 		}
         	Encounters(gv, play, character);
-
-		strcpy(play_before, play);
 		
 		char *prev_loc;
-		strncpy(prev_loc, play_before[1], 2); 
+		strncpy(prev_loc, play[1], 2); 
 		
 		play = strtok(NULL, " ");
 		
+		if (play == NULL) break;
+		
 		char *curr_loc;
-		strncpy(curr_loc, play_before[1], 2);
+		strncpy(curr_loc, play[1], 2);
 
 		if (character != PLAYER_DRACULA) {
 			if (strcmp(prev_loc, curr_loc) == 0)
@@ -423,12 +425,16 @@ void Encounters(GameView gv, char *playString, Player Character)
 {
      	char *Encounter_Check;
 	strncpy(Encounter_Check, playString[3], 4);
+	char *location;
+	strncpy(location,playString[1], 2);
+	PlaceId encounter_loc = placeAbbrevToId(location);
 	
 	for (int i = 0; Encounter_Check[i] != '\0'; i++) {
 		
 		switch (Encounter_Check[i]) {
 			case 'V':
 				gv->Player[Character]->Vampire_Encounter++;
+				
 				break;
 			
 			case 'D':
@@ -559,8 +565,7 @@ PlaceId RevealHideLocation(GameView gv, int lastTurn) {
 	&& isdigit(gv->Game_State[PreviousTurn+1])) {
 
 		Loc = RevealDoubleBackLocation(gv, PreviousTurn);
-
-
+		
 	}
 
 	return Loc; 
@@ -588,8 +593,6 @@ PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn) {
 	else if (gv->Game_State[PreviousTurn] == "HI") {
 		Loc = RevealHideLocation(gv, PreviousTurn);
 	}
-
-	
 
 	return Loc;
 }
