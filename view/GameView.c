@@ -395,7 +395,7 @@ void PastPlayAnalysis(GameView gv)
 		play = strtok(NULL, " ");
 		
 		if (play == NULL) break;
-		
+
 		char *curr_loc;
 		strncpy(curr_loc, play[1], 2);
 
@@ -425,16 +425,18 @@ void Encounters(GameView gv, char *playString, Player Character)
 {
      	char *Encounter_Check;
 	strncpy(Encounter_Check, playString[3], 4);
-	char *location;
+	
+	/*char *location;
 	strncpy(location,playString[1], 2);
-	PlaceId encounter_loc = placeAbbrevToId(location);
+	PlaceId encounter_loc = placeAbbrevToId(location);*/
 	
 	for (int i = 0; Encounter_Check[i] != '\0'; i++) {
 		
 		switch (Encounter_Check[i]) {
 			case 'V':
-				gv->Player[Character]->Vampire_Encounter++;
-				
+				if (i < 2) {
+					gv->Player[Character]->Vampire_Encounter++;
+				}
 				break;
 			
 			case 'D':
