@@ -222,9 +222,10 @@ PlaceId GvGetPlayerLocation(GameView gv, Player player)
 		if (GvGetHealth(gv,player) == 0) {
 			PlayerLocation = ST_JOSEPH_AND_ST_MARY;
 		} 
-		/*else { 
-
-	}*/
+		else {
+			PlayerLocation = gv->Game_State[lastTurn];
+		}
+	}
 	else {
 
 		strncpy(location, gv->Game_State[lastTurn + 1], 2);
