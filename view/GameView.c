@@ -205,7 +205,8 @@ int GvGetHealth(GameView gv, Player player)
 }
 
 PlaceId GvGetPlayerLocation(GameView gv, Player player)
-{
+{       
+
 	int PlayerLocation;
 	char character;
 	
@@ -220,38 +221,29 @@ PlaceId GvGetPlayerLocation(GameView gv, Player player)
 		
 		if (GvGetHealth(gv,player) == 0) {
 			PlayerLocation = ST_JOSEPH_AND_ST_MARY;
-		} else { 
-			strncpy(location, gv->Game_State[lastTurn + 1], 2);
-			PlayerLocation = placeAbbrevToId(location);
-		}
+		} 
+		/*else { 
 
-	} else {
+	}*/
+	else {
 
 		strncpy(location, gv->Game_State[lastTurn + 1], 2);
 		
 		if (strcmp(location,"HI") == 0)
 			PlayerLocation = RevealHideLocation(gv, lastTurn);
 
-		else if (strcmp(location[0],"D") == 0)	
+		else if ((strcmp(location[0],"D") == 0) && isdigit(location[1]))	
 			PlayerLocation = RevealDoubleBackLocation(gv, lastTurn);
 		
 		else if (strcmp(location,"TP") == 0)
 			PlayerLocation = CASTLE_DRACULA;
 		
-		// else if (strcmp(location,"C?") == 0) 
-		// 	PlayerLocation = CITY_UNKNOWN;
+		else if (strcmp(location,"C?") == 0) 
+			PlayerLocation = CITY_UNKNOWN;
 		
-		// else if (strcmp(location,"S?") == 0) 
-		// 	PlayerLocation = SEA_UNKNOWN;
-
-// Note that Dracula's location could be revealed even if
-// his  latest move was a HIDE or DOUBLE_BACK, if these moves refer to
-// a previous LOCATION move (see the spec for details). 
-
-// This  function should never return HIDE or DOUBLE_BACK - if Dracula's
-// latest move was a HIDE or DOUBLE_BACK, it should still be able to  be
-// resolved to a city or sea.
-		
+		else if (strcmp(location,"S?") == 0) 
+		 	PlayerLocation = SEA_UNKNOWN;
+	
 	}
 
 	return PlayerLocation;
@@ -333,7 +325,9 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
 	assert(lastLoc > 0);
 	
 	int countLocs = 0;
-	for(int prevLocs = lastLoc; prevLocs >= 0 ; prevLocs = prevLocs - MAX_ROUND_STRING) {
+	for(int prevLocs = lastLoc; prevLocs >= 0 ; 
+	prevLocs = prevLocs - MAX_ROUND_STRING) {
+		
 		if(countLocs == numLocs) break;
 
 		strncpy(location, gv->Game_State[prevLocs + 1], 2);
@@ -538,11 +532,52 @@ int LastPlay(GameView gv, char character)
 PlaceId RevealHideLocation(GameView gv, int lastTurn) {
 	
 	// TO DO:
-	return NULL;
+	int PreviousTurn = lastTurn - MAX_ROUND_STRING;
+	if (gv->Game_State[PreviousTurn] != "HI" ||  
+	!((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
+	&& isdigit(gv->Game_State[PreviousTurn+1])) ) {
+
+		return gv->Game_State[PreviousTurn];
+	}
+        
+	PlaceId Loc;
+	if (gv->Game_State[PreviousTurn] == "HI") {
+		Loc = RevealHideLocation(gv, PreviousTurn);
+	}
+
+	else if ((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
+	&& isdigit(gv->Game_State[PreviousTurn+1])) {
+
+		Loc = RevealDoubleBackLocation(gv, PreviousTurn);
+
+
+	}
+
+	return Loc; 
 }
 
 // Given that a DOUBLEBACK move is revealed, find the LOCATION								
-PlaceId RevealDoubleBackLocation(GameView gv, int LastTurn) {
+PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn) {
 	// TO DO:
-	return NULL;
+	if (gv->Game_State[PreviousTurn] != "HI" ||  
+	!((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
+	&& isdigit(gv->Game_State[PreviousTurn+1])) ) {
+
+		return gv->Game_State[PreviousTurn];
+	}
+
+	PlaceId Loc;
+
+	if (gv->Game_State[PreviousTurn] == "HI") {
+		Loc = RevealHideLocation(gv, PreviousTurn);
+	}
+
+	else if ((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
+	&& isdigit(gv->Game_State[PreviousTurn+1])) {
+                
+		int DB_move = gv->Game_State[PreviousTurn+1];
+		Loc = RevealDoubleBackLocation(gv, PreviousTurn - DB_move);
+	}
+
+	return Loc;
 }
