@@ -28,11 +28,14 @@ int LastPlay(GameView gv, char character);
 PlaceId RevealHideLocation(GameView gv, int lastTurn);
 PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn);
 void RestCheck (PlaceId Loc, GameView gv, Player character);
-void HunterEncounters(PlaceId Loc, GameView gv, Player character, char *play, int round);
 void AdjustHunterHealth(GameView gv, Player character);
 void DraculaLocation(PlaceId Loc, GameView gv, Player character); 
 void AdjustDraculaHealth(GameView gv, Player character);
-void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int *mature); 
+void HunterEncounters(PlaceId Loc, GameView gv, Player character,
+				char *play, int round);
+
+void DraculaTraps(PlaceId Loc, GameView gv, char *play,
+				int round, int *mature); 
 
 #define NO_PLAYER 		10
 #define MAX_ROUND_STRING 	39
@@ -151,8 +154,8 @@ void GvFree(GameView gv) {
 
 
 
-Round GvGetRound(GameView gv) {
-	
+Round GvGetRound(GameView gv) 
+{	
 	int size_Game_State = strlen(gv->Game_State);
 	int Round_number = (size_Game_State)/MAX_ROUND_STRING;
 	gv->curr_round = Round_number;
@@ -489,7 +492,8 @@ char DeterminePlayerAbr(Player player)
 int LastPlay(GameView gv, char character) 
 {	
 	int lastPlay = NOT_PLAYED_YET;
-	for (lastPlay = strlen(gv->Game_State) - PLAYER_MOVES_ACTIONS ;lastPlay >= 0; lastPlay -= (PLAYER_MOVES_ACTIONS + 1)) {
+	for (lastPlay = strlen(gv->Game_State) - PLAYER_MOVES_ACTIONS ;
+		lastPlay >= 0; lastPlay -= (PLAYER_MOVES_ACTIONS + 1)) {
 				
 		if (gv->Game_State[lastPlay] == character) 
 			return lastPlay;
@@ -501,7 +505,6 @@ int LastPlay(GameView gv, char character)
 // Given that a HIDE move is revealed, find the LOCATION
 PlaceId RevealHideLocation(GameView gv, int lastTurn) {
 	
-	// TO DO:
 	int PreviousTurn = lastTurn - MAX_ROUND_STRING;
 	char location[2];
 	
@@ -567,7 +570,8 @@ int GvGetScore(GameView gv)
 	for(int i = 0; i < 4;i++){
 		total_death += gv->Player[i]->death;
 	}
-	gv->curr_score -=  ((SCORE_LOSS_VAMPIRE_MATURES*gv->mature) + GvGetRound(gv) + (SCORE_LOSS_HUNTER_HOSPITAL*total_death));
+	gv->curr_score -=  ((SCORE_LOSS_VAMPIRE_MATURES*gv->mature) + GvGetRound(gv)
+				+ (SCORE_LOSS_HUNTER_HOSPITAL*total_death));
 	return gv->curr_score;
 }
 
@@ -620,7 +624,9 @@ void RestCheck(PlaceId Loc, GameView gv, Player character) {
 
 }
 
-void HunterEncounters(PlaceId Loc, GameView gv, Player character, char *play, int round) {
+void HunterEncounters(PlaceId Loc, GameView gv, Player character,
+				char *play, int round) 
+{
 	for (int i = 3;i < strlen(play); i++) {
 		if (play[i] == 'V') {
 			if (round != 6 && gv->Player[PLAYER_DRACULA]->Vampire_Encounter != 0) {
@@ -644,8 +650,12 @@ void AdjustHunterHealth(GameView gv, Player character)
 	int num_rest = gv->Player[character]->Rest;
 	int dracula_num_encount = gv->Player[PLAYER_DRACULA]->Player_Encounter;
 	
-	int HP =  GAME_START_HUNTER_LIFE_POINTS - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) - (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount) + (LIFE_GAIN_REST * num_rest);
-	gv->Player[PLAYER_DRACULA]->health = GAME_START_BLOOD_POINTS - (LIFE_LOSS_HUNTER_ENCOUNTER * dracula_num_encount) ;
+	int HP =  GAME_START_HUNTER_LIFE_POINTS - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
+							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount) 
+							+ (LIFE_GAIN_REST * num_rest);
+
+	gv->Player[PLAYER_DRACULA]->health = GAME_START_BLOOD_POINTS 
+						- (LIFE_LOSS_HUNTER_ENCOUNTER * dracula_num_encount);
 
 	if (HP > GAME_START_HUNTER_LIFE_POINTS) {
 		HP = GAME_START_HUNTER_LIFE_POINTS;
@@ -689,7 +699,9 @@ void AdjustDraculaHealth(GameView gv, Player character)
 	int num_rest = gv->Player[character]->Rest;
 	int HP_D;
 
-	HP_D = gv->Player[PLAYER_DRACULA]->health - (LIFE_LOSS_SEA * num_traps) + (LIFE_GAIN_CASTLE_DRACULA * num_rest);
+	HP_D = gv->Player[PLAYER_DRACULA]->health 
+			- (LIFE_LOSS_SEA * num_traps) 
+			+ (LIFE_GAIN_CASTLE_DRACULA * num_rest);
 
 	gv->Player[PLAYER_DRACULA]->health = HP_D;
 	//gv->Player[PLAYER_DRACULA]->Player_Encounter = 0;
@@ -706,7 +718,7 @@ void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int *mature)
 			gv->Player[PLAYER_DRACULA]->Vampire_Encounter++;
 			gv->Vampire_Location = Loc;
 
-			if (round == 7 && gv->Player[PLAYER_DRACULA]->Location == gv->Vampire_Location) {
+			if(round == 7 && gv->Player[PLAYER_DRACULA]->Location == gv->Vampire_Location) {
 				gv->Vampire_Location = NOWHERE;
 				*mature = *mature + 1;
 				gv->Player[PLAYER_DRACULA]->Vampire_Encounter = 0;
