@@ -551,20 +551,24 @@ PlaceId RevealHideLocation(GameView gv, int lastTurn) {
 	
 	// TO DO:
 	int PreviousTurn = lastTurn - MAX_ROUND_STRING;
-	if (gv->Game_State[PreviousTurn] != "HI" ||  
-	!((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
-	&& isdigit(gv->Game_State[PreviousTurn+1])) ) {
+	char location[2];
+	
+	strncpy(location, gv->Game_State[PreviousTurn+1], 2);
+	
+	if ((strcmp(location, "HI") != 0) ||  
+	!((strcmp(location[0],"D") == 0) 
+	&& isdigit(location[1])) ) {
 
-		return gv->Game_State[PreviousTurn];
+		return placeAbbrevToId(location);
 	}
         
 	PlaceId Loc;
-	if (gv->Game_State[PreviousTurn] == "HI") {
+	if (strcmp (location,"HI") == 0) {
 		Loc = RevealHideLocation(gv, PreviousTurn);
 	}
 
-	else if ((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
-	&& isdigit(gv->Game_State[PreviousTurn+1])) {
+	else if ((strcmp(location[0],"D") == 0) 
+	&& isdigit(location[1])) {
 
 		Loc = RevealDoubleBackLocation(gv, PreviousTurn);
 		
@@ -576,23 +580,27 @@ PlaceId RevealHideLocation(GameView gv, int lastTurn) {
 // Given that a DOUBLEBACK move is revealed, find the LOCATION								
 PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn) {
 	// TO DO:
-	if (gv->Game_State[PreviousTurn] != "HI" ||  
-	!((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
-	&& isdigit(gv->Game_State[PreviousTurn+1])) ) {
+	char location[2];
+	
+	strncpy(location, gv->Game_State[PreviousTurn+1], 2);
 
-		return gv->Game_State[PreviousTurn];
+	if ((strcmp(location, "HI") != 0) ||  
+	!((strcmp(location[0],"D") == 0) 
+	&& isdigit(location[1])) ) {
+
+		return placeAbbrevToId(location);
 	}
 
 	PlaceId Loc;
 
-	if ((strcmp(gv->Game_State[PreviousTurn],"D") == 0) 
-	&& isdigit(gv->Game_State[PreviousTurn+1])) {
+	if ((strcmp(location[0],"D") == 0) 
+	&& isdigit(location[1])) {
                 
 		int DB_move = gv->Game_State[PreviousTurn+1];
 		Loc = RevealDoubleBackLocation(gv, PreviousTurn - DB_move);
 	}
 
-	else if (gv->Game_State[PreviousTurn] == "HI") {
+	else if (strcmp (location,"HI") == 0) {
 		Loc = RevealHideLocation(gv, PreviousTurn);
 	}
 
