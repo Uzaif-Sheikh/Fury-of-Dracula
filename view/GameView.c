@@ -22,6 +22,7 @@
 #include <string.h>
 #include <ctype.h>
 
+
 void PastPlayAnalysis(GameView gv);
 void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum);
 void Encounters(GameView gv, char *playString, Player Character);
@@ -38,6 +39,7 @@ void RestCheck (PlaceId Loc, GameView gv, Player character);
 #define MAX_PLAY_LENGTH 	8
 #define PLAYER_MOVES_ACTIONS 	7
 #define NOT_PLAYED_YET 		-1024
+#define DOUBLE_BACK(loc) (loc == DOUBLE_BACK_1 || loc == DOUBLE_BACK_2 || loc == DOUBLE_BACK_3 || loc == DOUBLE_BACK_4 || loc == DOUBLE_BACK_5 )
 
 typedef int Score;
 typedef int Health;
@@ -275,9 +277,76 @@ PlaceId GvGetVampireLocation(GameView gv)
 
 PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numTraps = 0;
-	return NULL;
+	char *copy_string = strdup(gv->Game_State);
+
+	PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	int count = 0;
+	int count1 = 0;
+	char *tok = strtok(copy_string," ");
+	while(tok != NULL){
+
+		Player curr_player = DeterminePlayerId(gv, tok[0]);
+		char *city;
+		strncpy(city,&tok[1],2);
+
+		PlaceId Loc = placeAbbrevToId(city);
+		
+		if(curr_player == PLAYER_DRACULA && tok[3] == 'T'){
+			if(Loc == HIDE){
+				Loc = RevealHideLocation(gv, LastPlay(gv,tok[0]));
+			}
+			if(DOUBLE_BACK(Loc)){
+				Loc = RevealDoubleBackLocation(gv,LastPlay(gv,tok[0]));
+			}
+			trap[count] = Loc;
+			count++;
+		}
+		if(curr_player != PLAYER_DRACULA){
+			for(int i = 3; i < strlen(copy_string);i++){
+				if(tok[i] == 'T'){
+					trap_encounter_player[count1] = Loc;
+					count1++;
+				}
+			}
+		}
+		tok = strtok(NULL," ");
+
+	}
+
+	int total_trap_encounter = 0;
+	for(int l = 0;l < 4;l++){
+		total_trap_encounter += gv->Player[l]->Trap_Encounter;
+	}
+
+	for(int j = 0;j < gv->Drac_Trap;j++){
+		for(int k = 0;k < gv->Drac_Trap;k++){
+			if(trap[j] == trap_encounter_player[k]){
+				trap[j] = 0;
+			}
+		}
+	}
+
+	int temp = 0;
+	
+	for(int j = 0;j < gv->Drac_Trap;j++){
+		for (int k = j + 1; k < gv->Drac_Trap; k++){
+			if(trap[j] < trap[k]){
+				
+				temp = trap[j];
+				trap[j] = trap[k];
+				trap[k] = temp; 
+
+			}
+		}
+		
+	}
+
+	free(trap_encounter_player);
+
+	*numTraps = (count-total_trap_encounter);
+	return trap;
+
 }
 
 ////////////////////////////////////////////////////////////////////////
