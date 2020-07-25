@@ -65,7 +65,7 @@ struct gameView {
 
 static Game_Player new_player () {
 	
-	Game_Player play = malloc(sizeof(struct game_Player));
+	Game_Player play = malloc(sizeof(*play));
 	if (play == NULL) {
 		fprintf(stderr, "Couldn't allocate Player!\n");
 		exit(EXIT_FAILURE);
@@ -79,14 +79,15 @@ static Game_Player new_player () {
 
 GameView GvNew(char *pastPlays, Message messages[]) {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	GameView gameView = malloc(sizeof(gameView));
+	GameView gameView = malloc(sizeof(*gameView));
 	
 	if (gameView == NULL) {
 		fprintf(stderr, "Couldn't allocate GameView!\n");
 		exit(EXIT_FAILURE);
 	}
 	
-	strcpy(gameView->Game_State, pastPlays);
+
+	gameView->Game_State = strdup(pastPlays);
     	gameView->curr_score = GAME_START_SCORE;
 	for (int i = 0; i < NUM_PLAYERS; i++) {
 	    gameView->Player[i] = new_player();
@@ -228,7 +229,8 @@ PlaceId GvGetPlayerLocation(GameView gv, Player player)
 			PlayerLocation = ST_JOSEPH_AND_ST_MARY;
 		} 
 		else {
-			PlayerLocation = gv->Game_State[lastTurn];
+			strncpy(location,gv->Game_State[lastTurn+1],2);
+			PlayerLocation = placeAbbrevToId(location);
 		}
 	}
 	else {
