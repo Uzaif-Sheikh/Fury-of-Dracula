@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "Game.h"
 #include "GameView.h"
@@ -21,8 +22,8 @@
 #include <string.h>
 
 void PastPlayAnalysis(GameView gv);
-void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum);
-void Encounters(GameView gv, char *playString, Player Character);
+//void adjDraculasTrail(GameView gv, char *playString, PlaceId trailNum);
+//void Encounters(GameView gv, char *playString, Player Character);
 Player DeterminePlayerId(GameView gv, char PlayerAbbrev);
 char DeterminePlayerAbr(Player player);
 int LastPlay(GameView gv, char character); 
@@ -139,9 +140,11 @@ void GvFree(GameView gv) {
 // 			  Game State Infomration		      //
 ////////////////////////////////////////////////////////////////////////
 
+
+
 Round GvGetRound(GameView gv) {
 	
-    	int size_Game_State = strlen(gv->Game_State);
+	int size_Game_State = strlen(gv->Game_State);
 	int Round_number = (size_Game_State)/MAX_ROUND_STRING;
 	gv->curr_round = Round_number;
 
@@ -197,7 +200,7 @@ PlaceId GvGetVampireLocation(GameView gv)
 }
 
 PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
-{
+{/*
 	char *copy_string = strdup(gv->Game_State);
 
 	PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
@@ -218,7 +221,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 			if(Loc == HIDE){
 				Loc = RevealHideLocation(gv, LastPlay(gv,tok[0])); 
 			}
-			if(DOUBLE_BACK(Loc)){
+			if(DOUBLE_BACK(Loc)) {
 				Loc = RevealDoubleBackLocation(gv,LastPlay(gv,tok[0]));
 			}
 			trap[count] = Loc;
@@ -234,10 +237,10 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 		}
 		tok = strtok(NULL," ");
 
-	}
+	} 
 
 	int total_trap_encounter = 0;
-	for(int l = 0;l < 4;l++){
+	for(int l = 0;l < 4;l++) {
 		total_trap_encounter += gv->Player[l]->Trap_Encounter;
 	}
 
@@ -269,7 +272,8 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 
 	*numTraps = (count-total_trap_encounter);
 	return trap;
-
+	*/
+	return NULL; 
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -451,13 +455,13 @@ char DeterminePlayerAbr(Player player)
 	switch (player) {
 		
 		case PLAYER_DRACULA:
-	        	curr_Player_turn = 'D';
+			curr_Player_turn = 'D';
 			break;
 		case PLAYER_LORD_GODALMING:
 			curr_Player_turn = 'G';
 			break;
 		case PLAYER_DR_SEWARD:
-			curr_Player_turn = "S";
+			curr_Player_turn = 'S';
 			break;
 		case PLAYER_VAN_HELSING:
 			curr_Player_turn = 'H';
@@ -466,7 +470,7 @@ char DeterminePlayerAbr(Player player)
 			curr_Player_turn = 'M';
 			break;
 		default:
-			return;
+			return NO_PLAYER;
 	}
 
 	return curr_Player_turn;
@@ -477,14 +481,15 @@ char DeterminePlayerAbr(Player player)
 // of the characters abbreviated name. If the player has not
 // played yet, NOT_PLAYED_YET is returned
 int LastPlay(GameView gv, char character) 
-{
+{	
 	int lastPlay = NOT_PLAYED_YET;
-	for (lastPlay = strlen(gv->Game_State - PLAYER_MOVES_ACTIONS); 
-	    lastPlay >= 0; lastPlay -= (PLAYER_MOVES_ACTIONS + 1)) {
+	for (lastPlay = strlen(gv->Game_State) - PLAYER_MOVES_ACTIONS ;lastPlay >= 0; lastPlay -= (PLAYER_MOVES_ACTIONS + 1)) {
 				
-		if (strcmp(gv->Game_State[lastPlay], character) == 0) 
+		if (gv->Game_State[lastPlay] == character) 
 			return lastPlay;
 	}
+
+	return lastPlay;
 }
 
 // Given that a HIDE move is revealed, find the LOCATION
@@ -572,7 +577,7 @@ void PastPlayAnalysis(GameView gv) {
 		char *city;
 		city = strndup(&play[1],2);
 		PlaceId Loc = placeAbbrevToId(city);
-		Player character = DeterminePlayer (gv, play[0]);
+		Player character = DeterminePlayerId (gv, play[0]);
 		
 		// If the player is a hunter
 		// Created and tested HUNTER define, rather use that.
