@@ -43,8 +43,14 @@ void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int *mature);
 #define START			0
 
 #define HUNTER(id) (id != PLAYER_DRACULA)
-#define NOT_HI_DB_MOVE(id) (id != HIDE && id != DOUBLE_BACK_1 && id != DOUBLE_BACK_2 && id != DOUBLE_BACK_3 && id != DOUBLE_BACK_4 && id != DOUBLE_BACK_5)
-#define DB_MOVE(id) (id == DOUBLE_BACK_1 || id == DOUBLE_BACK_2 || id == DOUBLE_BACK_3 || id == DOUBLE_BACK_4 || id == DOUBLE_BACK_5)
+#define NOT_HI_DB_MOVE(id) (id != HIDE && id != DOUBLE_BACK_1 \
+				&& id != DOUBLE_BACK_2 && id != DOUBLE_BACK_3 \
+				&& id != DOUBLE_BACK_4 && id != DOUBLE_BACK_5)
+
+#define DB_MOVE(id) (id == DOUBLE_BACK_1 || id == DOUBLE_BACK_2 \
+			|| id == DOUBLE_BACK_3 || id == DOUBLE_BACK_4 \
+			|| id == DOUBLE_BACK_5)
+			
 #define PASTPLAYS_NOT_FINISHED(c) (c != NULL)
 
 typedef int Score;
@@ -598,6 +604,7 @@ void PastPlayAnalysis(GameView gv) {
 			DraculaTraps(Loc, gv, play, round, mature); 			
 		}
 
+		free(city);
 		play = strtok(NULL, " ");
 	}
 }
