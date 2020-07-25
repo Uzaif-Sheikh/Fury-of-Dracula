@@ -34,7 +34,7 @@ PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn);
 void RestCheck (PlaceId Loc, GameView gv, Player character);
 
 #define NO_PLAYER 		10
-#define MAX_ROUND_STRING 	40
+#define MAX_ROUND_STRING 	39
 #define HEALTH_UNKNOWN 		100
 #define MAX_PLAY_LENGTH 	8
 #define PLAYER_MOVES_ACTIONS 	7
@@ -196,7 +196,7 @@ int GvGetHealth(GameView gv, Player player)
 		GetHealthPlayer -= (gv->Player[PLAYER_DRACULA]->
 		Player_Encounter)*(LIFE_LOSS_HUNTER_ENCOUNTER);
 		
-		if (gv->Player[PLAYER_DRACULA]->Trail[TRAIL_SIZE-1] == SEA) {
+		if (gv->Player[PLAYER_DRACULA]->Trail[TRAIL_SIZE-1] == SEA_UNKNOWN || placeIdToType(gv->Player[PLAYER_DRACULA]->Trail[TRAIL_SIZE-1]) == SEA){
 			GetHealthPlayer -= LIFE_LOSS_SEA;
 		}
 		
@@ -283,18 +283,19 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 	PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
 	int count = 0;
 	int count1 = 0;
+	char city[2];
 	char *tok = strtok(copy_string," ");
 	while(tok != NULL){
 
 		Player curr_player = DeterminePlayerId(gv, tok[0]);
-		char *city;
+		
 		strncpy(city,&tok[1],2);
 
 		PlaceId Loc = placeAbbrevToId(city);
 		
 		if(curr_player == PLAYER_DRACULA && tok[3] == 'T'){
 			if(Loc == HIDE){
-				Loc = RevealHideLocation(gv, LastPlay(gv,tok[0]));
+				Loc = RevealHideLocation(gv, LastPlay(gv,tok[0])); 
 			}
 			if(DOUBLE_BACK(Loc)){
 				Loc = RevealDoubleBackLocation(gv,LastPlay(gv,tok[0]));
@@ -341,8 +342,9 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 		}
 		
 	}
-
+	free(tok);
 	free(trap_encounter_player);
+	free(copy_string);
 
 	*numTraps = (count-total_trap_encounter);
 	return trap;
@@ -356,10 +358,49 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 PlaceId *GvGetMoveHistory(GameView gv, Player player,
                           int *numReturnedMoves, bool *canFree)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedMoves = 0;
+	PlaceId* Move_history = calloc((GvGetRound(gv) + 1),sizeof(PlaceId));
+	char player_place[3]; 
+
+	player_place[0] = DeterminePlayerAbr(player);
+	strncpy(&player_place[1],placeIdToAbbrev(gv->Player[player]->Location),2);
+
+	char *point = malloc(4);
+	int i;
+	for(i = 0;i < strlen(gv->Game_State);i++){
+		if(strncmp(player_place,&point[i],3) == 0) break;
+	}
+
+	char* copy_string;
+	copy_string = strdup(gv->Game_State);
+	char* tok = strtok(copy_string," ");
+	char city[2];
+	int count = 0;
+	int flag = 0;
+
+	while(flag == 0 && tok != NULL){
+
+		if(player == DeterminePlayerId(gv,tok[0])){
+
+			for(int j = 0;j < i; j += MAX_ROUND_STRING){
+
+				flag = 1;
+				strncpy(city,&gv->Game_State[j+1],2);
+				PlaceId Loc = placeAbbrevToId(city);
+				Move_history[count++] = Loc;
+
+			}
+		}
+
+		tok = strtok(NULL," ");
+	}
+
+	free(tok);
+	free(copy_string);
+	free(point);
+
+	*numReturnedMoves = count;
 	*canFree = false;
-	return NULL;
+	return Move_history;
 }
 
 PlaceId *GvGetLastMoves(GameView gv, Player player, int numMoves,
