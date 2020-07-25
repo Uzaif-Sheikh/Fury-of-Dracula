@@ -290,41 +290,38 @@ PlaceId *GvGetMoveHistory(GameView gv, Player player,
 	char player_place[3]; 
 
 	player_place[0] = DeterminePlayerAbr(player);
-	strncpy(&player_place[1],placeIdToAbbrev(gv->Player[player]->Location),2);
+	strcpy(&player_place[1],placeIdToAbbrev(gv->Player[player]->Location));
 
-	char *point = malloc(4);
 	int i;
-	for(i = 0;i < strlen(gv->Game_State);i++){
-		if(strncmp(player_place,&point[i],3) == 0) break;
+	for(i = strlen(gv->Game_State);i > 0;i--){
+		if(strncmp(player_place,&gv->Game_State[i],3) == 0) break;
 	}
 
 	char* copy_string;
 	copy_string = strdup(gv->Game_State);
 	char* tok = strtok(copy_string," ");
-	char city[2];
+	char* city;
 	int count = 0;
 	int flag = 0;
 
 	while(flag == 0 && tok != NULL){
 
 		if(player == DeterminePlayerId(gv,tok[0])){
-
-			for(int j = 0;j < i; j += MAX_ROUND_STRING){
+			
+			for(int j = (player*8);j < i; j += (MAX_ROUND_STRING+1)){
 
 				flag = 1;
-				strncpy(city,&gv->Game_State[j+1],2);
+				city = strndup(&gv->Game_State[j+1],2);
 				PlaceId Loc = placeAbbrevToId(city);
 				Move_history[count++] = Loc;
+				
 
 			}
+			Move_history[count++] = gv->Player[player]->Location;
 		}
 
 		tok = strtok(NULL," ");
 	}
-
-	free(tok);
-	free(copy_string);
-	free(point);
 
 	*numReturnedMoves = count;
 	*canFree = false;
