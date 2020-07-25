@@ -340,11 +340,19 @@ PlaceId *GvGetMoveHistory(GameView gv, Player player,
 PlaceId *GvGetLastMoves(GameView gv, Player player, int numMoves,
                         int *numReturnedMoves, bool *canFree)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	PlaceId* Move_history = GvGetMoveHistory(gv,player,numReturnedMoves,canFree);
 	
-	*numReturnedMoves = 0;
+	PlaceId* Last_move = calloc(numMoves,sizeof(PlaceId));
+
+	int count = 0;
+	for(int i = (*numReturnedMoves-1);i >= (*(numReturnedMoves)-numMoves);i--){
+		Last_move[count++] = Move_history[i];
+	}
+
+
+	*numReturnedMoves = count;
 	*canFree = false;
-	return NULL;
+	return Last_move;
 }
 
 PlaceId *GvGetLocationHistory(GameView gv, Player player,
