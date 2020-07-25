@@ -32,7 +32,7 @@ PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn);
 void RestCheck (PlaceId Loc, GameView gv, Player character);
 
 #define NO_PLAYER 		10
-#define MAX_ROUND_STRING 	40
+#define MAX_ROUND_STRING 	39
 #define HEALTH_UNKNOWN 		100
 #define MAX_PLAY_LENGTH 	8
 #define PLAYER_MOVES_ACTIONS 	7
