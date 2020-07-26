@@ -232,10 +232,10 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 		
 		if(curr_player == PLAYER_DRACULA && tok[3] == 'T'){
 			if(Loc == HIDE){
-				Loc = RevealHideLocation(gv, LastPlay(gv,tok[0])); 
+				Loc = gv->Player[curr_player]->Location; 
 			}
 			if(DB_MOVE(Loc)) {
-				Loc = RevealDoubleBackLocation(gv,LastPlay(gv,tok[0]));
+				Loc = gv->Player[curr_player]->Location;
 			}
 			trap[count] = Loc;
 			count++;
