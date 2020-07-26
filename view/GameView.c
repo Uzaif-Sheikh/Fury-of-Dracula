@@ -27,15 +27,15 @@ char DeterminePlayerAbr(Player player);
 int LastPlay(GameView gv, char character); 
 PlaceId RevealHideLocation(GameView gv, int lastTurn);
 PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn);
-void RestCheck (PlaceId Loc, GameView gv, Player character);
-void AdjustHunterHealth(GameView gv, Player character);
-void DraculaLocation(PlaceId Loc, GameView gv, Player character); 
+void RestCheck (PlaceId Loc, GameView gv, Player character, int player_round);
+void AdjustHunterHealth(GameView gv, Player character, int player_round);
+void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_round); 
 void AdjustDraculaHealth(GameView gv, Player character);
 void HunterEncounters(PlaceId Loc, GameView gv, Player character,
 				char *play, int round);
 
 void DraculaTraps(PlaceId Loc, GameView gv, char *play,
-				int round, int *mature); 
+				int round, int mature); 
 
 #define NO_PLAYER 		10
 #define MAX_ROUND_STRING 	39
@@ -72,7 +72,7 @@ struct game_Player {
 	Vampire_Encounter Vampire_Encounter;
 	Rest Rest;
 	Death death;
-	PlaceId Trail[TRAIL_SIZE];
+	PlaceId * MoveHistory;
 } ;
 
 typedef struct game_Player *Game_Player;
@@ -100,7 +100,7 @@ struct gameView {
 // 			  Constructor/Distructor		      //
 ////////////////////////////////////////////////////////////////////////
 
-static Game_Player new_player () {
+static Game_Player new_player (int i) {
 	
 	Game_Player play = malloc(sizeof(*play));
 	if (play == NULL) {
@@ -114,7 +114,7 @@ static Game_Player new_player () {
 	play->Vampire_Encounter = 0;
 	play->Player_Encounter = 0;
 	play->death = 0;
-
+	play->MoveHistory = calloc(i, sizeof(int));
 	return play;
 }
 
@@ -128,9 +128,10 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 	}
 	 
 	gameView->Game_State = strdup(pastPlays);
-    	gameView->curr_score = GAME_START_SCORE;
+	gameView->curr_score = GAME_START_SCORE;
+	int n = GvGetRound(gameView) + 1;
 	for (int i = 0; i < NUM_PLAYERS; i++) {
-	    gameView->Player[i] = new_player();
+	    gameView->Player[i] = new_player(n);
 	}
 
 	gameView->curr_round = 0;
@@ -212,30 +213,30 @@ PlaceId GvGetVampireLocation(GameView gv)
 }
 
 PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
-{/*
+{
 	char *copy_string = strdup(gv->Game_State);
 
 	PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
 	PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
 	int count = 0;
 	int count1 = 0;
-	char city[2];
+	char *city;
 	char *tok = strtok(copy_string," ");
 	while(tok != NULL){
 
 		Player curr_player = DeterminePlayerId(gv, tok[0]);
 		
-		strncpy(city,&tok[1],2);
+		city = strndup(&tok[1],2);
 
 		PlaceId Loc = placeAbbrevToId(city);
 		
 		if(curr_player == PLAYER_DRACULA && tok[3] == 'T'){
-			if(Loc == HIDE){
-				Loc = RevealHideLocation(gv, LastPlay(gv,tok[0])); 
-			}
-			if(DOUBLE_BACK(Loc)) {
+			// if(Loc == HIDE){
+			// 	Loc = RevealHideLocation(gv, LastPlay(gv,tok[0])); 
+			// }
+			/*if(DB_MOVE(Loc)) {
 				Loc = RevealDoubleBackLocation(gv,LastPlay(gv,tok[0]));
-			}
+			}*/
 			trap[count] = Loc;
 			count++;
 		}
@@ -243,10 +244,12 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 			for(int i = 3; i < strlen(copy_string);i++){
 				if(tok[i] == 'T'){
 					trap_encounter_player[count1] = Loc;
+
 					count1++;
 				}
 			}
 		}
+		free(city);
 		tok = strtok(NULL," ");
 
 	} 
@@ -278,14 +281,18 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 		}
 		
 	}
-	free(tok);
-	free(trap_encounter_player);
-	free(copy_string);
+	for(int j1 = 0;j1<gv->Drac_Trap;j1++){
+		//printf("loc :%d\n",trap[j1]);
+	}
+
+	// free(tok);
+	// free(trap_encounter_player);
+	// free(copy_string);
 
 	*numTraps = (count-total_trap_encounter);
 	return trap;
-	*/
-	return NULL; 
+	
+	return NULL;  
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -295,118 +302,85 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 PlaceId *GvGetMoveHistory(GameView gv, Player player,
                           int *numReturnedMoves, bool *canFree)
 {
-	PlaceId* Move_history = calloc((GvGetRound(gv) + 1),sizeof(PlaceId));
-	char player_place[3]; 
-
-	player_place[0] = DeterminePlayerAbr(player);
-	strcpy(&player_place[1],placeIdToAbbrev(gv->Player[player]->Location));
-
-	int i;
-	for(i = strlen(gv->Game_State);i > 0;i--){
-		if(strncmp(player_place,&gv->Game_State[i],3) == 0) break;
+	int i = 0;
+	while (gv->Player[player]->MoveHistory[i] != 0) {
+		//printf("%d ", gv->Player[player]->MoveHistory[i]);
+		i++;
 	}
-
-	char* copy_string;
-	copy_string = strdup(gv->Game_State);
-	char* tok = strtok(copy_string," ");
-	char* city;
-	int count = 0;
-	int flag = 0;
-
-	while(flag == 0 && tok != NULL){
-
-		if(player == DeterminePlayerId(gv,tok[0])){
-			
-			for(int j = (player*8);j < i; j += (MAX_ROUND_STRING+1)){
-
-				flag = 1;
-				city = strndup(&gv->Game_State[j+1],2);
-				PlaceId Loc = placeAbbrevToId(city);
-				Move_history[count++] = Loc;
-				
-
-			}
-			Move_history[count++] = gv->Player[player]->Location;
-		}
-
-		tok = strtok(NULL," ");
-	}
-
-	*numReturnedMoves = count;
-	*canFree = false;
-	return Move_history;
+	//printf("\n%d\n", i);
+	*numReturnedMoves = i;
+	return gv->Player[player]->MoveHistory;
 }
 
 PlaceId *GvGetLastMoves(GameView gv, Player player, int numMoves,
                         int *numReturnedMoves, bool *canFree)
 {
-	PlaceId* Move_history = GvGetMoveHistory(gv,player,numReturnedMoves,canFree);
-	
-	PlaceId* Last_move = calloc(numMoves,sizeof(PlaceId));
+	PlaceId *Move_history = GvGetMoveHistory(gv,player,numReturnedMoves,canFree);
+	printf("%d\n", *numReturnedMoves);
+	PlaceId *Last_move = calloc(numMoves,sizeof(PlaceId));
 
 	int count = 0;
-	for(int i = (*numReturnedMoves-1);i >= (*(numReturnedMoves)-numMoves);i--){
-		Last_move[count++] = Move_history[i];
+	for(int i = (*numReturnedMoves-1); i >= (*(numReturnedMoves)-numMoves); i--) {		
+		Last_move[count] = Move_history[i];
+		printf("LOCATION -%d\n", Last_move[count]);
+		count++;
 	}
-
-
 	*numReturnedMoves = count;
 	*canFree = false;
 	return Last_move;
+	
 }
 
 PlaceId *GvGetLocationHistory(GameView gv, Player player,
                               int *numReturnedLocs, bool *canFree)
-{
-	PlaceId *Loc_History = calloc(gv->curr_round,sizeof(*Loc_History));
-	char location[2];
-	char character;
-	character = DeterminePlayerAbr(player);
-
-	int lastLoc = LastPlay(gv, character);
-
-	assert(lastLoc > 0);
+{	
+	int numMoves = 0;
 	
-	int countLocs = 0;
-	for(int prevLocs = lastLoc; prevLocs >= 0; 
-		prevLocs = prevLocs - MAX_ROUND_STRING) {
+	PlaceId *Move_History = GvGetMoveHistory(gv, player, &numMoves, canFree);
 
-		strncpy(location, &gv->Game_State[prevLocs + 1], 2);
-		Loc_History[countLocs] = placeAbbrevToId(location);
-		countLocs++;
+	PlaceId *Loc_History = calloc(numMoves,sizeof(int));
+	if (Loc_History == NULL) {
+		fprintf(stderr, "Couldnt allocate memory");
+		printf("\n");
 	}
-	
-	*numReturnedLocs = countLocs;
-	*canFree = true;
+	for (int i = 0; i < numMoves; i++) {
+		if (Move_History[i] == HIDE) {
+			Loc_History[i] = Loc_History[i-1];
+		} else if (Move_History[i] == DOUBLE_BACK_1) {
+			Loc_History[i] = Loc_History[i-1];
+		} else if (Move_History[i] == DOUBLE_BACK_2) {
+			Loc_History[i] = Loc_History[i-2];
+		} else if (Move_History[i] == DOUBLE_BACK_3) {
+			Loc_History[i] = Loc_History[i-3];
+		} else if (Move_History[i] == DOUBLE_BACK_4) {
+			Loc_History[i] = Loc_History[i-4];
+		} else if (Move_History[i] == DOUBLE_BACK_5) {
+			Loc_History[i] = Loc_History[i-5];
+		} else if (Move_History[i] == TELEPORT) {
+			Loc_History[i] = CASTLE_DRACULA;
+		} else {
+			Loc_History[i] = Move_History[i];
+		}
+	}
+	*numReturnedLocs = numMoves;
 	return Loc_History;
+	
 }
 
 PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
                             int *numReturnedLocs, bool *canFree)
 {
-	PlaceId *lastNumLoc = calloc(gv->curr_round,sizeof(*lastNumLoc));
-	char location[2];
-	char character;
-	character = DeterminePlayerAbr(player);
-	
-	int lastLoc = LastPlay(gv, character);
-	
-	assert(lastLoc > 0);
-	
-	int countLocs = 0;
-	for(int prevLocs = lastLoc; prevLocs >= 0 ; 
-	prevLocs = prevLocs - MAX_ROUND_STRING) {
-		
-		if(countLocs == numLocs) break;
+	PlaceId *Location_history = GvGetLocationHistory(gv, player, numReturnedLocs, canFree);
+	PlaceId *Last_move = calloc(numLocs,sizeof(PlaceId));
 
-		strncpy(location, &gv->Game_State[prevLocs + 1], 2);
-		lastNumLoc[countLocs] = placeAbbrevToId(location);
-		countLocs++;
+	int count = 0;
+	for(int i = (*numReturnedLocs-1); i >= (*(numReturnedLocs)-numLocs); i--) {		
+		Last_move[count] = Location_history[i];
+		count++;
 	}
-	
-	*numReturnedLocs = countLocs;
-	*canFree = true;
-	return lastNumLoc;
+	*numReturnedLocs = count;
+	*canFree = false;
+	return Last_move;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -497,6 +471,7 @@ char DeterminePlayerAbr(Player player)
 // within the pastPlay string of the last appearance
 // of the characters abbreviated name. If the player has not
 // played yet, NOT_PLAYED_YET is returned
+/*
 int LastPlay(GameView gv, char character) 
 {	
 	int lastPlay = NOT_PLAYED_YET;
@@ -571,7 +546,7 @@ PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn) {
 	return Loc;
 }
 
-
+*/
 int GvGetScore(GameView gv)
 {
     int total_death = 0;
@@ -583,10 +558,16 @@ int GvGetScore(GameView gv)
 	return gv->curr_score;
 }
 
-void PastPlayAnalysis(GameView gv) {
+	
 
+void PastPlayAnalysis(GameView gv) {
+	int currG_round = START;
+	int currS_round = START;
+	int currH_round = START;
+	int currM_round = START;
+	int Drac_round = START;
 	int round = START;
-	int *mature = START;
+	int mature = START;
 	char *copy_string = strdup (gv->Game_State);
 	char *play = strtok(copy_string, " ");
 
@@ -597,19 +578,57 @@ void PastPlayAnalysis(GameView gv) {
 		PlaceId Loc = placeAbbrevToId(city);
 		Player character = DeterminePlayerId (gv, play[0]);
 		
-		if (HUNTER(character)) {
+		int player_round = 0;
+		switch (character) {
+			case PLAYER_LORD_GODALMING:
+					player_round = currG_round;
+					currG_round++;
+				break;
 
-			RestCheck(Loc, gv, character);
+			case PLAYER_DR_SEWARD:
+					player_round = currS_round;
+					currS_round++;
+				break;
+
+			case PLAYER_VAN_HELSING:
+				player_round = currH_round;
+				currH_round++;
+				break;
+
+			case PLAYER_MINA_HARKER:
+				player_round = currM_round;
+				currM_round++;
+				break;
+
+			case PLAYER_DRACULA:
+				player_round = Drac_round;
+				Drac_round++;
+				break;
+
+		}
+		//printf("PLAYER ROUND : %d\n", player_round);
+		if (HUNTER(character)) {
+			
+			RestCheck(Loc, gv, character, player_round);
 
 			HunterEncounters(Loc, gv, character, play, round);
 
-			AdjustHunterHealth(gv, character);
-
+			AdjustHunterHealth(gv, character, player_round);
+			
+			/*
+			PlaceId *loc = gv->Player[PLAYER_LORD_GODALMING]->MoveHistory;
+			int i = 0;
+			while (loc[i] != 0) {
+				printf("%d ", loc[i]);
+				i++;
+			}
+			printf("\n");
+			*/
 		} else {
 			
 			round ++;
 			
-			DraculaLocation(Loc, gv, character);
+			DraculaLocation(Loc, gv, character, player_round);
 
 			AdjustDraculaHealth(gv, character); 
 
@@ -621,13 +640,14 @@ void PastPlayAnalysis(GameView gv) {
 	}
 }
 
-void RestCheck(PlaceId Loc, GameView gv, Player character) {
+void RestCheck(PlaceId Loc, GameView gv, Player character, int player_round) {
 
 	if (Loc == gv->Player[character]->Location) {
 		gv->Player[character]->Rest++;
-	} 
-	else {
+		gv->Player[character]->MoveHistory[player_round] = Loc;
+	} else {
 		gv->Player[character]->Location = Loc;
+		gv->Player[character]->MoveHistory[player_round] = Loc;
 	}
 
 }
@@ -651,7 +671,7 @@ void HunterEncounters(PlaceId Loc, GameView gv, Player character,
 	
 }
 
-void AdjustHunterHealth(GameView gv, Player character) 
+void AdjustHunterHealth(GameView gv, Player character, int player_round) 
 {
 	int num_traps = gv->Player[character]->Trap_Encounter;
 	int num_encount = gv->Player[character]->Player_Encounter;
@@ -662,7 +682,7 @@ void AdjustHunterHealth(GameView gv, Player character)
 							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount) 
 							+ (LIFE_GAIN_REST * num_rest);
 
-	gv->Player[PLAYER_DRACULA]->health = GAME_START_BLOOD_POINTS 
+	gv->Player[PLAYER_DRACULA]->health = gv->Player[PLAYER_DRACULA]->health 
 						- (LIFE_LOSS_HUNTER_ENCOUNTER * dracula_num_encount);
 
 	if (HP > GAME_START_HUNTER_LIFE_POINTS) {
@@ -673,7 +693,6 @@ void AdjustHunterHealth(GameView gv, Player character)
 		gv->Player[character]->death++;
 		gv->Player[character]->Location = HOSPITAL_PLACE;
 		gv->Player[character]->Trap_Encounter = 0;
-		//gv->Player[character]->Vampire_Encounter = 0;
 		gv->Player[character]->Player_Encounter = 0;
 		gv->Player[character]->health = 0;
 	} else {
@@ -681,44 +700,82 @@ void AdjustHunterHealth(GameView gv, Player character)
 	}
 }
 
-void DraculaLocation(PlaceId Loc, GameView gv, Player character) 
+void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_round) 
 {
-	if (NOT_HI_DB_MOVE(Loc)) {
-		if (Loc == CASTLE_DRACULA) {
-			gv->Player[PLAYER_DRACULA]->Rest++; // Dracula is at Castle Dracula and regains some health
-			gv->Player[PLAYER_DRACULA]->Location = Loc;
-		} else if (placeIdToType(Loc) == SEA || Loc == SEA_UNKNOWN) {
-			gv->Player[character]->Trap_Encounter++; //Trap_enconter for Dracula keeps track of Dracula being at sea
-			gv->Player[PLAYER_DRACULA]->Location = Loc;
-		} else if (Loc == TELEPORT) {
-			gv->Player[PLAYER_DRACULA]->Location = CASTLE_DRACULA;
+	if (Loc == DOUBLE_BACK_1) {
+		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-1] == HIDE) {
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		} else {
-			gv->Player[PLAYER_DRACULA]->Location = Loc;
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-1];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-
+	} else if (Loc == DOUBLE_BACK_2) {
+		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2] == HIDE) {
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+		} else {
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+		}
+	} else if (Loc == DOUBLE_BACK_3) {
+		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3] == HIDE) {
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+		} else {
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+		}
+	} else if (Loc == DOUBLE_BACK_4) {
+		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4] == HIDE) {
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+		} else {
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+		}
+	} else if (Loc == DOUBLE_BACK_5) {
+		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5] == HIDE) {
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-6];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+		} else {
+			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5];
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+		}
 	} else if (Loc == CASTLE_DRACULA) {
-		gv->Player[PLAYER_DRACULA]->Rest++;
-	}
+		gv->Player[PLAYER_DRACULA]->Location = Loc;
+		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+	} else if (placeIdToType(Loc) == SEA || Loc == SEA_UNKNOWN) {
+		gv->Player[PLAYER_DRACULA]->Location = Loc;
+		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+	} else if (Loc == TELEPORT) {
+		gv->Player[PLAYER_DRACULA]->Location = CASTLE_DRACULA;
+		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+	} else {
+		gv->Player[PLAYER_DRACULA]->Location = Loc;
+		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
+	} 
 }
 
 void AdjustDraculaHealth(GameView gv, Player character) 
 {
+	if (gv->Player[PLAYER_DRACULA]->Location == CASTLE_DRACULA) {
+		gv->Player[PLAYER_DRACULA]->Rest++; 						// Dracula is at Castle Dracula and regains some health
+	} else if (placeIdToType(gv->Player[PLAYER_DRACULA]->Location) == SEA || gv->Player[PLAYER_DRACULA]->Location == SEA_UNKNOWN) {
+		gv->Player[character]->Trap_Encounter++; 					//Trap_enconter for Dracula keeps track of Dracula being at sea
+	} 
+
 	int num_traps = gv->Player[character]->Trap_Encounter;
 	int num_rest = gv->Player[character]->Rest;
-	int HP_D;
-
-	HP_D = gv->Player[PLAYER_DRACULA]->health 
-			- (LIFE_LOSS_SEA * num_traps) 
-			+ (LIFE_GAIN_CASTLE_DRACULA * num_rest);
-
+	//printf("NUMTRAPS : %d\n", num_traps);
+	//printf("NUMREST : %d\n", num_rest);
+	int HP_D = GAME_START_BLOOD_POINTS - (LIFE_LOSS_SEA * num_traps) + (LIFE_GAIN_CASTLE_DRACULA * num_rest);
+	//printf("HP : %d\n", HP_D);
 	gv->Player[PLAYER_DRACULA]->health = HP_D;
-	//gv->Player[PLAYER_DRACULA]->Player_Encounter = 0;
-	gv->Player[PLAYER_DRACULA]->Trap_Encounter = 0;
-	gv->Player[PLAYER_DRACULA]->Rest = 0;
 }
 
-void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int *mature) 
-{
+void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int mature) 
+{	
 	// TRAP ANALYSIS. This won't work for the dracula count of DXY.... where the 
 	// first .. is for moves while the second .. is action phases. INCLUDE DOUBLEBACK
 	for (int i = 3;i < strlen(play); i++) {
@@ -728,9 +785,9 @@ void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int *mature)
 
 			if(round == 7 && gv->Player[PLAYER_DRACULA]->Location == gv->Vampire_Location) {
 				gv->Vampire_Location = NOWHERE;
-				*mature = *mature + 1;
+				mature++; 
 				gv->Player[PLAYER_DRACULA]->Vampire_Encounter = 0;
-				gv->mature = *mature;
+				gv->mature = mature;
 				round = START;
 			}
 
