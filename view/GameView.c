@@ -213,84 +213,84 @@ PlaceId GvGetVampireLocation(GameView gv)
 	return gv->Vampire_Location;
 }
 
-// PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
-// {
-	// char *copy_string = strdup(gv->Game_State);
+PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
+{
+	char *copy_string = strdup(gv->Game_State);
 
-	// PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
-	// PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
-	// int count = 0;
-	// int count1 = 0;
-	// char city[2];
-	// char *tok = strtok(copy_string," ");
-	// while(tok != NULL){
+	PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	int count = 0;
+	int count1 = 0;
+	char city[2];
+	char *tok = strtok(copy_string," ");
+	while(tok != NULL){
 
-	// 	Player curr_player = DeterminePlayerId(gv, tok[0]);
+		Player curr_player = DeterminePlayerId(gv, tok[0]);
 		
-	// 	strncpy(city,&tok[1],2);
+		strncpy(city,&tok[1],2);
 
-	// 	PlaceId Loc = placeAbbrevToId(city);
+		PlaceId Loc = placeAbbrevToId(city);
 		
-	// 	if(curr_player == PLAYER_DRACULA && tok[3] == 'T'){
-	// 		if(Loc == HIDE){
-	// 			Loc = RevealHideLocation(gv, LastPlay(gv,tok[0])); 
-	// 		}
-	// 		if(DB_MOVE(Loc)) {
-	// 			Loc = RevealDoubleBackLocation(gv,LastPlay(gv,tok[0]));
-	// 		}
-	// 		trap[count] = Loc;
-	// 		count++;
-	// 	}
-	// 	if(curr_player == PLAYER_DRACULA && tok[5] == 'M'){
-	// 		trap[count-1] = 0;
-	// 		count--;
-	// 	}
-	// 	if(curr_player != PLAYER_DRACULA){
-	// 		for(int i = 3; i < strlen(copy_string);i++){
-	// 			if(tok[i] == 'T'){
-	// 				trap_encounter_player[count1] = Loc;
-	// 				count1++;
-	// 			}
-	// 		}
-	// 	}
-	// 	tok = strtok(NULL," ");
+		if(curr_player == PLAYER_DRACULA && tok[3] == 'T'){
+			if(Loc == HIDE){
+				Loc = gv->Player[curr_player]->Location; 
+			}
+			if(DB_MOVE(Loc)) {
+				Loc = gv->Player[curr_player]->Location;
+			}
+			trap[count] = Loc;
+			count++;
+		}
+		if(curr_player == PLAYER_DRACULA && tok[5] == 'M'){
+			trap[count-1] = 0;
+			count--;
+		}
+		if(curr_player != PLAYER_DRACULA){
+			for(int i = 3; i < strlen(copy_string);i++){
+				if(tok[i] == 'T'){
+					trap_encounter_player[count1] = Loc;
+					count1++;
+				}
+			}
+		}
+		tok = strtok(NULL," ");
 
-	// } 
+	} 
 
-	// int total_trap_encounter = 0;
-	// for(int l = 0;l < 4;l++) {
-	// 	total_trap_encounter += gv->Player[l]->Trap_Encounter;
-	// }
+	int total_trap_encounter = 0;
+	for(int l = 0;l < 4;l++) {
+		total_trap_encounter += gv->Player[l]->Trap_Encounter;
+	}
 
-	// for(int j = 0;j < gv->Drac_Trap;j++){
-	// 	for(int k = 0;k < gv->Drac_Trap;k++){
-	// 		if(trap[j] == trap_encounter_player[k]){
-	// 			trap[j] = 0;
-	// 		}
-	// 	}
-	// }
+	for(int j = 0;j < gv->Drac_Trap;j++){
+		for(int k = 0;k < gv->Drac_Trap;k++){
+			if(trap[j] == trap_encounter_player[k]){
+				trap[j] = 0;
+			}
+		}
+	}
 
-	// int temp = 0;
+	int temp = 0;
 	
-	// for(int j = 0;j < gv->Drac_Trap;j++){
-	// 	for (int k = j + 1; k < gv->Drac_Trap; k++){
-	// 		if(trap[j] < trap[k]){
+	for(int j = 0;j < gv->Drac_Trap;j++){
+		for (int k = j + 1; k < gv->Drac_Trap; k++){
+			if(trap[j] < trap[k]){
 				
-	// 			temp = trap[j];
-	// 			trap[j] = trap[k];
-	// 			trap[k] = temp; 
+				temp = trap[j];
+				trap[j] = trap[k];
+				trap[k] = temp; 
 
-	// 		}
-	// 	}
+			}
+		}
 		
-	// }
-	// free(tok);
-	// free(trap_encounter_player);
-	// free(copy_string);
+	}
+	free(tok);
+	free(trap_encounter_player);
+	free(copy_string);
 
-	// *numTraps = (count-total_trap_encounter);
-	// return trap; 
-//}
+	*numTraps = (count-total_trap_encounter);
+	return trap; 
+}
 
 ////////////////////////////////////////////////////////////////////////
 // 			     Game History			      //
@@ -301,10 +301,8 @@ PlaceId *GvGetMoveHistory(GameView gv, Player player,
 {
 	int i = 0;
 	while (gv->Player[player]->MoveHistory[i] != 0) {
-		//printf("%d ", gv->Player[player]->MoveHistory[i]);
 		i++;
 	}
-	//printf("\n%d\n", i);
 	*numReturnedMoves = i;
 	return gv->Player[player]->MoveHistory;
 }
@@ -313,17 +311,15 @@ PlaceId *GvGetLastMoves(GameView gv, Player player, int numMoves,
                         int *numReturnedMoves, bool *canFree)
 {
 	PlaceId *Move_history = GvGetMoveHistory(gv,player,numReturnedMoves,canFree);
-	printf("%d\n", *numReturnedMoves);
 	PlaceId *Last_move = calloc(numMoves,sizeof(PlaceId));
 
 	int count = 0;
 	for(int i = (*numReturnedMoves-1); i >= (*(numReturnedMoves)-numMoves); i--) {		
 		Last_move[count] = Move_history[i];
-		printf("LOCATION -%d\n", Last_move[count]);
 		count++;
 	}
 	*numReturnedMoves = count;
-	*canFree = false;
+	*canFree = true;
 	return Last_move;
 	
 }
