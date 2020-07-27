@@ -34,7 +34,8 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 void AdjustDraculaHealth(GameView gv, Player character);
 void HunterEncounters(PlaceId Loc, GameView gv, Player character,char *play, int round);
 void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int mature);
-void RailRoutesFind (int max_rail_size, PlaceId *GetReachable, int movable_places, TransportType* TransportConnections);
+int  RailRoutesFind (int max_rail_size, PlaceId *GetReachable, 
+     int movable_places, TransportType* TransportConnections, Map Places);
 
 
 #define NO_PLAYER 		10
@@ -402,7 +403,7 @@ PlaceId *GvGetReachable(GameView gv, Player player, Round round,
 	Map Places = MapNew();
 	
 	PlaceId *GetReachable = calloc(NUM_REAL_PLACES, sizeof(*GetReachable));
-    	TransportType *TransportConnections = calloc(NUM_REAL_PLACES-1, sizeof(*GetReachable));
+    	TransportType *TransportConnections = calloc(NUM_REAL_PLACES, sizeof(*GetReachable));
 	
 	int movable_places = 0;
 	GetReachable[movable_places] = from;	
@@ -425,14 +426,15 @@ PlaceId *GvGetReachable(GameView gv, Player player, Round round,
 			Places_Movable = Places_Movable->next;
 		}
 
-		RailRoutesFind (max_rail_size, GetReachable, movable_places, TransportConnections);
+		movable_places = RailRoutesFind (max_rail_size, GetReachable, 
+				 movable_places, TransportConnections, Places);
 		
 	}
 
 	else {
 		
 		while (Places_Movable) {
-
+			
 			if (Places_Movable->p != HOSPITAL_PLACE && 
 			Places_Movable->type != RAIL) {
 				movable_places++;
@@ -452,6 +454,14 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
                               bool boat, int *numReturnedLocs)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	int numLocs = -1;
+	PlaceId *ReachablebyType = calloc(NUM_REAL_PLACES, sizeof(*ReachablebyType));
+	PlaceId *Reachable_All_Type =  GvGetReachable(gv, player, round, from, &numLocs);
+	
+	int i = 0;
+	while (i < numLocs) {
+		if (Reachable_All_Type[i])
+	}
 	*numReturnedLocs = 0;
 	return NULL;
 }
@@ -818,14 +828,18 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 }
 
 void AdjustDraculaHealth(GameView gv, Player character) 
-{
+{	
+	// Dracula is at Castle Dracula and regains some health
+	
 	if (gv->Player[PLAYER_DRACULA]->Location == CASTLE_DRACULA) {
-		gv->Player[PLAYER_DRACULA]->Rest++; 						// Dracula is at Castle Dracula and regains some health
+		gv->Player[PLAYER_DRACULA]->Rest++; 						
 	} 
+	
+	//Trap_enconter for Dracula keeps track of Dracula being at sea
 	
 	else if (placeIdToType(gv->Player[PLAYER_DRACULA]->Location) == SEA || 
 	gv->Player[PLAYER_DRACULA]->Location == SEA_UNKNOWN) {
-		gv->Player[character]->Trap_Encounter++; 					//Trap_enconter for Dracula keeps track of Dracula being at sea
+		gv->Player[character]->Trap_Encounter++; 					
 	} 
 
 	int num_traps = gv->Player[character]->Trap_Encounter;
@@ -860,25 +874,43 @@ void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int mature)
 	}
 }
 
-void RailRoutesFind (int max_rail_size, PlaceId *GetReachable, int movable_places, TransportType* TransportConnections) {
+int RailRoutesFind (int max_rail_size, PlaceId *GetReachable, int movable_places, 
+TransportType* TransportConnections, Map places) {
 
 	Queue q = newQueue();
+	
 	for (int i = 0; i < movable_places; i++) {
 		if (TransportConnections[i] == RAIL) {
 			QueueJoin(q, GetReachable[i]);
 		}
 		
 	}
+	
+	int num_rail_moves = 1;
+	
+	while (!QueueIsEmpty(q) && num_rail_moves < max_rail_size) {
 
-	while (!QueueIsEmpty(q)) {
+		int num_curr_level_rail = QueueSize(q);
 
-		PlaceId Rail_connecting = QueueLeave(q);
-		
+		while (num_curr_level_rail--) {
+			
+			PlaceId Rail_connecting = QueueLeave(q);
+			ConnList Rail_route = MapGetConnections(places, Rail_connecting);
+			
+			ConnList connecting_rail = Rail_route;
 
+			while (connecting_rail) {
+				if (connecting_rail->type == RAIL) {
+					movable_places++;
+					GetReachable[movable_places] = connecting_rail->p;
+					QueueJoin(q, connecting_rail->p);
+				}
+				connecting_rail = connecting_rail->next;
+			}
+		}
+
+		num_rail_moves++;
 	}
 	
-	
-
-
-
+	return movable_places;
 }

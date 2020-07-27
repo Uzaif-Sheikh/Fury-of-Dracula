@@ -89,3 +89,14 @@ int QueueIsEmpty (Queue Q)
 {
 	return (Q->head == NULL);
 }
+
+int QueueSize (Queue Q) {
+    
+    int count = 0;
+    
+    for (QueueNode *curr = Q->head; curr != NULL; curr = curr->next) {
+		count++;
+	}
+
+    return count;
+} 
