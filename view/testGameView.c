@@ -449,9 +449,9 @@ int main(void)
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachable(gv, PLAYER_LORD_GODALMING,
 			                                     1, GALATZ, &numLocs);
-			for (int i = 0; i < numLocs; i++) {
-				printf ("%s\n", placeIdToName(locs[i]));
-			}
+			// for (int i = 0; i < numLocs; i++) {
+			// 	printf ("%s\n", placeIdToName(locs[i]));
+			// }
 			assert(numLocs == 5);
 			//printf ("\n");
 			sortPlaces(locs, numLocs);
@@ -475,11 +475,11 @@ int main(void)
 			                                     1, IONIAN_SEA, &numLocs);
 			
 			sortPlaces(locs, numLocs);
-			for (int i = 0; i < numLocs; i++) {
-			 	printf ("%s\n", placeIdToName(locs[i]));
-			}
-			//printf ("\n");
-			printf ("%d\n", numLocs);
+			// for (int i = 0; i < numLocs; i++) {
+			//  	printf ("%s\n", placeIdToName(locs[i]));
+			// }
+			// //printf ("\n");
+			// printf ("%d\n", numLocs);
 			assert(numLocs == 7);
 			
 			assert(locs[0] == ADRIATIC_SEA);
@@ -499,9 +499,9 @@ int main(void)
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
 			                                     2, PARIS, false, true,
 			                                     false, &numLocs);
-			for (int i = 0; i <= numLocs; i++) {
-			  	printf ("%s\n", placeIdToName(locs[i]));
-			}
+			// for (int i = 0; i <= numLocs; i++) {
+			//   	printf ("%s\n", placeIdToName(locs[i]));
+			// }
 			assert(numLocs == 7);
 			
 			sortPlaces(locs, numLocs);

@@ -19,16 +19,16 @@
 #include "GameView.h"
 #include "Map.h"
 #include "Places.h"
-#include "testUtils.h"
-#include <string.h>
 #include "Queue.h"
+#include <string.h>
+#include "testUtils.h"
 
 void PastPlayAnalysis(GameView gv);
 Player DeterminePlayerId(GameView gv, char PlayerAbbrev);
 char DeterminePlayerAbr(Player player);
 int LastPlay(GameView gv, char character); 
-PlaceId RevealHideLocation(GameView gv, int lastTurn);
-PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn);
+// PlaceId RevealHideLocation(GameView gv, int lastTurn);
+// PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn);
 void RestCheck (PlaceId Loc, GameView gv, Player character, int player_round);
 void AdjustHunterHealth(GameView gv, Player character, int player_round);
 void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_round); 
@@ -336,11 +336,14 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
 	PlaceId *Move_History = GvGetMoveHistory(gv, player, &numMoves, canFree);
 
 	PlaceId *Loc_History = calloc(numMoves,sizeof(int));
+	
 	if (Loc_History == NULL) {
 		fprintf(stderr, "Couldnt allocate memory");
 		printf("\n");
 	}
+	
 	for (int i = 0; i < numMoves; i++) {
+		
 		if (Move_History[i] == HIDE) {
 			Loc_History[i] = Loc_History[i-1];
 		} 
@@ -443,9 +446,7 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 			}
 			Reachable_places = Reachable_places->next;
 		}
-		
-	} 
-	
+	}
 
 
 	int num_places_unique = 0;
@@ -551,6 +552,7 @@ int GvGetScore(GameView gv)
 	
 
 void PastPlayAnalysis(GameView gv) {
+	
 	int currG_round = START;
 	int currS_round = START;
 	int currH_round = START;
@@ -705,7 +707,8 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-1];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == DOUBLE_BACK_2) {
+	} 
+	else if (Loc == DOUBLE_BACK_2) {
 		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2] == HIDE) {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
@@ -713,7 +716,8 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == DOUBLE_BACK_3) {
+	} 
+	else if (Loc == DOUBLE_BACK_3) {
 		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3] == HIDE) {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
@@ -721,7 +725,8 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == DOUBLE_BACK_4) {
+	} 
+	else if (Loc == DOUBLE_BACK_4) {
 		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4] == HIDE) {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
@@ -729,7 +734,8 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == DOUBLE_BACK_5) {
+	} 
+	else if (Loc == DOUBLE_BACK_5) {
 		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5] == HIDE) {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-6];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
@@ -737,29 +743,38 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == CASTLE_DRACULA) {
+	} 
+	else if (Loc == CASTLE_DRACULA) {
 		gv->Player[PLAYER_DRACULA]->Location = Loc;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} else if (placeIdToType(Loc) == SEA || Loc == SEA_UNKNOWN) {
+	} 
+	else if (placeIdToType(Loc) == SEA || Loc == SEA_UNKNOWN) {
 		gv->Player[PLAYER_DRACULA]->Location = Loc;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} else if (Loc == TELEPORT) {
+	} 
+	else if (Loc == TELEPORT) {
 		gv->Player[PLAYER_DRACULA]->Location = CASTLE_DRACULA;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} else if (Loc == HIDE) {
-		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} else {
+	} 
+	else {
 		gv->Player[PLAYER_DRACULA]->Location = Loc;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 	} 
 }
 
 void AdjustDraculaHealth(GameView gv, Player character) 
-{
+{	
+	// Dracula is at Castle Dracula and regains some health
+	
 	if (gv->Player[PLAYER_DRACULA]->Location == CASTLE_DRACULA) {
-		gv->Player[PLAYER_DRACULA]->Rest++; 						// Dracula is at Castle Dracula and regains some health
-	} else if (placeIdToType(gv->Player[PLAYER_DRACULA]->Location) == SEA || gv->Player[PLAYER_DRACULA]->Location == SEA_UNKNOWN) {
-		gv->Player[character]->Trap_Encounter++; 					//Trap_enconter for Dracula keeps track of Dracula being at sea
+		gv->Player[PLAYER_DRACULA]->Rest++; 						
+	} 
+	
+	//Trap_enconter for Dracula keeps track of Dracula being at sea
+	
+	else if (placeIdToType(gv->Player[PLAYER_DRACULA]->Location) == SEA || 
+	gv->Player[PLAYER_DRACULA]->Location == SEA_UNKNOWN) {
+		gv->Player[character]->Trap_Encounter++; 					
 	} 
 
 	int num_traps = gv->Player[character]->Trap_Encounter;
@@ -855,4 +870,3 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 
 // 	return TransportConnections;
 // }
-//}
