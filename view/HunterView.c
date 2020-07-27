@@ -20,7 +20,7 @@
 #include "Map.h"
 #include "Places.h"
 // add your own #includes here
-
+#include "Queue.h"
 // TODO: ADD YOUR OWN STRUCTS HERE
 
 struct hunterView {

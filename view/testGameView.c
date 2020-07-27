@@ -451,7 +451,7 @@ int main(void)
 			                                     1, GALATZ, &numLocs);
 
 			assert(numLocs == 5);
-			for (int i = 0; i < numLocs; i++) {
+			for (int i = 0; i <= numLocs; i++) {
 				printf ("%s\n", placeIdToName(locs[i]));
 			}
 			printf ("\n");
@@ -467,26 +467,29 @@ int main(void)
 			free(locs);
 		}
 
-		// {
-		// 	printf("\tChecking Ionian Sea boat connections "
-		// 	       "(Lord Godalming, Round 1)\n");
+		{
+			printf("\tChecking Ionian Sea boat connections "
+			       "(Lord Godalming, Round 1)\n");
 			
-		// 	int numLocs = -1;
-		// 	PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-		// 	                                     1, IONIAN_SEA, false, false,
-		// 	                                     true, &numLocs);
-			
-		// 	assert(numLocs == 7);
-		// 	sortPlaces(locs, numLocs);
-		// 	assert(locs[0] == ADRIATIC_SEA);
-		// 	assert(locs[1] == ATHENS);
-		// 	assert(locs[2] == BLACK_SEA);
-		// 	assert(locs[3] == IONIAN_SEA);
-		// 	assert(locs[4] == SALONICA);
-		// 	assert(locs[5] == TYRRHENIAN_SEA);
-		// 	assert(locs[6] == VALONA);
-		// 	free(locs);
-		// }
+			int numLocs = -1;
+			PlaceId *locs = GvGetReachable(gv, PLAYER_LORD_GODALMING,
+			                                     1, IONIAN_SEA, &numLocs);
+			// for (int i = 0; i <= numLocs+1; i++) {
+			// 	printf ("%s\n", placeIdToName(locs[i]));
+			// }
+			printf ("\n");
+			printf ("%d", numLocs);
+			//assert(numLocs == 7);
+			sortPlaces(locs, numLocs);
+			assert(locs[0] == ADRIATIC_SEA);
+			assert(locs[1] == ATHENS);
+			assert(locs[2] == BLACK_SEA);
+			assert(locs[3] == IONIAN_SEA);
+			assert(locs[4] == SALONICA);
+			assert(locs[5] == TYRRHENIAN_SEA);
+			assert(locs[6] == VALONA);
+			free(locs);
+		}
 
 		// {
 		// 	printf("\tChecking Paris rail connections "

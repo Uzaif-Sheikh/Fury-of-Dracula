@@ -425,13 +425,14 @@ PlaceId *GvGetReachable(GameView gv, Player player, Round round,
 			TransportConnections[movable_places] = Places_Movable->type;
 			Places_Movable = Places_Movable->next;
 		}
-
+		//TransportConnections = 
 		movable_places = RailRoutesFind (max_rail_size, GetReachable, 
 				 movable_places, TransportConnections, Places);
 		
 	}
 
 	else {
+		//int  last_moves_trail = (round)%(TRAIL_SIZE);
 		
 		while (Places_Movable) {
 			
@@ -442,6 +443,16 @@ PlaceId *GvGetReachable(GameView gv, Player player, Round round,
 				Places_Movable = Places_Movable->next;
 			}
 		}
+
+		// int numReturnedMoves = 0;
+		// PlaceId *moves_in_trail = GvGetLastMoves(gv, player, 
+		// 			last_moves_trail, &numReturnedMoves, false);
+		
+		// int last_locs = 0;
+		// PlaceId *last_locations = GvGetLastLocations(gv, player, 
+		// 			last_moves_trail, &last_locs, false);
+		
+		//for (int i = 0; i < last_moves_trail; i )
 
 	}
 	
@@ -454,14 +465,14 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
                               bool boat, int *numReturnedLocs)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	int numLocs = -1;
-	PlaceId *ReachablebyType = calloc(NUM_REAL_PLACES, sizeof(*ReachablebyType));
-	PlaceId *Reachable_All_Type =  GvGetReachable(gv, player, round, from, &numLocs);
+	// int numLocs = -1;
+	// PlaceId *ReachablebyType = calloc(NUM_REAL_PLACES, sizeof(*ReachablebyType));
+	// PlaceId *Reachable_All_Type =  GvGetReachable(gv, player, round, from, &numLocs);
 	
-	int i = 0;
-	while (i < numLocs) {
-		if (Reachable_All_Type[i])
-	}
+	// int i = 0;
+	// while (i < numLocs) {
+	// 	if (Reachable_All_Type[i])
+	// }
 	*numReturnedLocs = 0;
 	return NULL;
 }
@@ -903,6 +914,7 @@ TransportType* TransportConnections, Map places) {
 				if (connecting_rail->type == RAIL) {
 					movable_places++;
 					GetReachable[movable_places] = connecting_rail->p;
+					TransportConnections[movable_places] = connecting_rail->type;
 					QueueJoin(q, connecting_rail->p);
 				}
 				connecting_rail = connecting_rail->next;
@@ -914,3 +926,7 @@ TransportType* TransportConnections, Map places) {
 	
 	return movable_places;
 }
+
+// TransportType* PlaceIdtoTransportType (PlaceId *Locations_Reachable) {
+
+// }
