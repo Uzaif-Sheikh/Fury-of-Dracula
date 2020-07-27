@@ -1,21 +1,49 @@
-assert(placeIsReal(from));
+PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
+                              PlaceId from, bool road, bool rail,
+                              bool boat, int *numReturnedLocs)
+{
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	int numLocs = 0;
 	Map Places = MapNew();
+	PlaceId *ReachablebyType = calloc(NUM_REAL_PLACES, sizeof(*ReachablebyType));
 	
-	PlaceId *GetReachable = calloc(NUM_REAL_PLACES, sizeof(*GetReachable));
-    	int movable_places = 0;
+	ReachablebyType[0] = from;
+	int Location_by_type = 1;
 
-	if (player != PLAYER_DRACULA) {
-		
-		ConnList Reachable_Places = MapGetConnections(Places, from);
-		ConnList Places_Movable = Reachable_Places;
-		
-		while (Places_Movable) {
-			GetReachable[movable_places] = Places_Movable->p;
-			Places_Movable = Places_Movable->next;
-			movable_places++;
+	if (boat == true) {
+		for (ConnList c = MapGetConnections(Places, from); c != NULL; c = c->next) {
+			if (c->type == BOAT) {
+				ReachablebyType[Location_by_type] = c->p;
+				Location_by_type++;
+			}
 		}
-		
 	}
 	
-	*numReturnedLocs = movable_places;
-	return GetReachable;
+	if (road == true) {
+		for (ConnList c = MapGetConnections(Places, from); c != NULL; c = c->next) {
+			if (c->type == ROAD)
+				ReachablebyType[Location_by_type] = c->p;
+				Location_by_type++;
+			}
+		}
+	}
+	
+	if (rail == true) {
+		for (ConnList c = MapGetConnections(Places, from); c != NULL; c = c->next) {
+			if (c->type == RAIL) {
+				ReachablebyType[Location_by_type] = c->p;
+				Location_by_type++;
+			}
+		}
+	}
+    
+	
+	
+	
+	*numReturnedLocs = Location_by_type;
+	printf("\n\n");
+	for (int i = 0; i < Location_by_type; i++) {
+		printf ("%s\n", placeIdToName(ReachablebyType[i]));
+	}
+	return ReachablebyType;
+}

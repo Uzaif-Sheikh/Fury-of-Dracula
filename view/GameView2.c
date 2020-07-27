@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 // COMP2521 20T2 ... the Fury of Dracula
 // GameView.c: GameView ADT implementation
 //
@@ -35,8 +35,9 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 void AdjustDraculaHealth(GameView gv, Player character);
 void HunterEncounters(PlaceId Loc, GameView gv, Player character,char *play, int round);
 void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int mature);
-int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId from);
-//TransportType* PlaceIdtoTransportType (PlaceId *Locations_Reachable, int movable_places);
+int  RailRoutesFind (int max_rail_size, PlaceId *GetReachable, 
+     int movable_places, TransportType* TransportConnections, Map Places, PlaceId from);
+TransportType* PlaceIdtoTransportType (PlaceId *Locations_Reachable, int movable_places);
 
 #define NO_PLAYER 		10
 #define MAX_ROUND_STRING 	39
@@ -213,84 +214,84 @@ PlaceId GvGetVampireLocation(GameView gv)
 	return gv->Vampire_Location;
 }
 
-PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
-{
-	char *copy_string = strdup(gv->Game_State);
+// PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
+// {
+	// char *copy_string = strdup(gv->Game_State);
 
-	PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
-	PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
-	int count = 0;
-	int count1 = 0;
-	char *city;
-	char *tok = strtok(copy_string," ");
-	while (tok != NULL) {
+	// PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	// PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	// int count = 0;
+	// int count1 = 0;
+	// char city[2];
+	// char *tok = strtok(copy_string," ");
+	// while(tok != NULL){
 
-		Player curr_player = DeterminePlayerId(gv, tok[0]);
+	// 	Player curr_player = DeterminePlayerId(gv, tok[0]);
 		
-		city = strndup(&tok[1],2);
+	// 	strncpy(city,&tok[1],2);
 
-		PlaceId Loc = placeAbbrevToId(city);
+	// 	PlaceId Loc = placeAbbrevToId(city);
 		
-		if (curr_player == PLAYER_DRACULA && tok[3] == 'T') {
-			trap[count] = Loc;
-			count++;
-		}
-		
-		if (curr_player != PLAYER_DRACULA) {
-			for(int i = 3; i < strlen(copy_string);i++){
-				if(tok[i] == 'T'){
-					trap_encounter_player[count1] = Loc;
+	// 	if(curr_player == PLAYER_DRACULA && tok[3] == 'T'){
+	// 		if(Loc == HIDE){
+	// 			Loc = RevealHideLocation(gv, LastPlay(gv,tok[0])); 
+	// 		}
+	// 		if(DB_MOVE(Loc)) {
+	// 			Loc = RevealDoubleBackLocation(gv,LastPlay(gv,tok[0]));
+	// 		}
+	// 		trap[count] = Loc;
+	// 		count++;
+	// 	}
+	// 	if(curr_player == PLAYER_DRACULA && tok[5] == 'M'){
+	// 		trap[count-1] = 0;
+	// 		count--;
+	// 	}
+	// 	if(curr_player != PLAYER_DRACULA){
+	// 		for(int i = 3; i < strlen(copy_string);i++){
+	// 			if(tok[i] == 'T'){
+	// 				trap_encounter_player[count1] = Loc;
+	// 				count1++;
+	// 			}
+	// 		}
+	// 	}
+	// 	tok = strtok(NULL," ");
 
-					count1++;
-				}
-			}
-		}
-		
-		free(city);
-		tok = strtok(NULL," ");
+	// } 
 
-	} 
-
-	int total_trap_encounter = 0;
-	for (int l = 0;l < 4;l++) {
-		total_trap_encounter += gv->Player[l]->Trap_Encounter;
-	}
-
-	for (int j = 0;j < gv->Drac_Trap;j++){
-		for (int k = 0;k < gv->Drac_Trap;k++){
-			if (trap[j] == trap_encounter_player[k]){
-				trap[j] = 0;
-			}
-		}
-	}
-
-	int temp = 0;
-	
-	for (int j = 0;j < gv->Drac_Trap;j++){
-		for (int k = j + 1; k < gv->Drac_Trap; k++){
-			if(trap[j] < trap[k]){
-				
-				temp = trap[j];
-				trap[j] = trap[k];
-				trap[k] = temp; 
-
-			}
-		}
-		
-	}
-	// for(int j1 = 0;j1<gv->Drac_Trap;j1++){
-	// 	//printf("loc :%d\n",trap[j1]);
+	// int total_trap_encounter = 0;
+	// for(int l = 0;l < 4;l++) {
+	// 	total_trap_encounter += gv->Player[l]->Trap_Encounter;
 	// }
 
+	// for(int j = 0;j < gv->Drac_Trap;j++){
+	// 	for(int k = 0;k < gv->Drac_Trap;k++){
+	// 		if(trap[j] == trap_encounter_player[k]){
+	// 			trap[j] = 0;
+	// 		}
+	// 	}
+	// }
+
+	// int temp = 0;
+	
+	// for(int j = 0;j < gv->Drac_Trap;j++){
+	// 	for (int k = j + 1; k < gv->Drac_Trap; k++){
+	// 		if(trap[j] < trap[k]){
+				
+	// 			temp = trap[j];
+	// 			trap[j] = trap[k];
+	// 			trap[k] = temp; 
+
+	// 		}
+	// 	}
+		
+	// }
 	// free(tok);
 	// free(trap_encounter_player);
 	// free(copy_string);
 
-	*numTraps = (count-total_trap_encounter);
-	return trap;
-	
-	return NULL;  
-}
+	// *numTraps = (count-total_trap_encounter);
+	// return trap; 
+//}
 
 ////////////////////////////////////////////////////////////////////////
 // 			     Game History			      //
@@ -379,7 +380,7 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
                             int *numReturnedLocs, bool *canFree)
 {
 	PlaceId *Location_history = GvGetLocationHistory(gv, player, numReturnedLocs, canFree);
-	PlaceId *Last_move = calloc(numLocs,sizeof(*Last_move));
+	PlaceId *Last_move = calloc(numLocs,sizeof(PlaceId));
 
 	int count = 0;
 	for(int i = (*numReturnedLocs-1); i >= (*(numReturnedLocs)-numLocs); i--) {		
@@ -399,82 +400,170 @@ PlaceId *GvGetReachable(GameView gv, Player player, Round round,
                         PlaceId from, int *numReturnedLocs)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	int numLocs = 0;
+	assert(placeIsReal(from));
+	Map Places = MapNew();
 	
-	PlaceId *Reachable = GvGetReachableByType(gv, player, round, from, true, true, true, &numLocs);
+	PlaceId *GetReachable = calloc(NUM_REAL_PLACES, sizeof(*GetReachable));
+    	TransportType *TransportConnections = calloc(NUM_REAL_PLACES, sizeof(*GetReachable));
+	//char visited[NUM_REAL_PLACES] = {0};
+	TransportConnections[0] = ANY;
 	
-	*numReturnedLocs = numLocs;
-	return Reachable;
+	int movable_places = 0;
+	GetReachable[movable_places] = from;	
+	//visited[from] = 1;
+
+	ConnList Reachable_Places = MapGetConnections(Places, from);
+	ConnList Places_Movable = Reachable_Places;
 	
+	
+	if (player != PLAYER_DRACULA) {
+		
+		int max_rail_size = (round + player)%(4);
+		while (Places_Movable) {
+			
+			//if (visited[Places_Movable->p]) continue;
+			movable_places++;
+			GetReachable[movable_places] = Places_Movable->p;
+			
+			// if (Places_Movable->type == RAIL) {
+			// 	RailRoutesFind (max_rail_size, GetReachable, from)
+			// }
+			//visited[Places_Movable->p] = 1;
+			TransportConnections[movable_places] = Places_Movable->type;
+			Places_Movable = Places_Movable->next;
+			
+			
+		}
+		//TransportConnections = 
+		movable_places = RailRoutesFind (max_rail_size, GetReachable, 
+		 		 movable_places, TransportConnections, Places, from);
+	}
+
+	else {
+		//int  last_moves_trail = (round)%(TRAIL_SIZE);
+		
+		while (Places_Movable) {
+			
+			if (Places_Movable->p != HOSPITAL_PLACE && 
+			Places_Movable->type != RAIL) {
+				movable_places++;
+				GetReachable[movable_places] = Places_Movable->p;
+				Places_Movable = Places_Movable->next;
+			}
+		}
+
+		// int numReturnedMoves = 0;
+		// PlaceId *moves_in_trail = GvGetLastMoves(gv, player, 
+		// 			last_moves_trail, &numReturnedMoves, false);
+		
+		// int last_locs = 0;
+		// PlaceId *last_locations = GvGetLastLocations(gv, player, 
+		// 			last_moves_trail, &last_locs, false);
+		
+		//for (int i = 0; i < last_moves_trail; i )
+
+	}
+	
+	// sortPlaces(GetReachable, movable_places);
+	
+	// int j = 0;
+	// PlaceId *Real_Reachable = calloc(movable_places, sizeof(*Real_Reachable));
+	
+	// for (int i = 1; i < movable_places; i++) {
+	// 	if (GetReachable[i] == GetReachable[i+1]) continue;
+	// 	Real_Reachable[j] = GetReachable[i];
+	// 	j++; 
+	// }
+	
+	*numReturnedLocs = movable_places;
+	MapFree(Places);
+	//free(GetReachable);
+	return GetReachable;
 }
 
 PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
                               PlaceId from, bool road, bool rail,
                               bool boat, int *numReturnedLocs)
 {
-	PlaceId *GetReachable = calloc(NUM_REAL_PLACES, sizeof(*GetReachable));
-	PlaceId *GetReachable_type = calloc(NUM_REAL_PLACES, sizeof(*GetReachable_type));
-
-	Map Places = MapNew();
-	int num_places_type = 0;
-
-	GetReachable[num_places_type] = from;
-	num_places_type++;
-
-	if (rail == true) {
-		int max_rail_size = (round + player)%4;
-		num_places_type = RailRoutesFind (max_rail_size, GetReachable, Places, from); 
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	int numLocs = 0;
+	// Map Places = MapNew();
+	PlaceId *ReachablebyType = calloc(NUM_REAL_PLACES, sizeof(*ReachablebyType));
+	
+	PlaceId *Reachable_All_Type =  GvGetReachable(gv, player, round, from, &numLocs);
+	TransportType *TransportConnections = PlaceIdtoTransportType (Reachable_All_Type, numLocs);
+	
+	for (int i = 0; i < numLocs; i++) {
+		printf ("%s\n", placeIdToName(Reachable_All_Type[i]));
 	}
-
+	
+	printf ("\n\n%d\n", numLocs);
+	
+	for (int i = 1; i < numLocs; i++) {
+		printf ("%s\n", transportTypeToString(TransportConnections[i]));
+	}
+	
+	ReachablebyType[0] = from;
+	int Location_by_type = 1;
+	
 	if (road == true) {
-		ConnList Reachable_places = MapGetConnections(Places, from);
-		while (Reachable_places != NULL) {
-			if (Reachable_places->type == ROAD) {
-				GetReachable[num_places_type] = Reachable_places->p;
-				num_places_type++;
+		for (int i = 1; i < numLocs; i++) {
+			if (TransportConnections[i] == ROAD) {
+				ReachablebyType[Location_by_type] = Reachable_All_Type[i];
+				Location_by_type++;
 			}
-			Reachable_places = Reachable_places->next;
+		}
+	}
+	
+	if (rail == true) {
+		for (int i = 1; i < numLocs; i++) {
+			if (TransportConnections[i] == RAIL) {
+				ReachablebyType[Location_by_type] = Reachable_All_Type[i];
+				Location_by_type++;
+			}
 		}
 	}
 
 	if (boat == true) {
-		ConnList Reachable_places = MapGetConnections(Places, from);
-		while (Reachable_places != NULL) {
-			if (Reachable_places->type == BOAT) {
-				GetReachable[num_places_type] = Reachable_places->p;
-				num_places_type++;
+		for (int i = 1; i < numLocs; i++) {
+			if (TransportConnections[i] == BOAT) {
+				ReachablebyType[Location_by_type] = Reachable_All_Type[i];
+				Location_by_type++;
 			}
-			Reachable_places = Reachable_places->next;
 		}
 	}
-
-
-	int num_places_unique = 0;
 	
-	sortPlaces(GetReachable, num_places_type);
-	
-	for (int i = 0; i < num_places_type; i++) {
-		
-		if (i != 0) {
-			if (GetReachable[i] != GetReachable[i-1]) {
-				GetReachable_type[num_places_unique] = GetReachable[i];
-				num_places_unique++;
-			}
-		} 
-		
-		else {
-			GetReachable_type[num_places_unique] = GetReachable[i];
-			num_places_unique++;
-		}
+	*numReturnedLocs = Location_by_type;
+	printf("\n\n");
+	for (int i = 0; i < Location_by_type; i++) {
+		printf ("%s\n", placeIdToName(ReachablebyType[i]));
 	}
-
-
-	free(GetReachable);
-
-	*numReturnedLocs = num_places_unique;
-	return GetReachable_type;
+	return ReachablebyType;
 }
 
+// for (ConnList c = Reachable_Places; c != NULL; c = c->next) {
+		
+	// 	if (c->type && road) {
+	// 		ReachablebyType[numLocs] = c->p;
+	// 		numLocs++;	
+	// 	}
+
+	// 	if (c->type && rail) {
+	// 		ReachablebyType[numLocs] = c->p;
+	// 		numLocs++;
+	// 	}
+
+	// 	if (c->type && boat) {
+	// 		ReachablebyType[numLocs] = c->p;
+	// 		numLocs++;
+	// 	}
+		
+	// }
+	
+	// if (rail) {
+	// 	numLocs = RailRoutesFind (max_rail_size, GetReachable, 
+	// 			numLocs, TransportConnections, Places);
+	// }
 ////////////////////////////////////////////////////////////////////////
 //		   	  ADDITIONAL PROTOTYPES			      //
 ////////////////////////////////////////////////////////////////////////
@@ -538,6 +627,86 @@ char DeterminePlayerAbr(Player player)
 	return curr_Player_turn;
 }
 
+// Get the last turn of a  given player. The return is the position
+// within the pastPlay string of the last appearance
+// of the characters abbreviated name. If the player has not
+// played yet, NOT_PLAYED_YET is returned
+/*
+int LastPlay(GameView gv, char character) 
+{	
+	int lastPlay = NOT_PLAYED_YET;
+	for (lastPlay = strlen(gv->Game_State) - PLAYER_MOVES_ACTIONS ;
+		lastPlay >= 0; lastPlay -= (PLAYER_MOVES_ACTIONS + 1)) {
+				
+		if (gv->Game_State[lastPlay] == character) 
+			return lastPlay;
+	}
+
+	return lastPlay;
+}
+
+// Given that a HIDE move is revealed, find the LOCATION
+PlaceId RevealHideLocation(GameView gv, int lastTurn) {
+	
+	int PreviousTurn = lastTurn - MAX_ROUND_STRING;
+	char location[2];
+	
+	strncpy(location, &gv->Game_State[PreviousTurn+1], 2);
+	
+	if (((strcmp(location, "HI") != 0) ||  
+	!(location[0] == 'D') )
+	&& isdigit(location[1])){
+
+		return placeAbbrevToId(location);
+	}
+        
+	PlaceId Loc;
+
+	if(strcmp (location,"HI") == 0) {
+		Loc = RevealHideLocation(gv, PreviousTurn);
+	}
+
+	else if ((location[0] == 'D') 
+	&& isdigit(location[1])) {
+
+		Loc = RevealDoubleBackLocation(gv, PreviousTurn);
+		
+	}
+
+	return Loc; 
+}
+
+// Given that a DOUBLEBACK move is revealed, find the LOCATION								
+PlaceId RevealDoubleBackLocation(GameView gv, int PreviousTurn) {
+	// TO DO:
+	char location[2];
+	
+	strncpy(location, &gv->Game_State[PreviousTurn+1], 2);
+
+	if (((strcmp(location, "HI") != 0) ||  
+	!(location[0] == 'D') )
+	&& isdigit(location[1])) {
+
+		return placeAbbrevToId(location);
+	}
+
+	PlaceId Loc;
+
+	if ((location[0] == 'D') 
+	&& isdigit(location[1])) {
+                
+		int DB_move = gv->Game_State[PreviousTurn+1];
+		Loc = RevealDoubleBackLocation(gv, PreviousTurn - DB_move);
+	}
+
+	else if (strcmp (location,"HI") == 0) {
+		Loc = RevealHideLocation(gv, PreviousTurn);
+	}
+
+	return Loc;
+}
+
+*/
 int GvGetScore(GameView gv)
 {
     int total_death = 0;
@@ -648,18 +817,13 @@ void HunterEncounters(PlaceId Loc, GameView gv, Player character,
 				char *play, int round) 
 {
 	for (int i = 3;i < strlen(play); i++) {
-		
 		if (play[i] == 'V') {
 			if (round != 6 && gv->Player[PLAYER_DRACULA]->Vampire_Encounter != 0) {
 				gv->Vampire_Location = NOWHERE;
 			}
-		} 
-		
-		else if (play[i] == 'T') {
+		} else if (play[i] == 'T') {
 			gv->Player[character]->Trap_Encounter++;
-		} 
-		
-		else if (play[i] == 'D' && (placeIdToType(Loc) != SEA)) {
+		} else if (play[i] == 'D' && (placeIdToType(Loc) != SEA)) {
 			gv->Player[character]->Player_Encounter++;
 			gv->Player[PLAYER_DRACULA]->Player_Encounter++;
 		}
@@ -809,18 +973,26 @@ void DraculaTraps(PlaceId Loc, GameView gv, char *play, int round, int mature)
 	}
 }
 
-int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId from) {
+int RailRoutesFind (int max_rail_size, PlaceId *GetReachable, int movable_places, 
+TransportType* TransportConnections, Map places, PlaceId from ) {
 
 	Queue q = newQueue();
-	QueueJoin(q, from);
 	
+	for (int i = 0; i < movable_places; i++) {
+		if (TransportConnections[i] == RAIL) {
+			QueueJoin(q, GetReachable[i]);
+		}
+		
+	}
 	
 	int num_rail_moves = 1;
-	int rail_type_places = 1;
+	// char visited[NUM_REAL_PLACES] = {0}; 
+	// visited[GetReachable[0]] = 1;
 	
-	while (!QueueIsEmpty(q) && num_rail_moves <= max_rail_size) {
+	while (!QueueIsEmpty(q) && num_rail_moves < max_rail_size) {
 
 		int num_curr_level_rail = QueueSize(q);
+		//printf ("%d\n", num_curr_level_rail);
 		
 		while (num_curr_level_rail > 0) {
 			
@@ -828,45 +1000,45 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 			
 			ConnList Rail_route = MapGetConnections(places, Rail_connecting);
 			
-			while (Rail_route) {
-				if (Rail_route->type == RAIL) {
-					
-					GetReachable[rail_type_places] = Rail_route->p;
-					rail_type_places++;
-					QueueJoin(q, Rail_route->p);
+			ConnList connecting_rail = Rail_route;
+
+			while (connecting_rail) {
+				if (connecting_rail->type == RAIL) {
+					movable_places++;
+					GetReachable[movable_places] = connecting_rail->p;
+					TransportConnections[movable_places] = connecting_rail->type;
+					QueueJoin(q, connecting_rail->p);
 				}
-				Rail_route = Rail_route->next;
+				connecting_rail = connecting_rail->next;
 			}
 			num_curr_level_rail--;
 		}
-		
 		num_rail_moves++;
 		
 	}
 	
-	dropQueue (q);
-	return rail_type_places;
+	return movable_places;
 }
 
-// TransportType* PlaceIdtoTransportType (PlaceId *Locations_Reachable, int movable_places) {
+TransportType* PlaceIdtoTransportType (PlaceId *Locations_Reachable, int movable_places) {
 
-// 	Map Places = MapNew();
-// 	ConnList Reachable_Places = MapGetConnections(Places, Locations_Reachable[0]);
+	Map Places = MapNew();
+	ConnList Reachable_Places = MapGetConnections(Places, Locations_Reachable[0]);
 	
-// 	TransportType *TransportConnections = calloc(movable_places, sizeof(*TransportConnections));
-// 	int transport_adjacent = 0;
+	TransportType *TransportConnections = calloc(movable_places, sizeof(*TransportConnections));
+	int transport_adjacent = 0;
 	
-// 	TransportConnections[transport_adjacent] = ANY;
+	TransportConnections[transport_adjacent] = ANY;
 	
-// 	for (ConnList c = Reachable_Places; c != NULL; c = c->next) {
-// 		transport_adjacent++;
-// 		TransportConnections[transport_adjacent] = c->type;
-// 	}
+	for (ConnList c = Reachable_Places; c != NULL; c = c->next) {
+		transport_adjacent++;
+		TransportConnections[transport_adjacent] = c->type;
+	}
 	
-// 	int rail_type = movable_places - transport_adjacent;
-// 	for (int i = rail_type; i < movable_places; i++) {
-// 		TransportConnections[i] = RAIL;
-// 	}
+	int rail_type = movable_places - transport_adjacent;
+	for (int i = rail_type; i < movable_places; i++) {
+		TransportConnections[i] = RAIL;
+	}
 
-// 	return TransportConnections;
-// }
+	return TransportConnections;
+}
