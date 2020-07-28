@@ -346,13 +346,26 @@ int main(void)
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
-			"GGE.... SGE.... HGE.... MGE.... DC?T.V.";
+			"GGE.... SGE.... HGE.... MGE.... DC?..V. "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?.V.. "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGEV... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?....";
 		
 		Message messages[35] = {};
 		GameView gv = GvNew(trail, messages);
 		
+
 		assert(GvGetScore(gv) == GAME_START_SCORE
-		                         - 7 * SCORE_LOSS_DRACULA_TURN
+		                         - 19 * SCORE_LOSS_DRACULA_TURN
 		                         - SCORE_LOSS_VAMPIRE_MATURES);
 		assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == CITY_UNKNOWN);
 		assert(GvGetVampireLocation(gv) == NOWHERE);
@@ -473,9 +486,9 @@ int main(void)
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachable(gv, PLAYER_LORD_GODALMING,
 			                                     1, GALATZ, &numLocs);
-			// for (int i = 0; i < numLocs; i++) {
-			// 	printf ("%s\n", placeIdToName(locs[i]));
-			// }
+			 //for (int i = 0; i < numLocs; i++) {
+			 //	printf ("%s\n", placeIdToName(locs[i]));
+			 //}
 			assert(numLocs == 5);
 			//printf ("\n");
 			sortPlaces(locs, numLocs);
