@@ -75,6 +75,8 @@ int main(void)
 		assert(DvGetRound(dv) == 1);
 		assert(DvGetScore(dv) == GAME_START_SCORE - SCORE_LOSS_DRACULA_TURN);
 		assert(DvGetHealth(dv, PLAYER_LORD_GODALMING) == 5);
+		int health = DvGetHealth(dv, PLAYER_DRACULA);
+		printf ("%d", health);
 		assert(DvGetHealth(dv, PLAYER_DRACULA) == 30);
 		assert(DvGetPlayerLocation(dv, PLAYER_LORD_GODALMING) == GENEVA);
 		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == GENEVA);

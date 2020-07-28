@@ -23,8 +23,7 @@
 // TODO: ADD YOUR OWN STRUCTS HERE
 
 struct draculaView {
-	// TODO: ADD FIELDS HERE
-	
+	GameView gv;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -32,19 +31,19 @@ struct draculaView {
 
 DraculaView DvNew(char *pastPlays, Message messages[])
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	DraculaView new = malloc(sizeof(*new));
 	if (new == NULL) {
 		fprintf(stderr, "Couldn't allocate DraculaView\n");
 		exit(EXIT_FAILURE);
 	}
-
+	new->gv = GvNew(pastPlays, messages);
 	return new;
 }
 
 void DvFree(DraculaView dv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	
+	//GvFree(dv->gv);
 	free(dv);
 }
 
@@ -52,40 +51,36 @@ void DvFree(DraculaView dv)
 // Game State Information
 
 Round DvGetRound(DraculaView dv)
-{
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+{   
+	return GvGetRound(dv->gv);
 }
 
 int DvGetScore(DraculaView dv)
-{
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+{   
+	return GvGetScore(dv->gv);
 }
 
-int DvGetHealth(DraculaView dv, Player player)
-{
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+int DvGetHealth(DraculaView dv, Player player) {	
+	
+	return GvGetHealth(dv->gv, player);
+
 }
 
-PlaceId DvGetPlayerLocation(DraculaView dv, Player player)
-{
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return NOWHERE;
+PlaceId DvGetPlayerLocation(DraculaView dv, Player player) {
+	
+	return GvGetPlayerLocation(dv->gv, player);
+
 }
 
 PlaceId DvGetVampireLocation(DraculaView dv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return NOWHERE;
+	return GvGetVampireLocation(dv->gv);
 }
 
 PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps)
-{
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numTraps = 0;
-	return NULL;
+{	
+	PlaceId *traps = GvGetTrapLocations(dv->gv, numTraps);
+	return traps;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -93,14 +88,14 @@ PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps)
 
 PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	
 	*numReturnedMoves = 0;
 	return NULL;
 }
 
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	
 	*numReturnedLocs = 0;
 	return NULL;
 }
@@ -108,7 +103,7 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
                              int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	
 	*numReturnedLocs = 0;
 	return NULL;
 }
@@ -116,7 +111,7 @@ PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
 PlaceId *DvWhereCanTheyGo(DraculaView dv, Player player,
                           int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	
 	*numReturnedLocs = 0;
 	return NULL;
 }
@@ -125,7 +120,7 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
                                 bool road, bool rail, bool boat,
                                 int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	
 	*numReturnedLocs = 0;
 	return NULL;
 }

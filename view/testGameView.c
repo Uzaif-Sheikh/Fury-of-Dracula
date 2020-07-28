@@ -134,6 +134,8 @@ int main(void)
 		
 		assert(GvGetHealth(gv, PLAYER_LORD_GODALMING) ==
 				GAME_START_HUNTER_LIFE_POINTS - LIFE_LOSS_DRACULA_ENCOUNTER);
+		int health = GvGetHealth(gv, PLAYER_DRACULA);
+		printf ("%d", health);
 		assert(GvGetHealth(gv, PLAYER_DRACULA) ==
 				GAME_START_BLOOD_POINTS - LIFE_LOSS_HUNTER_ENCOUNTER);
 		assert(GvGetPlayerLocation(gv, PLAYER_LORD_GODALMING) == GENEVA);
@@ -433,13 +435,35 @@ int main(void)
 	
 		printf("Testing connections\n");
 		
-		char *trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
-			"GCA.... SGE.... HGE.... MGE.... DC?T... "
-			"GGR.... SGE.... HGE.... MGE.... DC?T... "
-			"GAL.... SGE.... HGE.... MGE.... DD3T... "
-			"GSR.... SGE.... HGE.... MGE.... DHIT... "
-			"GSN.... SGE.... HGE.... MGE.... DC?T... "
-			"GMA.... SSTTTV.";
+		char *trail = "GSW.... SLS.... HMR.... MHA.... DSJ.V.. "
+		"GLO.... SAL.... HCO.... MBR.... DBET... "
+		"GED.... SBO.... HLI.... MPR.... DKLT... "
+		"GLV.... SNA.... HNU.... MBD.... DCDT... "
+		"GIR.... SPA.... HPR.... MKLT... DHIT... "
+		"GAO.... SST.... HSZ.... MCDTTD. DGAT... "
+		"GMS.... SFL.... HKL.... MSZ.... DCNT.V. "
+		"GTS.... SRO.... HBC.... MCNTD.. DBS..M. "
+		"GIO.... SBI.... HCN.... MCN.... DIO.... "
+		"GIO.... SAS.... HBS.... MCN.... DTS.... "
+		"GTS.... SAS.... HIO.... MBS.... DMS.... "
+		"GMS.... SIO.... HTS.... MIO.... DAO..M. "
+		"GAO.... STS.... HMS.... MTS.... DNS.... "
+		"GBB.... SMS.... HAO.... MMS.... DED.V.. "
+		"GNA.... SAO.... HEC.... MAO.... DMNT... "
+		"GBO.... SIR.... HLE.... MEC.... DD2T... "
+		"GSR.... SDU.... HBU.... MPL.... DHIT... "
+		"GSN.... SIR.... HAM.... MLO.... DTPT... "
+		"GAL.... SAO.... HCO.... MEC.... DCDT... "
+		"GMS.... SMS.... HFR.... MLE.... DKLT.V. "
+		"GTS.... STS.... HBR.... MCO.... DGAT.M. "
+		"GIO.... SIO.... HBD.... MLI.... DD3T.M. "
+		"GBS.... SBS.... HKLT... MBR.... DHI..M. "
+		"GCN.... SCN.... HCDTTTD MVI.... DTPT... "
+		"GGAT... SGA.... HSZ.... MBC.... DCDT... "
+		"GCDTTD. SCDD... HKL.... MGA.... DKLT... "
+		"GSZ.... SKLTD.. HKLD... MKLD... DBC.V.. "
+		"GBD.... SBE.... HGA.... MBCVD.. DSOT... "
+		"GSZ.... SSOTD.. HBC.... MSOD...";
 		Message messages[] = {};
 		GameView gv = GvNew(trail, messages);
 
@@ -526,6 +550,40 @@ int main(void)
 			assert(locs[0] == ATHENS);
 			free(locs);
 		}
+
+		{
+			printf("\tChecking reachable places for dracula\n");
+			//int numLocs = -1;
+
+			int numMoves = 0; bool canFree = false;
+			int numLocs = 0;
+			
+			PlaceId* LastMoves = GvGetLastMoves(gv, PLAYER_DRACULA, 12, &numMoves, &canFree);
+			PlaceId* LastLocs = GvGetLastLocations(gv, PLAYER_DRACULA, 12, &numLocs, &canFree);
+			
+			for (int i = 0; i < numMoves; i++) {
+				printf ("%s\n", placeIdToName(LastMoves[i]));
+			}
+
+			printf("\n\n");
+			for (int i = 0; i < numLocs; i++) {
+				printf ("%s\n", placeIdToName(LastLocs[i]));
+			}
+			printf ("\n\n");
+			PlaceId from = GvGetPlayerLocation(gv, PLAYER_DRACULA);
+			printf ("%s\n\n", placeIdToName(from));
+			
+			int round = GvGetRound(gv);
+			PlaceId *locs = GvGetReachable(gv, PLAYER_DRACULA,
+			                                    round, BELGRADE, &numLocs);
+			for (int i = 0; i < numLocs; i++) {
+				printf ("%s\n", placeIdToName(locs[i]));
+			}
+			// assert(numLocs == 1);
+			// assert(locs[0] == ATHENS);
+			free(locs);
+		}
+
 
 		GvFree(gv);
 		printf("Test passed!\n");

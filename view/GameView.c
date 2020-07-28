@@ -14,13 +14,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 #include "Game.h"
 #include "GameView.h"
 #include "Map.h"
 #include "Places.h"
 #include "testUtils.h"
-#include <string.h>
 #include "Queue.h"
 
 void PastPlayAnalysis(GameView gv);
@@ -46,6 +46,7 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 #define NOT_PLAYED_YET 		-1024
 #define START			0
 
+#define HIDE_MOVE(id) (id == HIDE)
 #define HUNTER(id) (id != PLAYER_DRACULA)
 #define NOT_HI_DB_MOVE(id) (id != HIDE && id != DOUBLE_BACK_1 \
 				&& id != DOUBLE_BACK_2 && id != DOUBLE_BACK_3 \
@@ -146,7 +147,11 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 }
 
 void GvFree(GameView gv) {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	
+	free(gv->Game_State);
+	for (int i = 0; i < NUM_PLAYERS; i++) {
+		free(gv->Player[i]->MoveHistory);
+	}
 	free(gv);
 }
 
@@ -205,6 +210,7 @@ int GvGetHealth(GameView gv, Player player)
 PlaceId GvGetPlayerLocation(GameView gv, Player player)
 {	
 	// Call reveal HIDE and Doubleback functions
+	//printf ("%s", placeIdToName(gv->Player[player]->Location));
 	return gv->Player[player]->Location;
 }
 
@@ -288,8 +294,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 
 	*numTraps = (count-total_trap_encounter);
 	return trap;
-	
-	return NULL;  
+	 
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -300,30 +305,36 @@ PlaceId *GvGetMoveHistory(GameView gv, Player player,
                           int *numReturnedMoves, bool *canFree)
 {
 	int i = 0;
-	while (gv->Player[player]->MoveHistory[i] != 0) {
+	while (gv->Player[player]->MoveHistory[i]) {
 		//printf("%d ", gv->Player[player]->MoveHistory[i]);
 		i++;
 	}
 	//printf("\n%d\n", i);
 	*numReturnedMoves = i;
+	*canFree = false;
 	return gv->Player[player]->MoveHistory;
 }
 
 PlaceId *GvGetLastMoves(GameView gv, Player player, int numMoves,
                         int *numReturnedMoves, bool *canFree)
-{
-	PlaceId *Move_history = GvGetMoveHistory(gv,player,numReturnedMoves,canFree);
-	printf("%d\n", *numReturnedMoves);
-	PlaceId *Last_move = calloc(numMoves,sizeof(PlaceId));
+{	
+	int LastMoves = *numReturnedMoves;
+	PlaceId *Move_history = GvGetMoveHistory (gv, player, &LastMoves, canFree);
+	
+	//printf("%d\n", LastMoves);
+	PlaceId *Last_move = calloc(numMoves+1,sizeof(*Last_move));
 
 	int count = 0;
-	for(int i = (*numReturnedMoves-1); i >= (*(numReturnedMoves)-numMoves); i--) {		
+	int move_history_needed = LastMoves - numMoves;
+	
+	for(int i = move_history_needed; i < LastMoves; i++) {		
 		Last_move[count] = Move_history[i];
-		printf("LOCATION -%d\n", Last_move[count]);
+		//printf("%s\n", placeIdToName(Last_move[count]));
 		count++;
 	}
+	
 	*numReturnedMoves = count;
-	*canFree = false;
+	*canFree = true;
 	return Last_move;
 	
 }
@@ -334,37 +345,31 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
 	int numMoves = 0;
 	
 	PlaceId *Move_History = GvGetMoveHistory(gv, player, &numMoves, canFree);
-
 	PlaceId *Loc_History = calloc(numMoves,sizeof(int));
+	
 	if (Loc_History == NULL) {
 		fprintf(stderr, "Couldnt allocate memory");
 		printf("\n");
 	}
+	
 	for (int i = 0; i < numMoves; i++) {
-		if (Move_History[i] == HIDE) {
+		
+		if (HIDE_MOVE(Move_History[i])) {
 			Loc_History[i] = Loc_History[i-1];
 		} 
-		else if (Move_History[i] == DOUBLE_BACK_1) {
-			Loc_History[i] = Loc_History[i-1];
+		else if (DB_MOVE(Move_History[i])) {
+			int DB_value = Move_History[i] - HIDE;
+			Loc_History[i] = Loc_History[i-DB_value];
 		} 
-		else if (Move_History[i] == DOUBLE_BACK_2) {
-			Loc_History[i] = Loc_History[i-2];
-		} 
-		else if (Move_History[i] == DOUBLE_BACK_3) {
-			Loc_History[i] = Loc_History[i-3];
-		} 
-		else if (Move_History[i] == DOUBLE_BACK_4) {
-			Loc_History[i] = Loc_History[i-4];
-		} 
-		else if (Move_History[i] == DOUBLE_BACK_5) {
-			Loc_History[i] = Loc_History[i-5];
-		} 
+		
 		else if (Move_History[i] == TELEPORT) {
 			Loc_History[i] = CASTLE_DRACULA;
-		} 
+		}
+		
 		else {
 			Loc_History[i] = Move_History[i];
 		}
+	
 	}
 	
 	*numReturnedLocs = numMoves;
@@ -374,17 +379,20 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
 
 PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
                             int *numReturnedLocs, bool *canFree)
-{
-	PlaceId *Location_history = GvGetLocationHistory(gv, player, numReturnedLocs, canFree);
+{	
+	int lastLocs = *numReturnedLocs;
+	PlaceId *Location_history = GvGetLocationHistory(gv, player, &lastLocs, canFree);
 	PlaceId *Last_move = calloc(numLocs,sizeof(*Last_move));
 
 	int count = 0;
-	for(int i = (*numReturnedLocs-1); i >= (*(numReturnedLocs)-numLocs); i--) {		
+	int Loc_hist_needed = lastLocs - numLocs;
+	for(int i = Loc_hist_needed; i < lastLocs; i++) {		
 		Last_move[count] = Location_history[i];
 		count++;
 	}
+	
 	*numReturnedLocs = count;
-	*canFree = false;
+	*canFree = true;
 	return Last_move;
 }
 
@@ -395,9 +403,8 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
 PlaceId *GvGetReachable(GameView gv, Player player, Round round,
                         PlaceId from, int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	//assert(placeIsReal(from));
 	int numLocs = 0;
-	
 	PlaceId *Reachable = GvGetReachableByType(gv, player, round, from, true, true, true, &numLocs);
 	
 	*numReturnedLocs = numLocs;
@@ -408,7 +415,8 @@ PlaceId *GvGetReachable(GameView gv, Player player, Round round,
 PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
                               PlaceId from, bool road, bool rail,
                               bool boat, int *numReturnedLocs)
-{
+{	
+	//assert(placeIsReal(from));
 	PlaceId *GetReachable = calloc(NUM_REAL_PLACES, sizeof(*GetReachable));
 	PlaceId *GetReachable_type = calloc(NUM_REAL_PLACES, sizeof(*GetReachable_type));
 
@@ -418,17 +426,33 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 	GetReachable[num_places_type] = from;
 	num_places_type++;
 
-	if (rail == true) {
-		int max_rail_size = (round + player)%4;
-		num_places_type = RailRoutesFind (max_rail_size, GetReachable, Places, from); 
+	if (player != PLAYER_DRACULA) {
+		if (rail == true) {
+			// if (player == PLAYER_DRACULA) {
+			// 	fprintf(stderr, "No rail route available for Dracula\n");
+			// 	exit(EXIT_FAILURE);
+			// }
+			int max_rail_size = (round + player)%4;
+			num_places_type = RailRoutesFind (max_rail_size, GetReachable, Places, from); 
+		}
 	}
+
 
 	if (road == true) {
 		ConnList Reachable_places = MapGetConnections(Places, from);
-		while (Reachable_places != NULL) {
+		while (Reachable_places) {
 			if (Reachable_places->type == ROAD) {
-				GetReachable[num_places_type] = Reachable_places->p;
-				num_places_type++;
+				if (player == PLAYER_DRACULA) {
+					if (Reachable_places->p != HOSPITAL_PLACE) {
+						GetReachable[num_places_type] = Reachable_places->p;
+						num_places_type++;
+					}
+				}
+				else {
+					GetReachable[num_places_type] = Reachable_places->p;
+					num_places_type++;
+				}
+				
 			}
 			Reachable_places = Reachable_places->next;
 		}
@@ -436,7 +460,7 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 
 	if (boat == true) {
 		ConnList Reachable_places = MapGetConnections(Places, from);
-		while (Reachable_places != NULL) {
+		while (Reachable_places) {
 			if (Reachable_places->type == BOAT) {
 				GetReachable[num_places_type] = Reachable_places->p;
 				num_places_type++;
@@ -446,8 +470,41 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 		
 	} 
 	
-
-
+	// int  moves_in_trail = (round)%(TRAIL_SIZE);
+	// if (player == PLAYER_DRACULA) {
+		
+	// 	int numReturnedMoves = 0;
+	// 	bool canfree = false;
+	// 	PlaceId *moves_in_trail = GvGetMoveHistory(gv, player, TRAIL_SIZE, &numReturnedMoves, &canfree);
+			
+	// 	int last_locs = 0;
+	// 	PlaceId *last_locations = GvGetLocationHistory(gv, player, numReturnedLocs,  &canfree);
+	// 	int Trail_moves = 0;
+		
+	// 	if (numReturnedMoves < TRAIL_SIZE) {
+	// 		Trail_moves = numReturnedMoves;
+	// 	}
+		
+	// 	else {
+	// 		Trail_moves = numReturnedMoves - TRAIL_SIZE;
+	// 	}
+		
+	// 	int DB_moves = 0;
+	// 	int hide_moves = 0;
+	// 	int which_double_back = 0;
+		
+	// 	for (int i = Trail_moves; i < numReturnedMoves; i++) {
+	// 		if (DB_MOVE(moves_in_trail[i])) {
+	// 			DB_moves++;
+	// 			which_double_back = moves_in_trail[i];
+	// 		}
+	// 		else if (HIDE_MOVE(moves_in_trail[i])) {
+	// 			hide_moves++;
+	// 		}
+	// 	}
+	// 	if ()
+	// }
+	
 	int num_places_unique = 0;
 	
 	sortPlaces(GetReachable, num_places_type);
@@ -466,6 +523,7 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 			num_places_unique++;
 		}
 	}
+
 
 
 	free(GetReachable);
@@ -551,6 +609,7 @@ int GvGetScore(GameView gv)
 	
 
 void PastPlayAnalysis(GameView gv) {
+	
 	int currG_round = START;
 	int currS_round = START;
 	int currH_round = START;
@@ -596,7 +655,7 @@ void PastPlayAnalysis(GameView gv) {
 				break;
 
 		}
-		//printf("PLAYER ROUND : %d\n", player_round);
+		
 		if (HUNTER(character)) {
 			
 			RestCheck(Loc, gv, character, player_round);
@@ -605,16 +664,9 @@ void PastPlayAnalysis(GameView gv) {
 
 			AdjustHunterHealth(gv, character, player_round);
 			
-			/*
-			PlaceId *loc = gv->Player[PLAYER_LORD_GODALMING]->MoveHistory;
-			int i = 0;
-			while (loc[i] != 0) {
-				printf("%d ", loc[i]);
-				i++;
-			}
-			printf("\n");
-			*/
-		} else {
+		} 
+		
+		else {
 			
 			round ++;
 			
@@ -635,7 +687,9 @@ void RestCheck(PlaceId Loc, GameView gv, Player character, int player_round) {
 	if (Loc == gv->Player[character]->Location) {
 		gv->Player[character]->Rest++;
 		gv->Player[character]->MoveHistory[player_round] = Loc;
-	} else {
+	} 
+	
+	else {
 		gv->Player[character]->Location = Loc;
 		gv->Player[character]->MoveHistory[player_round] = Loc;
 	}
@@ -684,13 +738,17 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 		HP = GAME_START_HUNTER_LIFE_POINTS;
 		gv->Player[character]->Rest = 0;
 		gv->Player[character]->health = HP;
-	} else if (HP <= 0) {
+	} 
+	
+	else if (HP <= 0) {
 		gv->Player[character]->death++;
 		gv->Player[character]->Location = HOSPITAL_PLACE;
 		gv->Player[character]->Trap_Encounter = 0;
 		gv->Player[character]->Player_Encounter = 0;
 		gv->Player[character]->health = 0;
-	} else {
+	} 
+	
+	else {
 		gv->Player[character]->health = HP;
 	}
 }
@@ -701,65 +759,85 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-1] == HIDE) {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		} else {
+		} 
+		else {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-1];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == DOUBLE_BACK_2) {
+	} 
+	else if (Loc == DOUBLE_BACK_2) {
 		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2] == HIDE) {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		} else {
+		} 
+		else {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == DOUBLE_BACK_3) {
+	} 
+	else if (Loc == DOUBLE_BACK_3) {
 		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3] == HIDE) {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		} else {
+		} 
+		else {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == DOUBLE_BACK_4) {
+	} 
+	else if (Loc == DOUBLE_BACK_4) {
 		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4] == HIDE) {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		} else {
+		} 
+		else {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == DOUBLE_BACK_5) {
+	} 
+	else if (Loc == DOUBLE_BACK_5) {
+		
 		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5] == HIDE) {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-6];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		} else {
+		} 
+		else {
 			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5];
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
-	} else if (Loc == CASTLE_DRACULA) {
+	} 
+	else if (Loc == CASTLE_DRACULA) {
 		gv->Player[PLAYER_DRACULA]->Location = Loc;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} else if (placeIdToType(Loc) == SEA || Loc == SEA_UNKNOWN) {
+	} 
+	else if (placeIdToType(Loc) == SEA || Loc == SEA_UNKNOWN) {
 		gv->Player[PLAYER_DRACULA]->Location = Loc;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} else if (Loc == TELEPORT) {
+	} 
+	else if (Loc == TELEPORT) {
 		gv->Player[PLAYER_DRACULA]->Location = CASTLE_DRACULA;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} else if (Loc == HIDE) {
+	} 
+	else if (Loc == HIDE) {
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} else {
+	} 
+	else {
 		gv->Player[PLAYER_DRACULA]->Location = Loc;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 	} 
 }
 
 void AdjustDraculaHealth(GameView gv, Player character) 
-{
+{	
+	// Dracula is at Castle Dracula and regains some health
 	if (gv->Player[PLAYER_DRACULA]->Location == CASTLE_DRACULA) {
-		gv->Player[PLAYER_DRACULA]->Rest++; 						// Dracula is at Castle Dracula and regains some health
-	} else if (placeIdToType(gv->Player[PLAYER_DRACULA]->Location) == SEA || gv->Player[PLAYER_DRACULA]->Location == SEA_UNKNOWN) {
-		gv->Player[character]->Trap_Encounter++; 					//Trap_enconter for Dracula keeps track of Dracula being at sea
+		gv->Player[PLAYER_DRACULA]->Rest++; 						
+	} 
+	
+	//Trap_enconter for Dracula keeps track of Dracula being at sea
+	else if (placeIdToType(gv->Player[PLAYER_DRACULA]->Location) == SEA 
+	|| gv->Player[PLAYER_DRACULA]->Location == SEA_UNKNOWN) {
+		gv->Player[character]->Trap_Encounter++; 					
 	} 
 
 	int num_traps = gv->Player[character]->Trap_Encounter;
