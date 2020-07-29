@@ -274,4 +274,17 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
-// TODO
+static bool adjacent(Map m,PlaceId p1,PlaceId p2){
+
+	ConnList places = MapGetConnections(m,p1);
+	ConnList i = places;
+
+	while(i != NULL){
+
+		if(i->p == p2) return true;
+
+		i = i->next;
+	}
+
+	return false;
+}
