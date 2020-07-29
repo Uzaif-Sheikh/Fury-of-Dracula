@@ -71,6 +71,7 @@ struct game_Player {
 	PlaceId Location;
 	Trap_Encounter Trap_Encounter;
 	Player_Encounter Player_Encounter;
+	int trap_player;
 	Vampire_Encounter Vampire_Encounter;
 	Rest Rest;
 	Death death;
@@ -110,9 +111,11 @@ static Game_Player new_player (int i) {
 		exit(EXIT_FAILURE);
 	}
 	
+	play->Rest = 0;
 	play->health = GAME_START_HUNTER_LIFE_POINTS;
 	play->Location = NOWHERE;
 	play->Trap_Encounter = 0;
+	play->trap_player = 0;
 	play->Vampire_Encounter = 0;
 	play->Player_Encounter = 0;
 	play->death = 0;
@@ -223,7 +226,16 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 {
 	char *copy_string = strdup(gv->Game_State);
 
+	int num = 0;
+	int round = -1;
+	bool canfree = false;
+
+	PlaceId* loc_his = GvGetLocationHistory(gv,PLAYER_DRACULA,&num,&canfree);
+
 	PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	for(int v = 0;v < gv->Drac_Trap;v++){
+		trap[v] = NOWHERE;
+	}
 	PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
 	int count = 0;
 	int count1 = 0;
@@ -233,12 +245,18 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 
 		Player curr_player = DeterminePlayerId(gv, tok[0]);
 		
+		if(curr_player == PLAYER_DRACULA) round++;
+
 		city = strndup(&tok[1],2);
+
+		
 
 		PlaceId Loc = placeAbbrevToId(city);
 		
 		if (curr_player == PLAYER_DRACULA && tok[3] == 'T') {
-			trap[count] = Loc;
+			printf("%s city \n",city);
+			trap[count] = loc_his[round];
+			printf("%d loc his\n\n",loc_his[round]);
 			count++;
 		}
 		
@@ -260,18 +278,21 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 	int total_trap_encounter = 0;
 	for (int l = 0;l < 4;l++) {
 		total_trap_encounter += gv->Player[l]->Trap_Encounter;
+		
 	}
+
 
 	for (int j = 0;j < gv->Drac_Trap;j++){
-		for (int k = 0;k < gv->Drac_Trap;k++){
-			if (trap[j] == trap_encounter_player[k]){
-				trap[j] = 0;
-			}
+		
+			//printf("%d hunter trap loc \n\n",trap_encounter_player[k]);
+		if (trap[j] == trap_encounter_player[j]){
+			trap[j] = NOWHERE;
 		}
+		
 	}
 
+	//sortPlaces(trap, count-total_trap_encounter);
 	int temp = 0;
-	
 	for (int j = 0;j < gv->Drac_Trap;j++){
 		for (int k = j + 1; k < gv->Drac_Trap; k++){
 			if(trap[j] < trap[k]){
@@ -284,13 +305,13 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 		}
 		
 	}
-	// for(int j1 = 0;j1<gv->Drac_Trap;j1++){
-	// 	//printf("loc :%d\n",trap[j1]);
-	// }
+	
+	
 
-	// free(tok);
-	// free(trap_encounter_player);
-	// free(copy_string);
+	free(tok);
+	free(trap_encounter_player);
+	free(copy_string);
+	free(loc_his);
 
 	*numTraps = (count-total_trap_encounter);
 	return trap;
@@ -489,8 +510,6 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 		}
 	}
 
-
-
 	free(GetReachable);
 
 	*numReturnedLocs = num_places_unique;
@@ -666,6 +685,7 @@ void HunterEncounters(PlaceId Loc, GameView gv, Player character,
 		} 
 		
 		else if (play[i] == 'T') {
+			gv->Player[character]->trap_player++;
 			gv->Player[character]->Trap_Encounter++;
 		} 
 		
@@ -680,15 +700,16 @@ void HunterEncounters(PlaceId Loc, GameView gv, Player character,
 
 void AdjustHunterHealth(GameView gv, Player character, int player_round) 
 {
-	int num_traps = gv->Player[character]->Trap_Encounter;
+	int num_traps = gv->Player[character]->trap_player;
 	int num_encount = gv->Player[character]->Player_Encounter;
 	int num_rest = gv->Player[character]->Rest;
 	int dracula_num_encount = gv->Player[PLAYER_DRACULA]->Player_Encounter;
-	
+	//printf("%d %d %d\n", num_traps, num_encount,num_rest);
 	int HP =  GAME_START_HUNTER_LIFE_POINTS - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
 							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount) 
 							+ (LIFE_GAIN_REST * num_rest);
 
+	//printf("HP1 : %d\n", HP);
 	gv->Player[PLAYER_DRACULA]->health = gv->Player[PLAYER_DRACULA]->health 
 						- (LIFE_LOSS_HUNTER_ENCOUNTER * dracula_num_encount);
 
@@ -701,7 +722,7 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 	else if (HP <= 0) {
 		gv->Player[character]->death++;
 		gv->Player[character]->Location = HOSPITAL_PLACE;
-		gv->Player[character]->Trap_Encounter = 0;
+		gv->Player[character]->trap_player = 0;
 		gv->Player[character]->Player_Encounter = 0;
 		gv->Player[character]->health = 0;
 	} 

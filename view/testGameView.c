@@ -132,10 +132,10 @@ int main(void)
 		
 		GameView gv = GvNew(trail, messages);
 		
+		//printf ("%d\n", GvGetHealth(gv, PLAYER_LORD_GODALMING));
 		assert(GvGetHealth(gv, PLAYER_LORD_GODALMING) ==
 				GAME_START_HUNTER_LIFE_POINTS - LIFE_LOSS_DRACULA_ENCOUNTER);
-		int health = GvGetHealth(gv, PLAYER_DRACULA);
-		printf ("%d", health);
+		//int health = GvGetHealth(gv, PLAYER_DRACULA);
 		assert(GvGetHealth(gv, PLAYER_DRACULA) ==
 				GAME_START_BLOOD_POINTS - LIFE_LOSS_HUNTER_ENCOUNTER);
 		assert(GvGetPlayerLocation(gv, PLAYER_LORD_GODALMING) == GENEVA);
@@ -153,7 +153,8 @@ int main(void)
 
 		char *trail =
 			"GGE.... SGE.... HGE.... MGE.... DS?.... "
-			"GST.... SST.... HST.... MST.... DD1....";
+			"GST.... SST.... HST.... MST.... DCD.... "
+			"GST.... SST.... HST.... MST.... DD2... ";
 		
 		Message messages[] = {
 			"Party at Geneva", "Okay", "Sure", "Let's go", "Mwahahahaha",
@@ -162,19 +163,47 @@ int main(void)
 		
 		GameView gv = GvNew(trail, messages);
 
-		assert(GvGetRound(gv) == 2);
+		assert(GvGetRound(gv) == 3);
 		assert(GvGetPlayer(gv) == PLAYER_LORD_GODALMING);
-		assert(GvGetScore(gv) == GAME_START_SCORE - 2 * SCORE_LOSS_DRACULA_TURN);
+		assert(GvGetScore(gv) == GAME_START_SCORE - 3 * SCORE_LOSS_DRACULA_TURN);
 		assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == SEA_UNKNOWN);
 		assert(GvGetHealth(gv, PLAYER_DRACULA) ==
-				GAME_START_BLOOD_POINTS - (2 * LIFE_LOSS_SEA));
+				GAME_START_BLOOD_POINTS -  2 * LIFE_LOSS_SEA + LIFE_GAIN_CASTLE_DRACULA);
 
 		GvFree(gv);
 		printf("Test passed!\n");
 		
 	}
 
-	
+	/////////////////////////////////////////////////////////////////////
+	{
+		printf("Test for Dracula's health loss at sea and health gain at Castle Dracula\n");
+
+		char *trail =
+			"GGE.... SGE.... HGE.... MGE.... DS?.... "
+			"GST.... SST.... HST.... MST.... DCD.... "
+			"GST.... SST.... HST.... MST.... DD2... ";
+		
+		Message messages[] = {
+			"Party at Geneva", "Okay", "Sure", "Let's go", "Mwahahahaha",
+			"", "", "", "", "Back I go"
+		};
+		
+		GameView gv = GvNew(trail, messages);
+
+		assert(GvGetRound(gv) == 3);
+		assert(GvGetPlayer(gv) == PLAYER_LORD_GODALMING);
+		assert(GvGetScore(gv) == GAME_START_SCORE - 3 * SCORE_LOSS_DRACULA_TURN);
+		assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == SEA_UNKNOWN);
+		assert(GvGetHealth(gv, PLAYER_DRACULA) ==
+				GAME_START_BLOOD_POINTS -  2 * LIFE_LOSS_SEA + LIFE_GAIN_CASTLE_DRACULA);
+
+		GvFree(gv);
+		printf("Test passed!\n");
+		
+	}
+
+
 	{///////////////////////////////////////////////////////////////////
 	
 		printf("Test for Dracula doubling back at sea, "
@@ -230,13 +259,13 @@ int main(void)
 			"GGE.... SGE.... HGE.... MGE.... DSTT... "
 			"GGE.... SGE.... HGE.... MGE.... DHIT... "
 			"GGE.... SGE.... HGE.... MGE.... DD1T... "
-			"GSTTTTD";
+			"GSTTTTD SGE.... HGE.... MGE.... DSTT... " ;
 		
 		Message messages[21] = {};
 		GameView gv = GvNew(trail, messages);
 		
 		assert(GvGetScore(gv) == GAME_START_SCORE
-		                         - 4 * SCORE_LOSS_DRACULA_TURN
+		                         - 5 * SCORE_LOSS_DRACULA_TURN
 		                         - SCORE_LOSS_HUNTER_HOSPITAL);
 		assert(GvGetHealth(gv, PLAYER_LORD_GODALMING) == 0);
 		assert(GvGetPlayerLocation(gv, PLAYER_LORD_GODALMING) == HOSPITAL_PLACE);
@@ -251,9 +280,13 @@ int main(void)
 			assert(moves[2] == GENEVA);
 			assert(moves[3] == GENEVA);
 			assert(moves[4] == STRASBOURG);
-			//assert(moves[5] == HOSPITAL_PLACE);
 			if (canFree) free(moves);
-
+		int numTraps = 0;
+		PlaceId *traps = GvGetTrapLocations(gv, &numTraps);
+		printf("NUM TRAPS: %d\n", numTraps);
+		assert(numTraps == 1);
+		assert(traps[0] == STRASBOURG);
+		
 		GvFree(gv);
 		printf("Test passed!\n");
 	}
