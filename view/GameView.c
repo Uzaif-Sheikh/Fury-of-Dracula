@@ -704,7 +704,7 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 	int num_encount = gv->Player[character]->Player_Encounter;
 	int num_rest = gv->Player[character]->Rest;
 	int dracula_num_encount = gv->Player[PLAYER_DRACULA]->Player_Encounter;
-	//printf("%d %d %d\n", num_traps, num_encount,num_rest);
+	//printf("%d\n", dracula_num_ecount);
 	int HP =  GAME_START_HUNTER_LIFE_POINTS - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
 							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount) 
 							+ (LIFE_GAIN_REST * num_rest);
@@ -712,7 +712,8 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 	//printf("HP1 : %d\n", HP);
 	gv->Player[PLAYER_DRACULA]->health = gv->Player[PLAYER_DRACULA]->health 
 						- (LIFE_LOSS_HUNTER_ENCOUNTER * dracula_num_encount);
-
+	gv->Player[PLAYER_DRACULA]->Player_Encounter = 0;
+	//printf("Dracula HP : %d\n", gv->Player[PLAYER_DRACULA]->health);
 	if (HP > GAME_START_HUNTER_LIFE_POINTS) {
 		HP = GAME_START_HUNTER_LIFE_POINTS;
 		gv->Player[character]->Rest = 0;
@@ -823,9 +824,11 @@ void AdjustDraculaHealth(GameView gv, Player character)
 	int num_rest = gv->Player[character]->Rest;
 	//printf("NUMTRAPS : %d\n", num_traps);
 	//printf("NUMREST : %d\n", num_rest);
-	int HP_D = GAME_START_BLOOD_POINTS - (LIFE_LOSS_SEA * num_traps) + (LIFE_GAIN_CASTLE_DRACULA * num_rest);
-	//printf("HP : %d\n", HP_D);
-	gv->Player[PLAYER_DRACULA]->health = HP_D;
+	gv->Player[PLAYER_DRACULA]->health = gv->Player[PLAYER_DRACULA]->health - (LIFE_LOSS_SEA * num_traps) + (LIFE_GAIN_CASTLE_DRACULA * num_rest);
+	//printf("HP : %d\n", gv->Player[PLAYER_DRACULA]->health);
+	//gv->Player[PLAYER_DRACULA]->health = HP_D;
+	gv->Player[PLAYER_DRACULA]->Trap_Encounter = 0;
+	gv->Player[PLAYER_DRACULA]->Rest = 0;
 }
 
 void DraculaTraps(PlaceId Loc, GameView gv, char *play, int *mature) 

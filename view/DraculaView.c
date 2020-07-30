@@ -102,6 +102,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	PlaceId Last_loc = DvGetPlayerLocation(dv, PLAYER_DRACULA);
 	char *visited = calloc(NUM_REAL_PLACES, sizeof(*visited));
 	// Get Draculas Trail
+	bool canfree = false;
 	PlaceId *Draculas_trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, TRAIL_SIZE, &Trail_moves, &canfree);
 	// Create array to store valid moves/locations
 	PlaceId* Valid_moves = calloc (Trail_moves, sizeof (*Valid_moves));
@@ -110,7 +111,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	PlaceId* Reachable_places = GvGetReachable(dv->gv, PLAYER_DRACULA, round, Last_loc, &num_reachable);	
 	
 	// Calculate (1) visited places (2) whether HI or DB is available
-	for (int i = 0; i < Trail_moves; i++) {
+	/*for (int i = 0; i < Trail_moves; i++) {
 		if (NOT_HI_DB_MOVE(Draculas_trail[i])) {
 			visited[Draculas_trail[i]] = 1;
 		}
@@ -121,7 +122,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 			DB_moves++;
 		}
 	}
-
+	*/
 	int j = 0;
 	// Copy cities which are (not in trail && adjacent) into Valid_moves array
 	for(int i=0; i < num_reachable; i++) {
@@ -141,23 +142,23 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 				for (int k = 0; k < Trail_moves; k++) {
 					if (Reachable_places[i] == Draculas_trail[k]) {
 						if (k == 0) {
-							Valid_moves[j] = DOUBLE_BACK_5
+							Valid_moves[j] = DOUBLE_BACK_5;
 							j++;
 							reach_trail++;
-						} else if (k = 1) {
-							Valid_moves[j] = DOUBLE_BACK_4
+						} else if (k == 1) {
+							Valid_moves[j] = DOUBLE_BACK_4;
 							j++;
 							reach_trail++;
-						} else if (k = 2) {
-							Valid_moves[j] = DOUBLE_BACK_3
+						} else if (k ==2) {
+							Valid_moves[j] = DOUBLE_BACK_3;
 							j++;
 							reach_trail++;
-						} else if (k = 3) {
-							Valid_moves[j] = DOUBLE_BACK_2
+						} else if (k == 3) {
+							Valid_moves[j] = DOUBLE_BACK_2;
 							j++;
 							reach_trail++;
-						} else if (k = 4) {
-							Valid_moves[j] = DOUBLE_BACK_1
+						} else if (k == 4) {
+							Valid_moves[j] = DOUBLE_BACK_1;
 							j++;
 							reach_trail++;
 						} 
