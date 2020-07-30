@@ -21,6 +21,17 @@
 #include "Game.h"
 #include "Places.h"
 // add your own #includes here
+#define HIDE_MOVE(id) (id == HIDE)
+#define HUNTER(id) (id != PLAYER_DRACULA)
+#define NOT_HI_DB_MOVE(id) (id != HIDE && id != DOUBLE_BACK_1 \
+				&& id != DOUBLE_BACK_2 && id != DOUBLE_BACK_3 \
+				&& id != DOUBLE_BACK_4 && id != DOUBLE_BACK_5)
+
+#define DB_MOVE(id) (id == DOUBLE_BACK_1 || id == DOUBLE_BACK_2 \
+			|| id == DOUBLE_BACK_3 || id == DOUBLE_BACK_4 \
+			|| id == DOUBLE_BACK_5)
+			
+#define PASTPLAYS_NOT_FINISHED(c) (c != NULL)
 
 typedef struct gameView *GameView;
 

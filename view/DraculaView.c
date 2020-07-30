@@ -69,7 +69,7 @@ int DvGetScore(DraculaView dv)
 int DvGetHealth(DraculaView dv, Player player) {	
 	
 	
-	int health = GvGetHealth(dv->gv, PLAYER_DRACULA);
+	int health = GvGetHealth(dv->gv, player);
 	printf ("%d\n", health);
 	return health;
 
