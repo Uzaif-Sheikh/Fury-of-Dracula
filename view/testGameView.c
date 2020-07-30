@@ -635,5 +635,34 @@ int main(void)
 		printf("Test passed!\n");
 	}
 
+	{///////////////////////////////////////////////////////////////////
+	
+		
+		printf("Testing connections\n");
+		char *trail =
+			"GLS.... SGE.... HGE.... MGE.... DST.V.. "
+			"GCA.... SGE.... HGE.... MGE.... DC?T... "
+			"GGR.... SGE.... HGE.... MGE.... DC?T... "
+			"GAL.... SGE.... HGE.... MGE.... DD3T... ";
+			
+		
+			Message messages[32] = {};
+			GameView gv = GvNew(trail, messages);
+			{
+				printf("\nTesting move/location history\n\n");
+				int numMoves = 0; bool canFree = false;
+				PlaceId* LastMoves = GvGetLastMoves(gv, PLAYER_DRACULA, 12, &numMoves, &canFree);
+				printf ("%d", numMoves);
+				for (int i = 0; i < numMoves; i++) {
+					printf ("%s\n", placeIdToName(LastMoves[i]));
+				}
+
+				free(LastMoves);
+				GvFree(gv);
+				printf("Test passed!\n");
+			}
+		
+	}
+
 	return EXIT_SUCCESS;
 }
