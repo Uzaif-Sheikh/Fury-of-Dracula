@@ -126,8 +126,17 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
                                 int *numReturnedLocs)
 {
 	
-	*numReturnedLocs = 0;
-	return NULL;
+	assert(player != PLAYER_DRACULA);
+	
+	int numLocs = -1;
+	
+	PlaceId from = GvGetPlayerLocation(dv->gv, player);
+	int round = GvGetRound(dv->gv);
+	
+	PlaceId *locs = GvGetReachable(dv->gv, player,round, from, &numLocs);
+	
+	*numReturnedLocs = numLocs;
+	return locs;
 }
 
 ////////////////////////////////////////////////////////////////////////
