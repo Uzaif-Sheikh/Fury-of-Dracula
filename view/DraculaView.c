@@ -20,10 +20,15 @@
 #include "Map.h"
 // add your own #includes here
 #include "Queue.h"
-// TODO: ADD YOUR OWN STRUCTS HERE
+
+// Function Prototypes
+//PlaceId* GetDraculasTrail (DraculaView dv, Player player, int *num_moves);
+PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, bool rail, bool boat);
+PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail,bool boat);
 
 struct draculaView {
 	GameView gv;
+	
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -37,13 +42,14 @@ DraculaView DvNew(char *pastPlays, Message messages[])
 		exit(EXIT_FAILURE);
 	}
 	new->gv = GvNew(pastPlays, messages);
+	
 	return new;
 }
 
 void DvFree(DraculaView dv)
 {
 	
-	//GvFree(dv->gv);
+	GvFree(dv->gv);
 	free(dv);
 }
 
@@ -62,7 +68,10 @@ int DvGetScore(DraculaView dv)
 
 int DvGetHealth(DraculaView dv, Player player) {	
 	
-	return GvGetHealth(dv->gv, player);
+	
+	int health = GvGetHealth(dv->gv, PLAYER_DRACULA);
+	printf ("%d\n", health);
+	return health;
 
 }
 
@@ -79,7 +88,9 @@ PlaceId DvGetVampireLocation(DraculaView dv)
 
 PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps)
 {	
-	PlaceId *traps = GvGetTrapLocations(dv->gv, numTraps);
+	int trap_count = *numTraps;
+	PlaceId *traps = GvGetTrapLocations(dv->gv, &trap_count);
+	*numTraps = trap_count;
 	return traps;
 }
 
@@ -87,7 +98,7 @@ PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps)
 // Making a Move
 
 PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
-{
+{	
 	bool road = true;
 	bool boat = true;
 	bool rail = false;
@@ -98,25 +109,31 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	return Dracula_Valid_moves;
 }
 
-PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
-{
+PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs) {
 	
-	*numReturnedLocs = 0;
-	return NULL;
+	bool road = true;
+	bool boat = true;
+	bool rail = false;
+	int numLocs = *numReturnedLocs;
+	PlaceId* Possible_places = DvWhereCanDracGoByType(dv, &numLocs, road, rail, boat);
+	
+	*numReturnedLocs = numLocs;
+	return Possible_places;
+	
 }
 
 PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
                              int *numReturnedLocs)
-{
-	
-	*numReturnedLocs = 0;
-	return NULL;
+{	
+	int numLocs = -1;
+	PlaceId *Dv_by_type = DvWhereCanDracGoByType(dv, &numLocs, road, false, boat);
+	*numReturnedLocs = numLocs;
+	return Dv_by_type;
 }
 
 PlaceId *DvWhereCanTheyGo(DraculaView dv, Player player,
                           int *numReturnedLocs)
-{
-	
+{	
 	assert(player != PLAYER_DRACULA);
 	
 	int numLocs = -1;
@@ -134,7 +151,6 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
                                 bool road, bool rail, bool boat,
                                 int *numReturnedLocs)
 {
-	
 	int numLocs = -1;
 	PlaceId from = GvGetPlayerLocation(dv->gv, player);
 	int round = GvGetRound(dv->gv);
@@ -143,12 +159,8 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 	return locs;
 }
 
-////////////////////////////////////////////////////////////////////////
-// Your own interface functions
-
-// TODO
 PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, bool rail, bool boat) {
-
+	
 	PlaceId Last_loc = DvGetPlayerLocation(dv, PLAYER_DRACULA);
 	
 	//need to update this to if there is no turn of the player yet...
@@ -314,4 +326,234 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 	free (Draculas_trail);
 	*numReturnedMoves = t;
 	return Valid_moves;
+
 }
+PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail,bool boat) {
+	
+	int numLocsMoveable = -1;
+	PlaceId *Possible_moves = DvGetValidMovesbyType(dv, &numLocsMoveable, road, rail, boat);
+	
+	// for (int i = 0; i < numLocsMoveable; i++) {
+	// 	printf ("%s\n", placeIdToName(Possible_moves[i]));
+	// }
+
+	if (Possible_moves == NULL) {
+		*numLocs = 0;
+		return NULL;
+	}
+
+	int numLoc = -1;
+	bool canfree = false;
+	//int Trail_moves = -1;
+	PlaceId *Location_History = GvGetLocationHistory(dv->gv, PLAYER_DRACULA, &numLoc, &canfree);
+	//PlaceId *Draculas_trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, TRAIL_SIZE, &Trail_moves, &canfree);
+	printf ("\n\n");
+	for (int i = 0; i < numLoc; i++) {
+		printf ("Loc_His : %s\n", placeIdToName(Location_History[i]));
+	}
+	int *Hi_Db_moves = calloc (6, sizeof(*Hi_Db_moves));
+	
+	int HI_DB_move = 0;
+	for (int i = 0; i < numLocsMoveable; i++) {
+		if (HIDE_MOVE(Possible_moves[i]) || DB_MOVE(Possible_moves[i])) {
+			Hi_Db_moves[HI_DB_move] = Possible_moves[i];
+			HI_DB_move++;
+		}
+	}
+	
+	int j = 0;
+	PlaceId *WhereCanIgo = calloc(numLocsMoveable, sizeof(*WhereCanIgo));
+	// for (int i = 0; i < HI_DB_move; i++) {
+	// 	if (Hi_Db_moves[i] == HIDE) {
+	//  		WhereCanIgo[j] = Location_History[numLoc-1];
+	// 		j++;
+	// 	}
+	// }
+	//printf ("%d",HI_DB_move);
+	// for (int i = 0; i < HI_DB_move; i++) {
+	// 	printf ("%s\n", placeIdToName(Hi_Db_moves[i]));
+	// }
+    
+	
+	//PlaceId Last_Loc = GvGetPlayerLocation(dv->gv, PLAYER_DRACULA);
+	
+	int num_hide_Db = 0;
+	
+	while (num_hide_Db < HI_DB_move) {
+		
+		if (HIDE_MOVE(Hi_Db_moves[num_hide_Db])) {
+			WhereCanIgo[j] = Location_History[numLoc-1];
+			j++;
+		}
+		
+		else if (DB_MOVE(Hi_Db_moves[num_hide_Db])) {
+			//printf ("%s", placeIdToName(Hi_Db_moves[num_hide_Db]));
+			int Db_value = Hi_Db_moves[num_hide_Db] - HIDE;
+			//printf ("\n%d\n", Db_value);
+			int compare_index = numLoc - Db_value;
+			if (compare_index != 0) {
+				if (Location_History[compare_index] != Location_History[compare_index-1]) {
+					WhereCanIgo[j] = Location_History[numLoc-Db_value];
+					j++;
+				}
+			}
+			
+		}
+		num_hide_Db++;
+	}
+	
+	// int j = 0; 
+	
+	// for (int i = 0; i < HI_DB_move; i++) {
+	// 	printf ("%s", placeIdToName(Hi_Db_moves[i]));
+	// }
+	
+	// for (int i = 0; i < HI_DB_move; i++) {
+	// 	if (Hi_Db_moves[i] == HIDE) {
+	// 		WhereCanIgo[j] = Last_Loc;
+	// 	}
+	// }
+	
+	// int i = numLoc-1;
+	// while(NOT_HI_DB_MOVE(Move_History[i])) {
+	// 	i--;
+	// }
+
+	// PlaceId Loc = Move_History[i];
+
+	// while (HI_DB_move > 0)  {
+		
+	// 	while (HIDE_MOVE(Loc) || DB_MOVE(Loc)) {
+	// 		if (DB_MOVE(Loc)) {
+	// 			int DB_value = Loc - HIDE;
+	// 			i = i - DB_value;
+	// 		} 
+	// 		else if (HIDE_MOVE(Loc)) {
+	// 			i = i - 1;
+	// 		}
+	// 		Loc = Move_History[i];
+
+	// 	}
+
+	// 	WhereCanIgo[j] = Loc;
+	// 	j++;
+	// 	//Loc = Hi_Db_moves[j];	
+	// 	HI_DB_move--;
+	// }
+	
+	int k = j;
+	
+	for (int i = 0; i < numLocsMoveable; i++) {
+		if(NOT_HI_DB_MOVE(Possible_moves[i])) {
+			WhereCanIgo[k] = Possible_moves[i];
+			k++;
+		} 
+		
+	}
+	
+	// int num_places_unique = 0;
+	
+	// sortPlaces(WhereCanIgo, k);
+	
+	// for (int i = 0; i < num_places_type; i++) {
+		
+	// 	if (i != 0) {
+	// 		if (GetReachable[i] != GetReachable[i-1]) {
+	// 			GetReachable_type[num_places_unique] = GetReachable[i];
+	// 			num_places_unique++;
+	// 		}
+	// 	} 
+		
+	// 	else {
+	// 		GetReachable_type[num_places_unique] = GetReachable[i];
+	// 		num_places_unique++;
+	// 	}
+	// }
+
+
+
+	// free(GetReachable);
+    
+	// for (int i = 0; i < k; i++){
+	// 	printf ("%s", placeIdToName(WhereCanIgo[i]));
+	// }
+	*numLocs = k;
+	return WhereCanIgo;
+
+}
+
+
+
+
+
+
+// PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
+// {
+// 	// If we are on the first move return an empty array (NULL is satisfactory)
+// 	int round = DvGetRound(dv);
+// 	if (round == 0) {
+// 		return NULL;
+// 	}
+	
+// 	int DB_moves = 0;
+// 	int hide_moves = 0;
+// 	int Trail_moves = *numReturnedMoves;
+	
+// 	// Get the current location of Dracula
+// 	PlaceId Last_loc = DvGetPlayerLocation(dv, PLAYER_DRACULA);
+// 	char *visited = calloc(NUM_REAL_PLACES, sizeof(*visited));
+// 	// Get Draculas Trail
+// 	PlaceId *Draculas_trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, TRAIL_SIZE, &Trail_moves, &canfree);
+// 	// Create array to store valid moves/locations
+// 	PlaceId* Valid_moves = calloc (Trail_moves, sizeof (*Valid_moves));
+// 	// Get all the adjacent cities to current city
+// 	int num_reachable = -1;
+// 	PlaceId* Reachable_places = GvGetReachable(dv->gv, PLAYER_DRACULA, round, Last_loc, &num_reachable);	
+	
+// 	// Calculate (1) visited places (2) whether HI or DB is available
+// 	for (int i = 0; i < Trail_moves; i++) {
+// 		if (NOT_HI_DB_MOVE(Draculas_trail[i])) {
+// 			visited[Draculas_trail[i]] = 1;
+// 		}
+// 		if (HIDE_MOVE(Draculas_trail[i])) {
+// 			hide_moves++;
+// 		}
+// 		if (DB_MOVE(Draculas_trail[i])) {
+// 			DB_moves++;
+// 		}
+// 	}
+
+// 	int j = 0;
+// 	// Copy cities which are (not in trail && adjacent) into Valid_moves array
+// 	for(int i=0; i < num_reachable; i++) {
+// 		if (visited[Reachable_places[i]] != 1 && Reachable_places[i != Last_loc]) {
+// 			Valid_moves[j] = Reachable_places[i];
+// 			j++;
+// 		}
+// 	}
+
+// 	// DB
+// 	// Count how many of the reacheable places are in the trail
+// 	int reach_trail = 0;
+// 	if (DB_moves == 0) {
+// 		// Find which cities are both in trail and adjacent then copy the relating Dn to valid_moves
+// 		for(int i=0; i < num_reachable; i++) {
+// 			if (visited[Reachable_places[i]] == 1) {
+				
+// 			}
+// 		}
+// 	}
+
+// 	// HI
+// 	if (hide_moves == 0) {
+// 		Valid_moves[j] = Last_loc;
+// 		j++;
+// 	}
+
+// 	if (hide_moves ==1 && DB_moves == 1 && reach_trail == 6) {
+// 		return NULL;
+// 	}
+	
+// 	*numReturnedMoves = 0;
+// 	return NULL;
+// }
