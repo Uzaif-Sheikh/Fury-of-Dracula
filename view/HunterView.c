@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Game.h"
 #include "GameView.h"
@@ -37,7 +38,7 @@ typedef struct hunter* Hunter;
 
 #include "Queue.h"
 
-static bool adjacent(Map m,PlaceId p1,PlaceId p2);
+static PlaceId* Reachable(HunterView hv,Player hunter,int round,PlaceId p,int *numReturnedLocs);
 // TODO: ADD YOUR OWN STRUCTS HERE
 
 struct hunter{
@@ -48,7 +49,7 @@ struct hunter{
 
 
 struct hunterView {
-	
+	GameView gv;
 	Hunter hunters[MAX_HUNTERS];
 	Round curr_round;
 	Health Dracula_health;
@@ -89,21 +90,21 @@ HunterView HvNew(char *pastPlays, Message messages[])
 	}
 
 	hunter_state->Hunter_string = strdup(pastPlays);
-	GameView gv = GvNew(pastPlays,messages);
+	hunter_state->gv = GvNew(pastPlays,messages);
 
 	for(int i = 0;i < MAX_HUNTERS;i++){
-		hunter_state->hunters[i] = new_player(gv,i);
+		hunter_state->hunters[i] = new_player(hunter_state->gv,i);
 	}
 
-	hunter_state->Dracula_health = GvGetHealth(gv,PLAYER_DRACULA);
-	hunter_state->curr_score = GvGetScore(gv);
-	hunter_state->curr_round = GvGetRound(gv);
-	hunter_state->Dracula_loc = GvGetPlayerLocation(gv,PLAYER_DRACULA);
+	hunter_state->Dracula_health = GvGetHealth(hunter_state->gv,PLAYER_DRACULA);
+	hunter_state->curr_score = GvGetScore(hunter_state->gv);
+	hunter_state->curr_round = GvGetRound(hunter_state->gv);
+	hunter_state->Dracula_loc = GvGetPlayerLocation(hunter_state->gv,PLAYER_DRACULA);
 	hunter_state->last_know_loc_dracula = NOWHERE;
-	hunter_state->vampire_loc = GvGetVampireLocation(gv);
-	hunter_state->curr_player_turn = GvGetPlayer(gv);
+	hunter_state->vampire_loc = GvGetVampireLocation(hunter_state->gv);
+	hunter_state->curr_player_turn = GvGetPlayer(hunter_state->gv);
 
-	GvFree(gv);
+
 
 	return hunter_state;
 }
@@ -189,37 +190,44 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
                              int *pathLength)
 {
 	Map m = MapNew();
+	
+	int round = 0;
+
 	int num_places = MapNumPlaces(m);
-	int* distance = malloc(num_places*sizeof(int));
-	PlaceId* parent = calloc(num_places,sizeof(PlaceId));
+	PlaceId* parent = malloc(num_places*sizeof(PlaceId));
 
 	for(PlaceId i = 0;i < num_places;i++){
-		distance[i] = INF_NUM;
+		parent[i] = NOWHERE;
 	}
 
 	PlaceId from = hv->hunters[hunter]->Loction;
-	distance[from] = 0;
 
 	Queue q = newQueue();
 	QueueJoin(q,from);
 	parent[from] = from;
-
-	while(!QueueIsEmpty(q)){
-		PlaceId p = QueueLeave(q);
-
-		if(p == dest) break;
-
-		for(PlaceId j = 0;j < num_places;j++){
-			
-			if(adjacent(m,p,j) && distance[p] + 1 < distance[j] && parent[j] == 0){
-				QueueJoin(q,j);
-				distance[j] = distance[p] + 1;
-				parent[j] = p;
+	int flag = 0;
+	while(!QueueIsEmpty(q) && flag != 1){
+		PlaceId p ;
+		int size_q = QueueSize(q);
+		while(size_q > 0 && flag != 1) {
+			p = QueueLeave(q);
+			size_q--;
+			int numlocs = 0;
+			PlaceId *reach = Reachable(hv, hunter, round, p, &numlocs);
+			for (int j = 0; j < numlocs ; j++) {
+				if (parent[reach[j]] == NOWHERE && reach[j] != p) {
+					if (reach[j] == dest) {
+						flag++;
+						parent[dest] = p;
+						break;
+					}
+					QueueJoin(q, reach[j]);
+					parent[reach[j]] = p;
+				}
 			}
 		}
-
+		round++;
 	}
-
 	PlaceId temp[50];
 	int index = 0;
 	for(PlaceId i = dest;i != from;i = parent[i]){
@@ -274,17 +282,16 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
-static bool adjacent(Map m,PlaceId p1,PlaceId p2){
+static PlaceId* Reachable(HunterView hv,Player hunter,int round,PlaceId p,int *numReturnedLocs){
 
-	ConnList places = MapGetConnections(m,p1);
-	ConnList i = places;
-
-	while(i != NULL){
-
-		if(i->p == p2) return true;
-
-		i = i->next;
+	if(HvGetPlayerLocation(hv,hunter) == NOWHERE) return NULL;
+	int turn = 0;
+	turn = GvGetRound(hv->gv) + round;
+	if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
+		turn = 1 + turn;
 	}
-
-	return false;
+	int num_max = 0;
+	PlaceId* reachable = GvGetReachable(hv->gv,hunter,turn,p,&num_max);
+	*numReturnedLocs = num_max;
+	return reachable;
 }
