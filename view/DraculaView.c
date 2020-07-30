@@ -117,15 +117,6 @@ PlaceId *DvWhereCanTheyGo(DraculaView dv, Player player,
                           int *numReturnedLocs)
 {
 	
-	*numReturnedLocs = 0;
-	return NULL;
-}
-
-PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
-                                bool road, bool rail, bool boat,
-                                int *numReturnedLocs)
-{
-	
 	assert(player != PLAYER_DRACULA);
 	
 	int numLocs = -1;
@@ -135,6 +126,19 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 	
 	PlaceId *locs = GvGetReachable(dv->gv, player,round, from, &numLocs);
 	
+	*numReturnedLocs = numLocs;
+	return locs;
+}
+
+PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
+                                bool road, bool rail, bool boat,
+                                int *numReturnedLocs)
+{
+	
+	int numLocs = -1;
+	PlaceId from = GvGetPlayerLocation(dv->gv, player);
+	int round = GvGetRound(dv->gv);
+	PlaceId *locs = GvGetReachableByType(dv->gv, player,round, from, road, rail, boat, &numLocs);
 	*numReturnedLocs = numLocs;
 	return locs;
 }
