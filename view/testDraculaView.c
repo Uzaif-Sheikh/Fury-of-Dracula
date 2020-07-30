@@ -114,6 +114,57 @@ int main(void)
 	}
 
 	{///////////////////////////////////////////////////////////////////
+
+			printf("Test for Dracula's valid moves in round 0, should return a NULL array\n");
+
+		char *trail =
+			"GGE.... SGE.... HGE.... MGE....";
+			
+		Message messages[24] = {};
+		DraculaView dv = DvNew(trail, messages);
+
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		// printf ("\n\n");
+		// for (int i = 0; i < numMoves; i++) {
+		// 	printf ("%s\n", placeIdToName(moves[i]));
+		// }
+		assert (numMoves == 0);
+		assert (moves == NULL);
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
+	{///////////////////////////////////////////////////////////////////
+	
+		printf("Test for Dracula's valid moves with one hide\n");
+
+		char *trail = 
+			"GST.... SGE.... HGE.... MGE.... DPL.V.."
+			"GST.... SST.... HST.... MST.... DEC...." 
+			"GST.... SST.... HST.... MST.... DLET..."
+			"GST.... SST.... HST.... MST.... DHIT..." 
+			"GST.... SST.... HST.... MST....";
+		
+		Message messages[24] = {};
+		DraculaView dv = DvNew(trail, messages);
+
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		printf ("\n\n");
+		for (int i = 0; i < numMoves; i++) {
+			printf ("%s\n", placeIdToName(moves[i]));
+		}
+		int numLocs = -1;
+		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
+		for (int i = 0; i < numLocs; i++) {
+	 		printf ("%s\n", placeIdToName(locs[i]));
+	 	}
+		free(locs);
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
+
+	{//////////////////////////////////////////////////////////////////
 	
 		printf("Test for Dracula's valid moves 1\n");
 		
