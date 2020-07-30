@@ -75,7 +75,7 @@ int main(void)
 		HunterView hv = HvNew(trail, messages);
 
 		assert(HvGetRound(hv) == 0);
-		assert(HvGetPlayer(hv) == PLAYER_DRACULA);
+		assert(HvGetPlayer(hv) == PLAYER_MINA_HARKER);
 		assert(HvGetScore(hv) == GAME_START_SCORE);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == STRASBOURG);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == ATLANTIC_OCEAN);
@@ -196,6 +196,31 @@ int main(void)
 		printf("Test passed!\n");
 	}
 
+	{/////////////////////////////////////////////////
+		printf("Testing for hunter dying and teleporting to hospital\n");
+	  
+	  char *trail =
+      "GED.... SGE.... HZU.... MCA.... DCF.V.. "
+      "GMN.... SCFVD.. HGE.... MLS..... DC?T... "
+      "GLO.... SMR.... HCF.... MMA.... DC?T... "
+      "GPL.... SMS.... HMR.... MGR.... DBAT... "
+      "GEC.... SBATD.. HGO....";
+	Message messages[21] = {};
+	HunterView hv = HvNew(trail, messages);
+
+	assert(HvGetPlayer(hv) == PLAYER_MINA_HARKER);
+	assert(HvGetRound(hv) == 4);
+	assert(HvGetHealth(hv , PLAYER_DR_SEWARD) == 0);
+	assert(HvGetHealth(hv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS - 20);
+	assert(HvGetScore(hv) ==  GAME_START_SCORE - 6 - 4);
+	assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) ==  HOSPITAL_PLACE);
+	assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == 0);
+
+	//hv_drop(hv);
+	
+	printf("Test Passed\n");
+}
+
 	{///////////////////////////////////////////////////////////////////
 	
 		printf("Testing Dracula doubling back to Castle Dracula\n");
@@ -228,7 +253,7 @@ int main(void)
 		Message messages[15] = {};
 		HunterView hv = HvNew(trail, messages);
 		
-		assert(HvGetPlayerLocation(hv, PLAYER_DRACULA) == GALATZ);
+		assert(HvGetPlayerLocation(hv, PLAYER_DRACULA) == CITY_UNKNOWN);
 		assert(HvGetVampireLocation(hv) == CASTLE_DRACULA);
 		
 		HvFree(hv);
@@ -314,6 +339,41 @@ int main(void)
 			free(path);
 		}
 		
+		{//////////////////////////////////////////////////////
+			printf("Testing for Dracula's Move History\n");
+			
+			char *trail =
+			"GED.... SGE.... HZU.... MCA.... DCD.V.. "  // 0
+			"GMN.... SMR.... HMI.... MLS.... DHIT... "  // 1
+			"GED.... SGE.... HZU.... MCA.... DC?T... "  // 2
+			"GMN.... SGE.... HMI.... MLS.... DC?T... "  // 3
+			"GED.... SMR.... HZU.... MCA.... DC?T... "  // 4
+			"GMN.... SGE.... HMI.... MLS.... DD4T... "  // 5
+			"GED.... SMR.... HZU....";                  // 6
+
+			Message messages[21] = {};
+			HunterView hv = HvNew(trail, messages);
+
+			assert(HvGetRound(hv) ==  6);
+			assert(HvGetPlayer(hv)== PLAYER_MINA_HARKER);
+			assert(HvGetScore(hv) == GAME_START_SCORE - 6);
+			assert(HvGetHealth(hv, PLAYER_DRACULA) ==
+							GAME_START_BLOOD_POINTS + 3 * LIFE_GAIN_CASTLE_DRACULA);
+
+			assert(HvGetPlayerLocation(hv, PLAYER_DRACULA) == CASTLE_DRACULA);
+
+			/*PlaceId *trail_drac = [TRAIL_SIZE];
+			hv_get_trail(hv, PLAYER_DRACULA, trail_drac);
+			ac_compare_int(trail_drac[0], DOUBLE_BACK_4, "trail[0] correct");
+			ac_compare_int(trail_drac[1], CITY_UNKNOWN, "trail[1] correct");
+			ac_compare_int(trail_drac[2], CITY_UNKNOWN, "trail[2] correct");
+			ac_compare_int(trail_drac[3], CITY_UNKNOWN, "trail[3] correct");
+			ac_compare_int(trail_drac[4], HIDE, "trail[4] correct");
+			ac_compare_int(trail_drac[5], CASTLE_DRACULA, "trail[5] correct");
+			*/
+			printf("Test Passed!\n");
+		}
+
 		{
 			printf("\tSwansea -> Hamburg (Van Helsing, Round 1)\n");
 			int pathLength = -1;
@@ -401,7 +461,7 @@ int main(void)
 		assert(numLocs == 5);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == BORDEAUX);
-		assert(locs[1] == BUCHAREST);
+		assert(locs[1] == BRUSSELS);
 		assert(locs[2] == LE_HAVRE);
 		assert(locs[3] == MARSEILLES);
 		assert(locs[4] == PARIS);
@@ -424,11 +484,12 @@ int main(void)
 		PlaceId *locs = HvWhereCanTheyGoByType(hv, PLAYER_LORD_GODALMING,
 		                                       false, false, true, &numLocs);
 		
-		assert(numLocs == 3);
+		assert(numLocs == 4);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == ADRIATIC_SEA);
 		assert(locs[1] == BARI);
-		assert(locs[2] == VENICE);
+		assert(locs[2] == IONIAN_SEA);
+		assert(locs[3] == VENICE);
 		free(locs);
 		
 		HvFree(hv);
@@ -449,12 +510,13 @@ int main(void)
 		int numLocs = -1;
 		PlaceId *locs = HvWhereCanTheyGoByType(hv, PLAYER_DRACULA,
 		                                       true, false, false, &numLocs);
-		assert(numLocs == 4);
+		assert(numLocs == 5);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == BELGRADE);
 		assert(locs[1] == BUDAPEST);
 		assert(locs[2] == KLAUSENBURG);
 		assert(locs[3] == SZEGED);
+		assert(locs[4] == ZAGREB);
 		free(locs);
 		
 		HvFree(hv);
