@@ -346,6 +346,11 @@ PlaceId *GvGetLastMoves(GameView gv, Player player, int numMoves,
 	PlaceId *Last_move = calloc(numMoves+1,sizeof(*Last_move));
 
 	int count = 0;
+	int round = GvGetRound(gv);
+	
+	if (numMoves >= round) {
+		numMoves = round;
+	}
 	int move_history_needed = LastMoves - numMoves;
 	
 	for(int i = move_history_needed; i < LastMoves; i++) {		
@@ -406,6 +411,12 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
 	PlaceId *Last_move = calloc(numLocs,sizeof(*Last_move));
 
 	int count = 0;
+	int round = GvGetRound(gv);
+	
+	if (numLocs >= round) {
+		numLocs = round;
+	}
+	
 	int Loc_hist_needed = lastLocs - numLocs;
 	for(int i = Loc_hist_needed; i < lastLocs; i++) {		
 		Last_move[count] = Location_history[i];
@@ -735,76 +746,41 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 
 void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_round) 
 {
-	if (Loc == DOUBLE_BACK_1) {
-		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-1] == HIDE) {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2];
-			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		} 
-		else {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-1];
-			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		}
-	} 
-	else if (Loc == DOUBLE_BACK_2) {
-		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2] == HIDE) {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3];
-			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		} 
-		else {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-2];
-			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		}
-	} 
-	else if (Loc == DOUBLE_BACK_3) {
-		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3] == HIDE) {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4];
-			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		} 
-		else {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-3];
-			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		}
-	} 
-	else if (Loc == DOUBLE_BACK_4) {
-		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4] == HIDE) {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5];
-			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		} 
-		else {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-4];
-			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-		}
-	} 
-	else if (Loc == DOUBLE_BACK_5) {
+	if (DB_MOVE(Loc)) {
 		
-		if (gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5] == HIDE) {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-6];
+		int DB_value = Loc - HIDE;
+		
+		if (gv->Player[PLAYER_DRACULA]->MoveHistory
+		[player_round-DB_value] == HIDE) {
+			
+			gv->Player[PLAYER_DRACULA]->Location = 
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-DB_value-1];
+			
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		} 
+		
 		else {
-			gv->Player[PLAYER_DRACULA]->Location = gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-5];
+			gv->Player[PLAYER_DRACULA]->Location = 
+			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round-DB_value];
+			
 			gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 		}
+	
 	} 
-	else if (Loc == CASTLE_DRACULA) {
-		gv->Player[PLAYER_DRACULA]->Location = Loc;
-		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} 
-	else if (placeIdToType(Loc) == SEA || Loc == SEA_UNKNOWN) {
-		gv->Player[PLAYER_DRACULA]->Location = Loc;
-		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} 
+	
 	else if (Loc == TELEPORT) {
 		gv->Player[PLAYER_DRACULA]->Location = CASTLE_DRACULA;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 	} 
+	
 	else if (Loc == HIDE) {
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 	} 
-	else {
+	
+	else if (!DB_MOVE(Loc)) {
 		gv->Player[PLAYER_DRACULA]->Location = Loc;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
-	} 
+	}
 }
 
 void AdjustDraculaHealth(GameView gv, Player character) 
