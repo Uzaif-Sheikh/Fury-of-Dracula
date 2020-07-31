@@ -241,24 +241,38 @@ PlaceId GvGetVampireLocation(GameView gv)
 // Gets the locations of all active traps.
 PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 {
-	char *copy_string = strdup(gv->Game_State);
+	//Copying the original string into copy_string array inorder
+	//to use strtok() on the string!!
+
+	char *copy_string = strdup(gv->Game_State);   
 
 	int num = 0;
 	int round = -1;
 	bool canfree = false;
 
-	PlaceId* loc_his = GvGetLocationHistory(gv,PLAYER_DRACULA,&num,&canfree);
+	//calling the LocationHistory
+	//to store the real location of the dracula to check
+	//the mature traps cases
 
-	PlaceId* mature_trap = malloc(gv->Drac_Trap*sizeof(PlaceId));
+	PlaceId* loc_his = GvGetLocationHistory(gv,PLAYER_DRACULA,&num,&canfree);       
+
+	//creating mature_traps array to store all matured traps.
+
+	PlaceId* mature_trap = malloc(gv->Drac_Trap*sizeof(PlaceId));   
 	for(int v = 0;v < gv->Drac_Trap;v++){
 		mature_trap[v] = NOWHERE;
 	}
 
-	PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	//creating the array for storing the location of current active traps
+
+	PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));     
 	for(int v = 0;v < gv->Drac_Trap;v++){
 		trap[v] = NOWHERE;
 	}
-	PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
+
+	//creating the traps array which are encounter by the hunter's only
+
+	PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId)); 
 	for(int v = 0;v < gv->Drac_Trap;v++){
 		trap_encounter_player[v] = NOWHERE;
 	}
@@ -266,29 +280,48 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 	int count = 0;
 	int count1 = 0;
 	char *city;
-	char *tok = strtok(copy_string," ");
+
+	//spilting the string into small bit's of token to read.
+
+	char *tok = strtok(copy_string," ");        
 	while (tok != NULL) {
 
-		Player curr_player = DeterminePlayerId(gv, tok[0]);
-		
-		if(curr_player == PLAYER_DRACULA) round++;
+		//dtermining which player it is right now.
 
-		city = strndup(&tok[1],2);
-
+		Player curr_player = DeterminePlayerId(gv, tok[0]);  
 		
+		//for keep the tract of the current round.
 
-		PlaceId Loc = placeAbbrevToId(city);
+		if(curr_player == PLAYER_DRACULA) round++;       
+
+		//taking out the current city of the a particular player
+
+		city = strndup(&tok[1],2);         
+
+		//converting the place abbrev to the Id.
+
+		PlaceId Loc = placeAbbrevToId(city);   
 		
-		if (curr_player == PLAYER_DRACULA && tok[3] == 'T') {
-			trap[count] = loc_his[round];
+		//checking where the Dracula is placing
+		//the trap.
+
+		if (curr_player == PLAYER_DRACULA && tok[3] == 'T') {       
+			trap[count] = loc_his[round];                          
 			count++;
 		}
-		if(curr_player == PLAYER_DRACULA && tok[5] == 'M'){
-			mature_trap[mature++] = loc_his[round-6];
+
+		//checking for the traps which are 
+		//mature and no longer exist.
+
+		if(curr_player == PLAYER_DRACULA && tok[5] == 'M'){        
+			mature_trap[mature++] = loc_his[round-6];			   
 		}
 
-		if (curr_player != PLAYER_DRACULA) {
-			for(int i = 3; i < strlen(copy_string);i++){
+		//checking where the hunter's is encountering
+		//the traps
+
+		if (curr_player != PLAYER_DRACULA) {                    
+			for(int i = 3; i < strlen(copy_string);i++){         
 				if(tok[i] == 'T'){
 					trap_encounter_player[count1] = Loc;
 					count1++;
@@ -300,20 +333,27 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 
 	} 
 
+	//calculating total number of traps
+	//which are encountered by the hunters.
+
 	int total_trap_encounter = 0;
-	for (int l = 0;l < 4;l++) {
-		total_trap_encounter += gv->Player[l]->Trap_Encounter;
+	for (int l = 0;l < 4;l++) {                                    
+		total_trap_encounter += gv->Player[l]->Trap_Encounter;     
 		
 	}
 
+	//Removing all the encountered trap from the array of traps.
+
 	for (int j = 0;j < gv->Drac_Trap;j++){
-		for(int k = 0;k < gv->Drac_Trap;k++){
+		for(int k = 0;k < gv->Drac_Trap;k++){                      
 			if (trap_encounter_player[j] == trap[k]){
 				trap[k] = NOWHERE;
 				break;
 			}
 		}
 	}
+
+	//Removing all the matured trap from the array of traps
 
 	for (int j = 0;j < gv->Drac_Trap;j++){
 		for(int k = 0;k < gv->Drac_Trap;k++){
@@ -324,6 +364,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 		}
 	}
 
+	//Sorting all the elements of the trap array.
 
 	int temp = 0;
 	for (int j = 0;j < gv->Drac_Trap;j++){
@@ -338,13 +379,26 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 		}	
 	}
 
+	//removing all the allocated memory.
+
 	free(tok);
 	free(trap_encounter_player);
 	free(copy_string);
 	free(loc_his);
 	free(mature_trap);
 
-	*numTraps = (count-(total_trap_encounter+mature));
+	int active_trap = count-(total_trap_encounter+mature); 
+
+	//checking if the there are no active traps then return null
+
+	if(active_trap == 0){
+		*numTraps = 0;
+		return NULL;
+	}
+
+	//set the numTraps to all the active traps.
+
+	*numTraps = active_trap;
 	return trap;
 	 
 }
