@@ -475,7 +475,9 @@ int main(void)
 			DvFree(dv);
 	}
 
-	{		printf("Testing connections\n");
+	{		printf("Testing all possible places Van_Helsing can visit in the next turn "
+			"only using road and rail\n");
+			
 			char *trail =
 				"GTS.... SRO.... HBC.... MCNTD.. DBS..M. "
 				"GIO.... SBI.... HCN.... MCN.... DIO.... "
@@ -486,15 +488,11 @@ int main(void)
 		
 			Message messages[32] = {};
 			DraculaView dv = DvNew(trail, messages);
-			
-			printf("\nTesting move/location history\n\n");
 			int numLocs = 0; 
 			PlaceId* LastMoves =  DvWhereCanTheyGoByType(dv, PLAYER_VAN_HELSING, true, true, false, &numLocs);
-			printf ("%d", numLocs);
-			for (int i = 0; i < numLocs; i++) {
-				printf ("%s\n", placeIdToName(LastMoves[i]));
-			}
-
+			
+			assert (numLocs == 1);
+			assert(LastMoves[0] == TYRRHENIAN_SEA);
 			free(LastMoves);
 			DvFree(dv);
 			printf("Test passed!\n");
