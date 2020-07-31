@@ -22,6 +22,10 @@
 #include "Queue.h"
 
 #define START	0
+#define VISITED	1
+
+#define HIDEAVAILABLE(c) (c == 0)
+#define DBAVAILABLE(c) (c == 0)
 
 // Function Prototypes
 PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, bool rail, bool boat);
@@ -59,6 +63,7 @@ DraculaView DvNew(char *pastPlays, Message messages[])
 		fprintf(stderr, "Couldn't allocate DraculaView\n");
 		exit(EXIT_FAILURE);
 	}
+
 	new->gv = GvNew(pastPlays, messages);
 	
 	return new;
@@ -68,7 +73,6 @@ DraculaView DvNew(char *pastPlays, Message messages[])
 // After this has been called, `dv` should not be accessed.
 void DvFree(DraculaView dv)
 {
-	
 	GvFree(dv->gv);
 	free(dv);
 }
@@ -90,19 +94,16 @@ int DvGetScore(DraculaView dv)
 
 // Gets the current health points for the given player; an value between
 // 0 and 9 for a hunter, or >= 0 for Dracula.
-int DvGetHealth(DraculaView dv, Player player) {	
-	
-	
+int DvGetHealth(DraculaView dv, Player player) 
+{	
 	int health = GvGetHealth(dv->gv, player);
 	return health;
-
 }
 
 // Gets the current location of a given player.
-PlaceId DvGetPlayerLocation(DraculaView dv, Player player) {
-	
-	return GvGetPlayerLocation(dv->gv, player);
-
+PlaceId DvGetPlayerLocation(DraculaView dv, Player player) 
+{
+		return GvGetPlayerLocation(dv->gv, player);
 }
 
 // Gets the location of the sleeping immature vampire.
@@ -137,8 +138,8 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 }
 
 // Gets all the locations that Dracula can move to this turn.
-PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs) {
-	
+PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs) 
+{	
 	bool road = true;
 	bool boat = true;
 	bool rail = false;
@@ -147,7 +148,6 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs) {
 	
 	*numReturnedLocs = numLocs;
 	return Possible_places;
-	
 }
 
 // Similar  to  DvWhereCanIGo, but the caller can restrict the transport
@@ -156,9 +156,9 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs) {
 PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
                              int *numReturnedLocs)
 {	
-	int numLocs = -1;
+	int numLocs = START;
 	PlaceId *Dv_by_type = DvWhereCanDracGoByType(dv, &numLocs, road, false, boat);
-	
+
 	*numReturnedLocs = numLocs;
 	return Dv_by_type;
 }
@@ -170,15 +170,15 @@ PlaceId *DvWhereCanTheyGo(DraculaView dv, Player player,
 {	
 	assert(player != PLAYER_DRACULA);
 	
-	int numLocs = -1;
+	int numLocs = START;
 	
 	PlaceId from = GvGetPlayerLocation(dv->gv, player);
-	
+
 	if (from == NOWHERE) {
 		*numReturnedLocs = 0;
 		return NULL;
 	}
-
+	
 	int round = GvGetRound(dv->gv);
 	
 	PlaceId *locs = GvGetReachable(dv->gv, player,round, from, &numLocs);
@@ -194,14 +194,14 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
                                 bool road, bool rail, bool boat,
                                 int *numReturnedLocs)
 {
-	int numLocs = -1;
+	int numLocs = START;
 	PlaceId from = GvGetPlayerLocation(dv->gv, player);
-	
+
 	if (from == NOWHERE) {
 		*numReturnedLocs = 0;
 		return NULL;
 	}
-	
+
 	int round = GvGetRound(dv->gv);
 	PlaceId *locs = GvGetReachableByType(dv->gv, player,round, from, road, rail, boat, &numLocs);
 	*numReturnedLocs = numLocs;
@@ -210,10 +210,13 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 
 // Similar to DvGetValidMoves, but modified to be a helper function for all 'ByType' functions
 // as well. This is done by telling us which of road, rail and boat are true.
-PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, bool rail, bool boat) {
-	
+PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, bool rail, bool boat) 
+{
+	// Find the current location of the player
 	PlaceId Last_loc = DvGetPlayerLocation(dv, PLAYER_DRACULA);
 	
+	// If this is the first turn, return NULL and set
+	// numReturnedMoves to 0
 	if (Last_loc == NOWHERE){
 		*numReturnedMoves = START;
 		return NULL;
@@ -236,25 +239,28 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 								&hide_moves, &DB_moves, visited);
 	
 	
-	int num_reachable = -1;
-	int teleport_check = 0;
+	int num_reachable = START;
+	int teleport_check = START;
 	int round = DvGetRound(dv);
 	PlaceId *Reachable_places = GvGetReachableByType(dv->gv, PLAYER_DRACULA,
 											round, Last_loc, road, rail, 
 											boat, &num_reachable);	
 	
-
+	// If the only option is to TELEPORT, then return NULL and set
+	// the numReturnedMoves to 0
 	if (num_reachable == 1 && Reachable_places[0] == Last_loc) {
-		*numReturnedMoves = 0;
+		*numReturnedMoves = START;
 		return NULL;
 	}		
 
-	int ValidMovesCounter = 0;
+	int ValidMovesCounter = START;
 	
 	DoubleBackCalc(&num_reachable, visited, Reachable_places,
 							&Trail_moves, Draculas_trail,
 							Valid_moves, &ValidMovesCounter, &DB_moves);
 	
+	// The num_reachable currently contains the current location,
+	// we must adjust for this
 	int num_real_reachable = num_reachable - 1;
 	
 	AdjVisitedOrNot(&num_reachable, visited, Reachable_places,
@@ -262,17 +268,24 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 								&teleport_check, Last_loc);
 
 	
-	
+	// The number of adjacent places to current location 
+	// which are in trail is equal to the teleport check minus
+	// as the teleport check will count current location as well
 	int visited_adjacent = teleport_check - 1;
 	
-	if (hide_moves == 0) {
+	// If a hide move is available, add current location
+	// to valid moves array
+	if (HIDEAVAILABLE(hide_moves)) {
 		Valid_moves[ValidMovesCounter] = HIDE;
 		ValidMovesCounter++;
 	}
 	
+	// If HIDE move not available and DOUBLEBACK move not available
+	// and all reachable places are in the trail, then TELEPORT and return
+	// numReturnedMoves = 0 as well as return NULL array.
 	if (hide_moves + DB_moves == 2 && visited_adjacent == num_real_reachable) {
 	 	Valid_moves = NULL;
-	 	ValidMovesCounter = 0;
+	 	ValidMovesCounter = START;
 	}
 	
 	free (Draculas_trail);
@@ -291,7 +304,7 @@ void MoveOrLocation(int *Trail_moves, PlaceId *Draculas_trail,
 {
 	for (int i = 0; i < *Trail_moves; i++) {
 		if (NOT_HI_DB_MOVE(Draculas_trail[i]) && Draculas_trail[i] != TELEPORT ) {
-			visited[Draculas_trail[i]] = 1;
+			visited[Draculas_trail[i]] = VISITED;
 			*visited_places = *visited_places + 1;
 		}
 		if (HIDE_MOVE(Draculas_trail[i])) {
@@ -310,19 +323,30 @@ void DoubleBackCalc(int *num_reachable, char *visited, PlaceId *Reachable_places
 										PlaceId *Valid_moves, int *ValidMovesCounter,
 										int *DB_moves)
 {
-	if (*DB_moves == 0) {
+	// If DOUBLEBACK move available, loop through the reachable places
+	// which are in the trail and find out which DOUBLEBACK moves, e.g. D3, 
+	// are available - add the PlaceId of this to the valid moves array
+	if (DBAVAILABLE(*DB_moves)) {
 		for (int i = 0; i < *num_reachable; i++) {
 			if (visited[Reachable_places[i]]) {
 				for (int k = 0; k < *Trail_moves; k++) {
 						if (Reachable_places[i] == Draculas_trail[k]) {
+							// If the trail is less than 6
 							if (k == 0 && *Trail_moves < 6) {
 								int DB_value = *Trail_moves - k;
+
+								// DOUBLEBACKS (PlaceIds 103, 104, 105, 106 and 107) come after HIDE
+								// (102) in the PlaceId positions, to the number of backward moves
+								// for a DOUBLEACK is equal to that DOUBLEBACK + HIDE
+								// e.ge D3 = 3, and to move 3 places back we move
+								// D3 + HI =  3 + 102 moves back
 								int Double_back_what = DB_value + HIDE;
 								Valid_moves[*ValidMovesCounter] = Double_back_what;
 								*ValidMovesCounter = *ValidMovesCounter + 1;
 
 							} 
 
+							// If trail is 6 places long
 							else if (k != 0) {
 								int DB_value = *Trail_moves - k;
 								int Double_back_what = DB_value + HIDE;
@@ -336,6 +360,8 @@ void DoubleBackCalc(int *num_reachable, char *visited, PlaceId *Reachable_places
 				
 		}
 
+		// If the last move played was HIDE into a city in his trail,
+		// Then DOUBLE_BACK_1 must be added to the valid moves array
 		if (Draculas_trail[*Trail_moves-1] == HIDE) {
 	 		Valid_moves[*ValidMovesCounter] = DOUBLE_BACK_1;
 			*ValidMovesCounter = *ValidMovesCounter + 1;
@@ -350,7 +376,7 @@ void DoubleBackCalc(int *num_reachable, char *visited, PlaceId *Reachable_places
 void AdjVisitedOrNot(int *num_reachable, char *visited, PlaceId *Reachable_places,
 										PlaceId *Valid_moves, int *ValidMovesCountCopy,
 										int *teleport_check, PlaceId Last_loc)
-{
+{	
 	for (int i = 0; i < *num_reachable; i++) {
 		if (!visited[Reachable_places[i]] && Reachable_places[i] != Last_loc) {
 			Valid_moves[*ValidMovesCountCopy] = Reachable_places[i];
@@ -368,21 +394,23 @@ void AdjVisitedOrNot(int *num_reachable, char *visited, PlaceId *Reachable_place
 // restrictions he faces
 PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail,bool boat) {
 	
-	int numLocsMoveable = -1;
+	int numLocsMoveable = START;
 	PlaceId *Possible_moves = DvGetValidMovesbyType(dv, &numLocsMoveable, road, rail, boat);
 
+	// If Dracula hasn't played yet return NULL
 	if (Possible_moves == NULL) {
-		*numLocs = 0;
+		*numLocs = START;
 		return NULL;
 	}
 
-	int numLoc = -1;
+	int numLoc = START;
 	bool canfree = false;
 	PlaceId *Location_History = GvGetLocationHistory(dv->gv, PLAYER_DRACULA, &numLoc, &canfree);
 
 	int *Hi_Db_moves = calloc (6, sizeof(*Hi_Db_moves));
 	
-	int HI_DB_move = 0;
+	// Count How many HIDE or DOUBLE_BACK moves are possible
+	int HI_DB_move = START;
 	for (int i = 0; i < numLocsMoveable; i++) {
 		if (HIDE_MOVE(Possible_moves[i]) || DB_MOVE(Possible_moves[i])) {
 			Hi_Db_moves[HI_DB_move] = Possible_moves[i];
@@ -390,15 +418,19 @@ PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail
 		}
 	}
 	
-	int WhereCanIgoCount = 0;
+	int WhereCanIgoCount = START;
 	PlaceId *WhereCanIgo = calloc(numLocsMoveable, sizeof(*WhereCanIgo));
 	
-	int num_hide_Db = 0;
+	int num_hide_Db = START;
 	
+	// If possible move is a HIDE or DOUBLE_BACK move, find the location
+	// that this moves should take Dracula too
 	WhereCanHideOrDnGO(Hi_Db_moves, &HI_DB_move, WhereCanIgo,
 									&num_hide_Db, Location_History,
 									&numLoc, &WhereCanIgoCount);
 	
+	// If not a HIDE or DOUBLE_BACK move, then add the location 
+	// to wherecaniigo array
 	for (int i = 0; i < numLocsMoveable; i++) {
 		if(NOT_HI_DB_MOVE(Possible_moves[i])) {
 			WhereCanIgo[WhereCanIgoCount] = Possible_moves[i];
@@ -425,8 +457,14 @@ void WhereCanHideOrDnGO(int *Hi_Db_moves, int *HI_DB_move, PlaceId *WhereCanIgo,
 		}
 		
 		else if (DB_MOVE(Hi_Db_moves[*num_hide_Db])) {
+			
+			// The DOUBLE_BACK value is equal to the DOUBLEBACK move
+			// (103,104,105,106 or 107) PlaceId minus the PlaceId of HIDE (102)
 			int Db_value = Hi_Db_moves[*num_hide_Db] - HIDE;
 			int compare_index = *numLoc - Db_value;
+			
+			// Compare index will be the the nth index from the end 
+			// of the location history for a DOUBLEBACK move Dn. 
 			if (compare_index != 0) {
 				if (Location_History[compare_index] != Location_History[compare_index-1]) {
 					WhereCanIgo[*WhereCanIgoCount] = Location_History[*numLoc-Db_value];
