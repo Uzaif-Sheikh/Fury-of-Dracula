@@ -39,7 +39,6 @@ typedef struct hunter* Hunter;
 #include "Queue.h"
 
 static PlaceId* Reachable(HunterView hv,Player hunter,int round,PlaceId p,int *numReturnedLocs);
-// TODO: ADD YOUR OWN STRUCTS HERE
 
 struct hunter{
 	PlaceId Loction;
@@ -80,9 +79,9 @@ static Hunter new_player(GameView gv,Player p){
 	return new_hunter;
 }
 
+// Creates a new view to summarise the current state of the game.
 HunterView HvNew(char *pastPlays, Message messages[])
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	HunterView hunter_state = malloc(sizeof(*hunter_state));
 	if (hunter_state == NULL) {
 		fprintf(stderr, "Couldn't allocate HunterView!\n");
@@ -104,43 +103,49 @@ HunterView HvNew(char *pastPlays, Message messages[])
 	hunter_state->vampire_loc = GvGetVampireLocation(hunter_state->gv);
 	hunter_state->curr_player_turn = GvGetPlayer(hunter_state->gv);
 
-
-
 	return hunter_state;
 }
 
+// Frees all memory allocated for `hv`.
+// After this has been called, `hv` should not be accessed.
 void HvFree(HunterView hv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	free(hv);
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Game State Information
 
+// Get the current round number
 Round HvGetRound(HunterView hv)
 {
 	return hv->curr_round;
 }
 
+// Get the current player; i.e., whose turn is it?
 Player HvGetPlayer(HunterView hv)
 {
 	return hv->curr_player_turn;
 }
 
+// Gets the current game score; a positive integer between 0 and 366.
 int HvGetScore(HunterView hv)
 {
 	return hv->curr_score;
 }
 
+// Gets the current health points for the given player; an value between
+// 0 and 9 for a hunter, or >= 0 for Dracula.
 int HvGetHealth(HunterView hv, Player player)
 {
 	if(player == PLAYER_DRACULA){
 		return hv->Dracula_health;
 	}
+
 	return hv->hunters[player]->health;
 }
 
+// Gets the current location of a given player.
 PlaceId HvGetPlayerLocation(HunterView hv, Player player)
 {
 	if(player == PLAYER_DRACULA){
@@ -149,15 +154,18 @@ PlaceId HvGetPlayerLocation(HunterView hv, Player player)
 	return hv->hunters[player]->Loction;
 }
 
+// Gets the location of the sleeping immature vampire.
 PlaceId HvGetVampireLocation(HunterView hv)
 {
-
 	return hv->vampire_loc;
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Utility Functions
 
+// Gets  Dracula's  last  known  real  location  as revealed in the play
+// string and sets *round to the number of the  latest  round  in  which
+// Dracula moved there.
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 {
 	Message messages[4] = {};
@@ -186,6 +194,9 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 	return known_loc;
 }
 
+// Gets  the  shortest  path from the given hunter's current location to
+// the given location, taking into account all connection types and  the
+// fact that hunters can only move once per round.
 PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
                              int *pathLength)
 {
@@ -247,6 +258,8 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 ////////////////////////////////////////////////////////////////////////
 // Making a Move
 
+// Gets  all  the  locations  that the current hunter player can move to
+// this turn.
 PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 {
 	if(HvGetPlayer(hv) == PLAYER_DRACULA){
@@ -260,6 +273,9 @@ PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 	return reachable;
 }
 
+// Similar  to  HvWhereCanIGo, but the caller can restrict the transport
+// types to be considered. For example, if road and rail are  true,  but
+// boat is false, boat connections will be ignored.
 PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
                              bool boat, int *numReturnedLocs)
 {
@@ -275,6 +291,8 @@ PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
 	return reachable;
 }
 
+// Gets  all  the  locations  that the given player can move to in their
+// next move (for the current player that is this turn).
 PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
                           int *numReturnedLocs)
 {
@@ -289,6 +307,9 @@ PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
 	return reachable;
 }
 
+// Similar to HvWhereCanTheyGo but the caller can restrict the transport
+// types  to  be considered. For example, if road and rail are true, but
+// boat is false, boat connections will be ignored.
 PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
                                 bool road, bool rail, bool boat,
                                 int *numReturnedLocs)
@@ -309,6 +330,7 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
+// Function to get the reachable cities for the hunters
 static PlaceId* Reachable(HunterView hv,Player hunter,int round,PlaceId p,int *numReturnedLocs){
 
 	if(HvGetPlayerLocation(hv,hunter) == NOWHERE) return NULL;
