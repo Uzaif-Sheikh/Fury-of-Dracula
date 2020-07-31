@@ -271,6 +271,7 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 ////////////////////////////////////////////////////////////////////////
 // Making a Move
 
+// Possible cities other hunters can visit
 PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 {
 	if(HvGetPlayer(hv) == PLAYER_DRACULA){
@@ -284,6 +285,7 @@ PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 	return reachable;
 }
 
+// Possible cities other hunters can visit by type
 PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
                              bool boat, int *numReturnedLocs)
 {
@@ -299,6 +301,7 @@ PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
 	return reachable;
 }
 
+// Possible cities other players can visit in their next turn
 PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
                           int *numReturnedLocs)
 {
@@ -313,6 +316,7 @@ PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
 	return reachable;
 }
 
+// Possible cities other players can visit by a specific transport in their next turn
 PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
                                 bool road, bool rail, bool boat,
                                 int *numReturnedLocs)
