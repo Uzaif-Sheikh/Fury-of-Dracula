@@ -635,33 +635,80 @@ int main(void)
 		printf("Test passed!\n");
 	}
 
-	{///////////////////////////////////////////////////////////////////
-	
-		
-		printf("Testing connections\n");
-		char *trail =
-			"GLS.... SGE.... HGE.... MGE.... DST.V.. "
-			"GCA.... SGE.... HGE.... MGE.... DC?T... "
-			"GGR.... SGE.... HGE.... MGE.... DC?T... "
-			"GAL.... SGE.... HGE.... MGE.... DD3T... ";
-			
-		
-			Message messages[32] = {};
-			GameView gv = GvNew(trail, messages);
-			{
-				printf("\nTesting move/location history\n\n");
-				int numMoves = 0; bool canFree = false;
-				PlaceId* LastMoves = GvGetLastMoves(gv, PLAYER_DRACULA, 12, &numMoves, &canFree);
-				printf ("%d", numMoves);
-				for (int i = 0; i < numMoves; i++) {
-					printf ("%s\n", placeIdToName(LastMoves[i]));
-				}
+	{///////////////////////////////////////////////////////////////////////
 
-				free(LastMoves);
-				GvFree(gv);
-				printf("Test passed!\n");
-			}
+		printf("Checking for the Max health of Hunter\n");
+
+		char *trail =
+			"GLS.... SGE.... HGE.... MGE.... DMA.V.. "
+			"GSN.... SST.... HFL.... MPA.... DCAT... "
+			"GMAV... SST.... HVE.... MLE.... DGRT... "
+			"GCAT... SZU.... HAS.... MNA.... DALT... "
+			"GCA.... SZU.... HAS.... MNA.... DD4T... "
+			"GCA.... SGO....";
 		
+		Message messages[32] = {};
+		GameView gv = GvNew(trail, messages);
+		
+		assert(GvGetHealth(gv, PLAYER_LORD_GODALMING) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == MADRID);		
+
+		GvFree(gv);
+
+		printf("\033[32m" "Test Passed! :)" "\033[0m\n");
+
+	}
+
+	{///////////////////////////////////////////
+
+		printf("Checking for the health of Dracula\n");
+
+		char *trail =
+			"GLS.... SBD.... HSJ.... MGE.... DSZ.V.. "
+			"GSN.... SSZVD.. HSJ.... MPA.... DBET... "
+			"GMA.... SSZ.... HBETD.. MLE.... DKLT... "
+			"GCA.... SBE.... HBE.... MNA.... DCDT...";
+		
+		Message messages[32] = {};
+		GameView gv = GvNew(trail, messages);
+		
+		assert(GvGetHealth(gv, PLAYER_VAN_HELSING) == (GAME_START_HUNTER_LIFE_POINTS - (LIFE_LOSS_TRAP_ENCOUNTER + LIFE_LOSS_DRACULA_ENCOUNTER) + LIFE_GAIN_REST));
+		assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == CASTLE_DRACULA);
+		assert(GvGetHealth(gv,PLAYER_DRACULA) == 30);		
+
+		GvFree(gv);
+
+		printf("\033[32m" "Test Passed! :)" "\033[0m\n");
+
+	}
+
+	{///////////////////////////////////////////
+
+		printf("Checking for the trap location\n");
+
+		char *trail =
+			"GSW.... SLS.... HMR.... MHA.... DSJ.V.. "
+			"GLO.... SAL.... HCO.... MBR.... DBET... "
+			"GED.... SBO.... HLI.... MPR.... DKLT... "
+			"GLV.... SNA.... HNU.... MBD.... DCDT... "
+			"GIR.... SPA.... HPR.... MKLT... DHIT... "
+			"GAO.... SST.... HSZ.... MCDTTD. DGAT... "
+			"GMS.... SFL.... HKL.... MSZ.... DCNT.V. "
+			"GTS.... SRO.... HBC.... MCNTD.. DBS..M.";
+		
+		Message messages[32] = {};
+		GameView gv = GvNew(trail, messages);
+		
+		int numTraps = 0;
+		PlaceId *traps = GvGetTrapLocations(gv, &numTraps);
+		assert(numTraps == 1);
+		sortPlaces(traps, numTraps);
+		assert(traps[0] == GALATZ);		
+
+		GvFree(gv);
+
+		printf("\033[32m" "Test Passed! :)" "\033[0m\n");
+
 	}
 
 	return EXIT_SUCCESS;
