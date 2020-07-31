@@ -31,21 +31,21 @@
 PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, bool rail, bool boat);
 PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail,bool boat);
 void DoubleBackCalc(int *num_reachable, char *visited, PlaceId *Reachable_places,
-										int *Trail_moves, PlaceId *Draculas_trail,
-										PlaceId *Valid_moves, int *ValidMovesCounter,
-										int *DB_moves);
+					int *Trail_moves, PlaceId *Draculas_trail,
+					PlaceId *Valid_moves, int *ValidMovesCounter,
+					int *DB_moves);
 
 void MoveOrLocation(int *Trail_moves, PlaceId *Draculas_trail, 
-								int *visited_places, int *hide_moves,
-								int *DB_moves, char *visited);
+				int *visited_places, int *hide_moves,
+				int *DB_moves, char *visited);
 
 void AdjVisitedOrNot(int *num_reachable, char *visited, PlaceId *Reachable_places,
-										PlaceId *Valid_moves, int *ValidMovesCountCopy,
-										int *teleport_check, PlaceId Last_loc);
+					PlaceId *Valid_moves, int *ValidMovesCountCopy,
+					int *teleport_check, PlaceId Last_loc);
 
 void WhereCanHideOrDnGO(int *Hi_Db_moves, int *HI_DB_move, PlaceId *WhereCanIgo,
-									int *num_hide_Db, PlaceId *Location_History,
-									int *numLoc, int *WhereCanIgoCount);
+					int *num_hide_Db, PlaceId *Location_History,
+					int *numLoc, int *WhereCanIgoCount);
 
 
 struct draculaView {
@@ -230,22 +230,22 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 	
 	char *visited = calloc(NUM_REAL_PLACES, sizeof(*visited));
 	PlaceId *Draculas_trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
-									TRAIL_SIZE, &Trail_moves, &canfree);
+					TRAIL_SIZE, &Trail_moves, &canfree);
 
 	PlaceId *Valid_moves = calloc (NUM_REAL_PLACES+6, sizeof (*Valid_moves));
 
 	
 	MoveOrLocation(&Trail_moves, Draculas_trail, &visited_places, 
-								&hide_moves, &DB_moves, visited);
+					&hide_moves, &DB_moves, visited);
 	
 	
 	int num_reachable = START;
 	int teleport_check = START;
 	int round = DvGetRound(dv);
 	PlaceId *Reachable_places = GvGetReachableByType(dv->gv, PLAYER_DRACULA,
-											round, Last_loc, road, rail, 
-											boat, &num_reachable);	
-	
+							round, Last_loc, road, rail, 
+							boat, &num_reachable);	
+
 	// If the only option is to TELEPORT, then return NULL and set
 	// the numReturnedMoves to 0
 	if (num_reachable == 1 && Reachable_places[0] == Last_loc) {
@@ -256,16 +256,16 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 	int ValidMovesCounter = START;
 	
 	DoubleBackCalc(&num_reachable, visited, Reachable_places,
-							&Trail_moves, Draculas_trail,
-							Valid_moves, &ValidMovesCounter, &DB_moves);
+					&Trail_moves, Draculas_trail,
+					Valid_moves, &ValidMovesCounter, &DB_moves);
 	
 	// The num_reachable currently contains the current location,
 	// we must adjust for this
 	int num_real_reachable = num_reachable - 1;
 	
 	AdjVisitedOrNot(&num_reachable, visited, Reachable_places,
-								Valid_moves, &ValidMovesCounter,
-								&teleport_check, Last_loc);
+					Valid_moves, &ValidMovesCounter,
+					&teleport_check, Last_loc);
 
 	
 	// The number of adjacent places to current location 
@@ -299,8 +299,8 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 // as well as store and calculate which places have already been visited
 // and are still in the trail
 void MoveOrLocation(int *Trail_moves, PlaceId *Draculas_trail, 
-								int *visited_places, int *hide_moves,
-								int *DB_moves, char *visited) 
+				int *visited_places, int *hide_moves,
+				int *DB_moves, char *visited) 
 {
 	for (int i = 0; i < *Trail_moves; i++) {
 		if (NOT_HI_DB_MOVE(Draculas_trail[i]) && Draculas_trail[i] != TELEPORT ) {
@@ -319,9 +319,9 @@ void MoveOrLocation(int *Trail_moves, PlaceId *Draculas_trail,
 //  Helper function for GetValidMovesByType to calculate whether the DOUBLE_BACK
 // is D1, D2, D3, D4 or D5. This will be stored in the ValidMoves array created
 void DoubleBackCalc(int *num_reachable, char *visited, PlaceId *Reachable_places,
-										int *Trail_moves, PlaceId *Draculas_trail,
-										PlaceId *Valid_moves, int *ValidMovesCounter,
-										int *DB_moves)
+						int *Trail_moves, PlaceId *Draculas_trail,
+						PlaceId *Valid_moves, int *ValidMovesCounter,
+						int *DB_moves)
 {
 	// If DOUBLEBACK move available, loop through the reachable places
 	// which are in the trail and find out which DOUBLEBACK moves, e.g. D3, 
@@ -330,30 +330,30 @@ void DoubleBackCalc(int *num_reachable, char *visited, PlaceId *Reachable_places
 		for (int i = 0; i < *num_reachable; i++) {
 			if (visited[Reachable_places[i]]) {
 				for (int k = 0; k < *Trail_moves; k++) {
-						if (Reachable_places[i] == Draculas_trail[k]) {
-							// If the trail is less than 6
-							if (k == 0 && *Trail_moves < 6) {
-								int DB_value = *Trail_moves - k;
+					if (Reachable_places[i] == Draculas_trail[k]) {
+						// If the trail is less than 6
+						if (k == 0 && *Trail_moves < 6) {
+							int DB_value = *Trail_moves - k;
 
-								// DOUBLEBACKS (PlaceIds 103, 104, 105, 106 and 107) come after HIDE
-								// (102) in the PlaceId positions, to the number of backward moves
-								// for a DOUBLEACK is equal to that DOUBLEBACK + HIDE
-								// e.ge D3 = 3, and to move 3 places back we move
-								// D3 + HI =  3 + 102 moves back
-								int Double_back_what = DB_value + HIDE;
-								Valid_moves[*ValidMovesCounter] = Double_back_what;
-								*ValidMovesCounter = *ValidMovesCounter + 1;
+							// DOUBLEBACKS (PlaceIds 103, 104, 105, 106 and 107) come after HIDE
+							// (102) in the PlaceId positions, to the number of backward moves
+							// for a DOUBLEACK is equal to that DOUBLEBACK + HIDE
+							// e.ge D3 = 3, and to move 3 places back we move
+							// D3 + HI =  3 + 102 moves back
+							int Double_back_what = DB_value + HIDE;
+							Valid_moves[*ValidMovesCounter] = Double_back_what;
+							*ValidMovesCounter = *ValidMovesCounter + 1;
 
-							} 
+						} 
 
-							// If trail is 6 places long
-							else if (k != 0) {
-								int DB_value = *Trail_moves - k;
-								int Double_back_what = DB_value + HIDE;
-								Valid_moves[*ValidMovesCounter] = Double_back_what;
-								*ValidMovesCounter = *ValidMovesCounter + 1;
-							}
+						// If trail is 6 places long
+						else if (k != 0) {
+							int DB_value = *Trail_moves - k;
+							int Double_back_what = DB_value + HIDE;
+							Valid_moves[*ValidMovesCounter] = Double_back_what;
+							*ValidMovesCounter = *ValidMovesCounter + 1;
 						}
+					}
 				}
 				
 			}
@@ -374,8 +374,8 @@ void DoubleBackCalc(int *num_reachable, char *visited, PlaceId *Reachable_places
 // are in the trail. This will ultimately help us figure out whether or not we need to
 // TELEPORT as our next move
 void AdjVisitedOrNot(int *num_reachable, char *visited, PlaceId *Reachable_places,
-										PlaceId *Valid_moves, int *ValidMovesCountCopy,
-										int *teleport_check, PlaceId Last_loc)
+					PlaceId *Valid_moves, int *ValidMovesCountCopy,
+					int *teleport_check, PlaceId Last_loc)
 {	
 	for (int i = 0; i < *num_reachable; i++) {
 		if (!visited[Reachable_places[i]] && Reachable_places[i] != Last_loc) {
@@ -426,8 +426,8 @@ PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail
 	// If possible move is a HIDE or DOUBLE_BACK move, find the location
 	// that this moves should take Dracula too
 	WhereCanHideOrDnGO(Hi_Db_moves, &HI_DB_move, WhereCanIgo,
-									&num_hide_Db, Location_History,
-									&numLoc, &WhereCanIgoCount);
+					&num_hide_Db, Location_History,
+					&numLoc, &WhereCanIgoCount);
 	
 	// If not a HIDE or DOUBLE_BACK move, then add the location 
 	// to wherecaniigo array
@@ -446,8 +446,8 @@ PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail
 
 // If Dracula is to HIDE or DOUBLE_BACK, then find the location which he must go to
 void WhereCanHideOrDnGO(int *Hi_Db_moves, int *HI_DB_move, PlaceId *WhereCanIgo,
-									int *num_hide_Db, PlaceId *Location_History,
-									int *numLoc, int *WhereCanIgoCount)
+						int *num_hide_Db, PlaceId *Location_History,
+						int *numLoc, int *WhereCanIgoCount)
 {
 	while (*num_hide_Db < *HI_DB_move) {
 		
