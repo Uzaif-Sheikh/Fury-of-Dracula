@@ -56,6 +56,32 @@ int main(void)
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
+	{
+		printf("Test for Dracula's Teleport condition should return a NULL array\n");
+			
+			char *trail = "GMS.... SIO.... HTS.... MIO.... DAO..M. "
+			"GAO.... STS.... HMS.... MTS.... DNS.... "
+			"GBB.... SMS.... HAO.... MMS.... DED.V.. "
+			"GNA.... SAO.... HEC.... MAO.... DMNT... "
+			"GBO.... SIR.... HLE.... MEC.... DD2T... "
+			"GSR.... SDU.... HBU.... MPL.... DHIT... ";
+			
+			Message messages[9] = {};
+			DraculaView dv = DvNew(trail, messages);
+			assert(DvGetRound(dv) == 6);
+			//assert(DvGetScore(dv) == GAME_START_SCORE);
+			//assert(DvGetHealth(dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
+			assert(DvGetPlayerLocation(dv, PLAYER_LORD_GODALMING) == SARAGOSSA);
+			assert(DvGetPlayerLocation(dv, PLAYER_DR_SEWARD) == DUBLIN);
+			assert(DvGetPlayerLocation(dv, PLAYER_VAN_HELSING) == BRUSSELS);
+			assert(DvGetPlayerLocation(dv, PLAYER_MINA_HARKER) == PLYMOUTH);
+			assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == EDINBURGH);
+			assert(DvGetVampireLocation(dv) == EDINBURGH);
+			// int numTraps = -1;
+			// PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
+			// assert(numTraps == 0);
+			// free(traps);
+	}
 
 	{///////////////////////////////////////////////////////////////////
 	
@@ -497,6 +523,37 @@ int main(void)
 			DvFree(dv);
 			printf("Test passed!\n");
 			
+	}
+	
+	{	
+		printf ("Checking the vlaid moves if it produces the correct double back" 
+		"sequences by barring all the wrong double back moves\n");
+		
+		char *trail = "GLS.... SGE.... HGE.... MGE.... DMA.V.. " 
+			"GSN.... SST.... HFL.... MPA.... DCAT... " 
+			"GMAV... SST.... HVE.... MLE.... DGRT... " 
+			"GCAT... SZU.... HAS.... MNA.... DALT...";
+		
+			
+			Message messages[24] = {};
+			DraculaView dv = DvNew(trail, messages);
+			
+			int numMoves = -1;
+			PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+			
+			sortPlaces(moves, numMoves);
+			
+			assert (numMoves == 6);
+			assert(moves[0] == MEDITERRANEAN_SEA);
+			assert(moves[1] == SARAGOSSA);
+			assert(moves[2] == HIDE);
+			assert(moves[3] == DOUBLE_BACK_1);
+			assert(moves[4] == DOUBLE_BACK_2);
+			assert(moves[5] == DOUBLE_BACK_4);
+			
+			free(moves);
+			DvFree(dv);
+			printf("Test passed!\n");
 	}
 	
 	return EXIT_SUCCESS;
