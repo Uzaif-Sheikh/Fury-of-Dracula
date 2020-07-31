@@ -939,22 +939,30 @@ void DraculaTraps(PlaceId Loc, GameView gv, char *play, int *mature)
 // depending on the maximum rail distance allowed
 int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId from) {
 
+	//Creates a new Queue
 	Queue q = newQueue();
+
+	// Adds the current location to queuw
 	QueueJoin(q, from);
 	
+	//num_rail_moves used to find the max rail distance allowed and add the elements in queue
 	int num_rail_moves = 1;
 	int rail_type_places = 1;
 	
+	//Adds all the elements in the Queue until the the depth is max_rail_size it uses standard bfs.
 	while (!QueueIsEmpty(q) && num_rail_moves <= max_rail_size) {
 
+		//finds the element in the Queue at the current level
 		int num_curr_level_rail = QueueSize(q);
 		
 		while (num_curr_level_rail > 0) {
 			
+			//finds the element which is the adjacent element to it and finds its connections
 			PlaceId Rail_connecting = QueueLeave(q);
 			
 			ConnList Rail_route = MapGetConnections(places, Rail_connecting);
 			
+			//adds al the rail type connections in the reachable array
 			while (Rail_route) {
 				
 				if (Rail_route->type == RAIL) {
@@ -965,10 +973,12 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 
 				Rail_route = Rail_route->next;
 			}
-
+			//checks all the elementt in the queue.
 			num_curr_level_rail = num_curr_level_rail - 1;
 		}	
 		
+		//moves the loop until the max_rail_size to check all the 
+		//rail routes neighbours until the max depth
 		num_rail_moves++;
 		
 	}
