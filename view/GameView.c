@@ -41,9 +41,6 @@ void PlayerRoundAdjust(int *currG_round, int *currS_round, int *currH_round,
 			int *currM_round, int *Drac_round, 
 			int *player_round, Player character);
 
-void RailRoutes(int *num_curr_level_rail, int *rail_type_places, 
-			PlaceId *GetReachable, Map places, Queue q);
-
 void ByBoat(bool boat, PlaceId *GetReachable, int *num_places_type, PlaceId from, Map Places);
 void ByRoad(bool road, PlaceId *GetReachable, int *num_places_type, PlaceId from, Map Places, Player player);
 void ByRail(bool rail, Player player, Round round, int *num_places_type, PlaceId *GetReachable, Map Places, PlaceId from);
@@ -866,7 +863,25 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 
 		int num_curr_level_rail = QueueSize(q);
 		
-		RailRoutes(&num_curr_level_rail, &rail_type_places, GetReachable, places, q);
+		while (num_curr_level_rail > 0) {
+			
+			PlaceId Rail_connecting = QueueLeave(q);
+			
+			ConnList Rail_route = MapGetConnections(places, Rail_connecting);
+			
+			while (Rail_route) {
+				if (Rail_route->type == RAIL) {
+					
+					GetReachable[rail_type_places] = Rail_route->p;
+					rail_type_places = rail_type_places + 1;
+					QueueJoin(q, Rail_route->p);
+				}
+
+				Rail_route = Rail_route->next;
+			}
+
+			num_curr_level_rail = num_curr_level_rail - 1;
+		}	
 		
 		num_rail_moves++;
 		
@@ -874,28 +889,6 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 	
 	dropQueue (q);
 	return rail_type_places;
-}
-
-void RailRoutes(int *num_curr_level_rail, int *rail_type_places, PlaceId *GetReachable, Map places, Queue q)
-{
-	while (*num_curr_level_rail > 0) {
-			
-		PlaceId Rail_connecting = QueueLeave(q);
-		
-		ConnList Rail_route = MapGetConnections(places, Rail_connecting);
-		
-		while (Rail_route) {
-			if (Rail_route->type == RAIL) {
-				
-				GetReachable[*rail_type_places] = Rail_route->p;
-				*rail_type_places = *rail_type_places + 1;
-				QueueJoin(q, Rail_route->p);
-			}
-			Rail_route = Rail_route->next;
-		}
-
-		*num_curr_level_rail = *num_curr_level_rail - 1;
-	}
 }
 
 void PlayerRoundAdjust(int *currG_round, int *currS_round, int *currH_round, 
