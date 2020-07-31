@@ -21,10 +21,24 @@
 // add your own #includes here
 #include "Queue.h"
 
+#define START	0
+
 // Function Prototypes
 //PlaceId* GetDraculasTrail (DraculaView dv, Player player, int *num_moves);
 PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, bool rail, bool boat);
 PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail,bool boat);
+void DoubleBackCalc(int *num_reachable, char *visited, PlaceId *Reachable_places,
+										int *Trail_moves, PlaceId *Draculas_trail,
+										PlaceId *Valid_moves, int *ValidMovesCounter,
+										int *DB_moves);
+
+void MoveOrLocation(int *Trail_moves, PlaceId *Draculas_trail, 
+								int *visited_places, int *hide_moves,
+								int *DB_moves, char *visited);
+
+void AdjVisitedOrNot(int *num_reachable, char *visited, PlaceId *Reachable_places,
+										PlaceId *Valid_moves, int *ValidMovesCountCopy,
+										int *teleport_check, PlaceId Last_loc);
 
 struct draculaView {
 	GameView gv;
@@ -70,7 +84,6 @@ int DvGetHealth(DraculaView dv, Player player) {
 	
 	
 	int health = GvGetHealth(dv->gv, player);
-	printf ("%d\n", health);
 	return health;
 
 }
@@ -163,179 +176,153 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 	
 	PlaceId Last_loc = DvGetPlayerLocation(dv, PLAYER_DRACULA);
 	
-	//need to update this to if there is no turn of the player yet...
 	if (Last_loc == NOWHERE){
-		*numReturnedMoves = 0;
+		*numReturnedMoves = START;
 		return NULL;
 	}
 	
-	int DB_moves = 0;
-	int hide_moves = 0;
+	int DB_moves = START;
+	int hide_moves = START;
 	int Trail_moves = *numReturnedMoves;
 	bool canfree = false;
-	int visited_places = 0;
-	//int index_Last_Loc = -1;
+	int visited_places = START;
 	
 	char *visited = calloc(NUM_REAL_PLACES, sizeof(*visited));
-	//int *Double_back = calloc(10, sizeof(*Double_back));
-	
-	PlaceId *Draculas_trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, TRAIL_SIZE, &Trail_moves, &canfree);
+	PlaceId *Draculas_trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
+									TRAIL_SIZE, &Trail_moves, &canfree);
+
 	PlaceId *Valid_moves = calloc (NUM_REAL_PLACES+6, sizeof (*Valid_moves));
 
 	
+	MoveOrLocation(&Trail_moves, Draculas_trail, &visited_places, 
+								&hide_moves, &DB_moves, visited);
 	
-	for (int i = 0; i < Trail_moves; i++) {
-		if (NOT_HI_DB_MOVE(Draculas_trail[i]) && Draculas_trail[i] != TELEPORT ) {
-			visited[Draculas_trail[i]] = 1;
-			visited_places++;
-		}
-		if (HIDE_MOVE(Draculas_trail[i])) {
-			hide_moves++;
-		}
-		if (DB_MOVE(Draculas_trail[i])) {
-			DB_moves++;
-		}
-		// if (Draculas_trail[i] == Last_loc){
-		// 	index_Last_Loc = i;
-		// }
-	}
 	
 	int num_reachable = -1;
 	int teleport_check = 0;
-	//PlaceId double_back = DOUBLE_BACK_1;
 	int round = DvGetRound(dv);
-	PlaceId* Reachable_places = GvGetReachableByType(dv->gv, PLAYER_DRACULA, round, Last_loc, road, rail, boat, &num_reachable);	
+	PlaceId *Reachable_places = GvGetReachableByType(dv->gv, PLAYER_DRACULA,
+											round, Last_loc, road, rail, 
+											boat, &num_reachable);	
 	
 
 	if (num_reachable == 1 && Reachable_places[0] == Last_loc) {
 		*numReturnedMoves = 0;
 		return NULL;
-	}							
-	//printf ("%d\n", Trail_moves);
+	}		
 
-		
+	int ValidMovesCounter = 0;
+	
+	DoubleBackCalc(&num_reachable, visited, Reachable_places,
+							&Trail_moves, Draculas_trail,
+							Valid_moves, &ValidMovesCounter, &DB_moves);
+	
+	int num_real_reachable = num_reachable - 1;
+	
+	int ValidMovesCountCopy = ValidMovesCounter;
+	
+	AdjVisitedOrNot(&num_reachable, visited, Reachable_places,
+								Valid_moves, &ValidMovesCountCopy,
+								&teleport_check, Last_loc);
 
-	int j = 0;
-	if (DB_moves == 0) {
-		for (int i = 0; i < num_reachable; i++) {
+	
+	
+	int visited_adjacent = teleport_check - 1;
+	
+	if (hide_moves == 0) {
+		Valid_moves[ValidMovesCountCopy] = HIDE;
+		ValidMovesCountCopy++;
+	}
+	
+	if (hide_moves + DB_moves == 2 && visited_adjacent == num_real_reachable) {
+	 	Valid_moves = NULL;
+	 	ValidMovesCountCopy = 0;
+	}
+	
+	free (Draculas_trail);
+	*numReturnedMoves = ValidMovesCountCopy;
+	return Valid_moves;
+
+}
+
+
+void MoveOrLocation(int *Trail_moves, PlaceId *Draculas_trail, 
+								int *visited_places, int *hide_moves,
+								int *DB_moves, char *visited) 
+{
+	for (int i = 0; i < *Trail_moves; i++) {
+		if (NOT_HI_DB_MOVE(Draculas_trail[i]) && Draculas_trail[i] != TELEPORT ) {
+			visited[Draculas_trail[i]] = 1;
+			*visited_places = *visited_places + 1;
+		}
+		if (HIDE_MOVE(Draculas_trail[i])) {
+			*hide_moves = *hide_moves + 1;
+		}
+		if (DB_MOVE(Draculas_trail[i])) {
+			*DB_moves = *DB_moves + 1;
+		}
+	}
+}
+
+void DoubleBackCalc(int *num_reachable, char *visited, PlaceId *Reachable_places,
+										int *Trail_moves, PlaceId *Draculas_trail,
+										PlaceId *Valid_moves, int *ValidMovesCounter,
+										int *DB_moves)
+{
+	if (*DB_moves == 0) {
+		for (int i = 0; i < *num_reachable; i++) {
 			if (visited[Reachable_places[i]]) {
-				for (int k = 0; k < Trail_moves; k++) {
+				for (int k = 0; k < *Trail_moves; k++) {
 						if (Reachable_places[i] == Draculas_trail[k]) {
-							if (k == 0 && Trail_moves < 6) {
-								int DB_value = Trail_moves - k;
+							if (k == 0 && *Trail_moves < 6) {
+								int DB_value = *Trail_moves - k;
 								int Double_back_what = DB_value + HIDE;
-								Valid_moves[j] = Double_back_what;
-								j++;
+								Valid_moves[*ValidMovesCounter] = Double_back_what;
+								*ValidMovesCounter = *ValidMovesCounter + 1;
+
 							} 
 
 							else if (k != 0) {
-								int DB_value = Trail_moves - k;
+								int DB_value = *Trail_moves - k;
 								int Double_back_what = DB_value + HIDE;
-								Valid_moves[j] = Double_back_what;
-								j++;
+								Valid_moves[*ValidMovesCounter] = Double_back_what;
+								*ValidMovesCounter = *ValidMovesCounter + 1;
 							}
-							
-							// if (k == 1) {
-							// 	int DB_value = Trail_moves - k;
-							// 	int Double_back_what = DB_value + HIDE;
-							// 	Valid_moves[j] = Double_back_what;
-							// 	j++;
-							// } 
-							
-							// else if (k == 2) {
-							// 	int DB_value = Trail_moves - k;
-							// 	int Double_back_what = DB_value + HIDE;
-							// 	Valid_moves[j] = Double_back_what;
-							// 	j++;
-							// } 
-							
-							// else if (k == 3) {
-							// 	printf ("Entered");
-							// 	int DB_value = Trail_moves - k;
-							// 	int Double_back_what = DB_value + HIDE;
-							// 	Valid_moves[j] = Double_back_what;
-							// 	j++;
-								
-							// } 
-							// else if (k == 4) {
-							// 	int DB_value = Trail_moves - k;
-							// 	int Double_back_what = DB_value + HIDE;
-							// 	Valid_moves[j] = Double_back_what;
-							// 	j++;
-								
-							// }
-							// else if (k == 5) {
-							// 	int DB_value = Trail_moves - k;
-							// 	int Double_back_what = DB_value + HIDE;
-							// 	Valid_moves[j] = Double_back_what;
-							// 	j++;
-								
-							// } 
 						}
 				}
 				
 			}
-			
+				
 		}
 
-	}
-
-	
-	if (DB_moves == 0) {
-		if (Draculas_trail[Trail_moves-1] == HIDE) {
-	 		Valid_moves[j] = DOUBLE_BACK_1;
-			 j++;
+		if (Draculas_trail[*Trail_moves-1] == HIDE) {
+	 		Valid_moves[*ValidMovesCounter] = DOUBLE_BACK_1;
+			*ValidMovesCounter = *ValidMovesCounter + 1;
 		}
 	}
-	
-	int num_real_reachable = num_reachable - 1;
-	int t = j;
-	// for (int i = 0; i < t; i++) {
-	// 	printf  ("Check 1%s\n", placeIdToName(Valid_moves[i]));
-	// }
-
-	for (int i = 0; i < num_reachable; i++) {
-		if (!visited[Reachable_places[i]] && Reachable_places[i] != Last_loc) {
-			Valid_moves[t] = Reachable_places[i];
-			t++;
-		}
-		if (visited[Reachable_places[i]]) {
-			teleport_check++;
-		}
-
-	}
-	
-	
-	int visited_adjacent = teleport_check-1;
-	
-	if (hide_moves == 0) {
-		Valid_moves[t] = HIDE;
-		t++;
-	}
-	
-	if (hide_moves + DB_moves == 2 && visited_adjacent == num_real_reachable) {
-
-	 	Valid_moves = NULL;
-	 	t = 0;
-	}
-
-	for (int i = 0; i < t; i++) {
-		printf ("%s\n", placeIdToName(Valid_moves[i]));
-	}
-	
-	free (Draculas_trail);
-	*numReturnedMoves = t;
-	return Valid_moves;
-
 }
+
+void AdjVisitedOrNot(int *num_reachable, char *visited, PlaceId *Reachable_places,
+										PlaceId *Valid_moves, int *ValidMovesCountCopy,
+										int *teleport_check, PlaceId Last_loc)
+{
+	for (int i = 0; i < *num_reachable; i++) {
+		if (!visited[Reachable_places[i]] && Reachable_places[i] != Last_loc) {
+			Valid_moves[*ValidMovesCountCopy] = Reachable_places[i];
+			*ValidMovesCountCopy = *ValidMovesCountCopy + 1;
+		}
+
+		if (visited[Reachable_places[i]]) {
+			*teleport_check = *teleport_check + 1;
+		}
+
+	}
+}
+
 PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail,bool boat) {
 	
 	int numLocsMoveable = -1;
 	PlaceId *Possible_moves = DvGetValidMovesbyType(dv, &numLocsMoveable, road, rail, boat);
-	
-	// for (int i = 0; i < numLocsMoveable; i++) {
-	// 	printf ("%s\n", placeIdToName(Possible_moves[i]));
-	// }
 
 	if (Possible_moves == NULL) {
 		*numLocs = 0;
@@ -347,10 +334,7 @@ PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail
 	//int Trail_moves = -1;
 	PlaceId *Location_History = GvGetLocationHistory(dv->gv, PLAYER_DRACULA, &numLoc, &canfree);
 	//PlaceId *Draculas_trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, TRAIL_SIZE, &Trail_moves, &canfree);
-	printf ("\n\n");
-	for (int i = 0; i < numLoc; i++) {
-		printf ("Loc_His : %s\n", placeIdToName(Location_History[i]));
-	}
+
 	int *Hi_Db_moves = calloc (6, sizeof(*Hi_Db_moves));
 	
 	int HI_DB_move = 0;
@@ -363,19 +347,6 @@ PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail
 	
 	int j = 0;
 	PlaceId *WhereCanIgo = calloc(numLocsMoveable, sizeof(*WhereCanIgo));
-	// for (int i = 0; i < HI_DB_move; i++) {
-	// 	if (Hi_Db_moves[i] == HIDE) {
-	//  		WhereCanIgo[j] = Location_History[numLoc-1];
-	// 		j++;
-	// 	}
-	// }
-	//printf ("%d",HI_DB_move);
-	// for (int i = 0; i < HI_DB_move; i++) {
-	// 	printf ("%s\n", placeIdToName(Hi_Db_moves[i]));
-	// }
-    
-	
-	//PlaceId Last_Loc = GvGetPlayerLocation(dv->gv, PLAYER_DRACULA);
 	
 	int num_hide_Db = 0;
 	
@@ -387,9 +358,7 @@ PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail
 		}
 		
 		else if (DB_MOVE(Hi_Db_moves[num_hide_Db])) {
-			//printf ("%s", placeIdToName(Hi_Db_moves[num_hide_Db]));
 			int Db_value = Hi_Db_moves[num_hide_Db] - HIDE;
-			//printf ("\n%d\n", Db_value);
 			int compare_index = numLoc - Db_value;
 			if (compare_index != 0) {
 				if (Location_History[compare_index] != Location_History[compare_index-1]) {
@@ -402,45 +371,6 @@ PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail
 		num_hide_Db++;
 	}
 	
-	// int j = 0; 
-	
-	// for (int i = 0; i < HI_DB_move; i++) {
-	// 	printf ("%s", placeIdToName(Hi_Db_moves[i]));
-	// }
-	
-	// for (int i = 0; i < HI_DB_move; i++) {
-	// 	if (Hi_Db_moves[i] == HIDE) {
-	// 		WhereCanIgo[j] = Last_Loc;
-	// 	}
-	// }
-	
-	// int i = numLoc-1;
-	// while(NOT_HI_DB_MOVE(Move_History[i])) {
-	// 	i--;
-	// }
-
-	// PlaceId Loc = Move_History[i];
-
-	// while (HI_DB_move > 0)  {
-		
-	// 	while (HIDE_MOVE(Loc) || DB_MOVE(Loc)) {
-	// 		if (DB_MOVE(Loc)) {
-	// 			int DB_value = Loc - HIDE;
-	// 			i = i - DB_value;
-	// 		} 
-	// 		else if (HIDE_MOVE(Loc)) {
-	// 			i = i - 1;
-	// 		}
-	// 		Loc = Move_History[i];
-
-	// 	}
-
-	// 	WhereCanIgo[j] = Loc;
-	// 	j++;
-	// 	//Loc = Hi_Db_moves[j];	
-	// 	HI_DB_move--;
-	// }
-	
 	int k = j;
 	
 	for (int i = 0; i < numLocsMoveable; i++) {
@@ -450,33 +380,8 @@ PlaceId *DvWhereCanDracGoByType(DraculaView dv,int *numLocs, bool road,bool rail
 		} 
 		
 	}
-	
-	// int num_places_unique = 0;
-	
-	// sortPlaces(WhereCanIgo, k);
-	
-	// for (int i = 0; i < num_places_type; i++) {
-		
-	// 	if (i != 0) {
-	// 		if (GetReachable[i] != GetReachable[i-1]) {
-	// 			GetReachable_type[num_places_unique] = GetReachable[i];
-	// 			num_places_unique++;
-	// 		}
-	// 	} 
-		
-	// 	else {
-	// 		GetReachable_type[num_places_unique] = GetReachable[i];
-	// 		num_places_unique++;
-	// 	}
-	// }
-
-
 
 	// free(GetReachable);
-    
-	// for (int i = 0; i < k; i++){
-	// 	printf ("%s", placeIdToName(WhereCanIgo[i]));
-	// }
 	*numLocs = k;
 	return WhereCanIgo;
 
