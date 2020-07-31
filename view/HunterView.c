@@ -39,6 +39,7 @@ typedef struct hunter* Hunter;
 #include "Queue.h"
 
 static PlaceId* Reachable(HunterView hv,Player hunter,int round,PlaceId p,int *numReturnedLocs);
+// TODO: ADD YOUR OWN STRUCTS HERE
 
 struct hunter{
 	PlaceId Loction;
@@ -79,9 +80,9 @@ static Hunter new_player(GameView gv,Player p){
 	return new_hunter;
 }
 
-// Creates a new view to summarise the current state of the game.
 HunterView HvNew(char *pastPlays, Message messages[])
 {
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	HunterView hunter_state = malloc(sizeof(*hunter_state));
 	if (hunter_state == NULL) {
 		fprintf(stderr, "Couldn't allocate HunterView!\n");
@@ -103,11 +104,11 @@ HunterView HvNew(char *pastPlays, Message messages[])
 	hunter_state->vampire_loc = GvGetVampireLocation(hunter_state->gv);
 	hunter_state->curr_player_turn = GvGetPlayer(hunter_state->gv);
 
+
+
 	return hunter_state;
 }
 
-// Frees all memory allocated for `hv`.
-// After this has been called, `hv` should not be accessed.
 void HvFree(HunterView hv)
 {
 	for(int i = 0;i < MAX_HUNTERS;i++){
@@ -121,36 +122,29 @@ void HvFree(HunterView hv)
 ////////////////////////////////////////////////////////////////////////
 // Game State Information
 
-// Get the current round number
 Round HvGetRound(HunterView hv)
 {
 	return hv->curr_round;
 }
 
-// Get the current player; i.e., whose turn is it?
 Player HvGetPlayer(HunterView hv)
 {
 	return hv->curr_player_turn;
 }
 
-// Gets the current game score; a positive integer between 0 and 366.
 int HvGetScore(HunterView hv)
 {
 	return hv->curr_score;
 }
 
-// Gets the current health points for the given player; an value between
-// 0 and 9 for a hunter, or >= 0 for Dracula.
 int HvGetHealth(HunterView hv, Player player)
 {
 	if(player == PLAYER_DRACULA){
 		return hv->Dracula_health;
 	}
-
 	return hv->hunters[player]->health;
 }
 
-// Gets the current location of a given player.
 PlaceId HvGetPlayerLocation(HunterView hv, Player player)
 {
 	if(player == PLAYER_DRACULA){
@@ -159,18 +153,16 @@ PlaceId HvGetPlayerLocation(HunterView hv, Player player)
 	return hv->hunters[player]->Loction;
 }
 
-// Gets the location of the sleeping immature vampire.
 PlaceId HvGetVampireLocation(HunterView hv)
 {
+
 	return hv->vampire_loc;
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Utility Functions
 
-// Gets  Dracula's  last  known  real  location  as revealed in the play
-// string and sets *round to the number of the  latest  round  in  which
-// Dracula moved there.
+// Gets the Last location  of Dracula known to hunters
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 {
 	Message messages[4] = {};
@@ -199,17 +191,25 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 	return known_loc;
 }
 
-// Gets  the  shortest  path from the given hunter's current location to
-// the given location, taking into account all connection types and  the
-// fact that hunters can only move once per round.
+
+// Finds the shortest path using Breadth first Search algorithm (implemented
+// using queues) from the hunter's current  position to the provided
+// destination . Function reads the reachable cities from the hunter's current 
+// position including the maximum number of rail moves, pushing each entry into
+// a queue which hasn't already been visited and storing the immediate parent 
+// of the city in a parent array. Shortest path is determined by retracing the parent
+// array from destination to source.
 PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
                              int *pathLength)
 {
 	Map m = MapNew();
-	
+
+	// round keeps track of round since the hunter last moved
 	int round = 0;
 
 	int num_places = MapNumPlaces(m);
+	
+	// Allocating space for parent array
 	PlaceId* parent = malloc(num_places*sizeof(PlaceId));
 
 	for(PlaceId i = 0;i < num_places;i++){
@@ -217,11 +217,16 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 	}
 
 	PlaceId from = hv->hunters[hunter]->Loction;
-
+	
+	// Getting the new queue
 	Queue q = newQueue();
 	QueueJoin(q,from);
 	parent[from] = from;
+
+	// flag keeps track of whether the destination has been found or not
 	int flag = 0;
+
+	// while Queue is empty and destination not found
 	while(!QueueIsEmpty(q) && flag != 1){
 		PlaceId p ;
 		int size_q = QueueSize(q);
@@ -229,6 +234,8 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 			p = QueueLeave(q);
 			size_q--;
 			int numlocs = 0;
+
+			// Reachable helper function called
 			PlaceId *reach = Reachable(hv, hunter, round, p, &numlocs);
 			for (int j = 0; j < numlocs ; j++) {
 				if (parent[reach[j]] == NOWHERE && reach[j] != p) {
@@ -241,6 +248,7 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 					parent[reach[j]] = p;
 				}
 			}
+			free(reach);
 		}
 		round++;
 	}
@@ -255,7 +263,8 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 	for(PlaceId j = index-1;j >= 0;j--){
 		shortest_path[count++] = temp[j];
 	}
-
+	
+	free(parent);
 	*pathLength = count;
 	return shortest_path;
 }
@@ -263,8 +272,6 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 ////////////////////////////////////////////////////////////////////////
 // Making a Move
 
-// Gets  all  the  locations  that the current hunter player can move to
-// this turn.
 PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 {
 	if(HvGetPlayer(hv) == PLAYER_DRACULA){
@@ -278,9 +285,6 @@ PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 	return reachable;
 }
 
-// Similar  to  HvWhereCanIGo, but the caller can restrict the transport
-// types to be considered. For example, if road and rail are  true,  but
-// boat is false, boat connections will be ignored.
 PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
                              bool boat, int *numReturnedLocs)
 {
@@ -296,12 +300,10 @@ PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
 	return reachable;
 }
 
-// Gets  all  the  locations  that the given player can move to in their
-// next move (for the current player that is this turn).
 PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
                           int *numReturnedLocs)
 {
-	if(HvGetPlayerLocation(hv,player) == NOWHERE) return NULL;
+	if(HvGetPlayerLocation(hv,player) == NOWHERE || HvGetPlayerLocation(hv, PLAYER_DRACULA) == CITY_UNKNOWN) return NULL;
 	int round = GvGetRound(hv->gv);
 	if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
 		round += 1;
@@ -312,19 +314,15 @@ PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
 	return reachable;
 }
 
-// Similar to HvWhereCanTheyGo but the caller can restrict the transport
-// types  to  be considered. For example, if road and rail are true, but
-// boat is false, boat connections will be ignored.
 PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
                                 bool road, bool rail, bool boat,
                                 int *numReturnedLocs)
 {
-	if(HvGetPlayerLocation(hv,player) == NOWHERE) return NULL;
+	if(HvGetPlayerLocation(hv,player) == NOWHERE || HvGetPlayerLocation(hv, PLAYER_DRACULA) == CITY_UNKNOWN) return NULL;
 	int round = GvGetRound(hv->gv);
 	if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
 		round += 1;
 	}
-	if(HvGetPlayerLocation(hv,player) == NOWHERE) return NULL;
 	int num_max = 0;
 	PlaceId* reachable = GvGetReachableByType(hv->gv,player,round,HvGetPlayerLocation(hv,player),
 	road,rail,boat,&num_max);
@@ -333,9 +331,10 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Your own interface functions
 
-// Function to get the reachable cities for the hunters
+// Reachable function is a helper function for shortest path which uses the current round 
+//from the hunter's provided round and location  and provides the reachable cities using
+// GvGetReachable() function from GameView
 static PlaceId* Reachable(HunterView hv,Player hunter,int round,PlaceId p,int *numReturnedLocs){
 
 	if(HvGetPlayerLocation(hv,hunter) == NOWHERE) return NULL;
