@@ -181,7 +181,6 @@ void GvFree(GameView gv) {
 // 			  Game State Infomration		      //
 ////////////////////////////////////////////////////////////////////////
 
-
 // Get the current round of play for any given player
 Round GvGetRound(GameView gv) 
 {	
@@ -264,13 +263,14 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 	// Create array to store the numbe of trap encounters for a given player
 	PlaceId *trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
 
-	int trap_count = 0;
-	int trap_encounter_count = 0;
+	int trap_count = START;
 	char *city;
+	int trap_encounter_count = START;
 	int round = START - 1;
+	
 	// Tokenize the past play string into individual player moves
 	char *play = strtok(pastPlays," ");
-	
+
 	while (play != NULL) {
 
 		// Determine player 
@@ -278,7 +278,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 		
 		// Increment round at the end of this turn if
 		// Dracula is playing, as Dracula is the last play
-		if(curr_player == PLAYER_DRACULA) round++;
+		if(curr_player == PLAYER_DRACULA) round = round + 1;
 
 		// Copy the city/move into city variable
 		city = strndup(&play[1],2);
@@ -289,7 +289,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 		// If Dracula drops a trap, increase trap count
 		if (curr_player == PLAYER_DRACULA && play[3] == 'T') {
 			trap[trap_count] = loc_his[round];
-			trap_count++;
+			trap_count = trap_count + 1;
 		}
 		
 		// If Hunters encounter a trap, increase trap encounter count
@@ -297,7 +297,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 			for(int i = 3; i < strlen(pastPlays); i++){
 				if(play[i] == 'T'){
 					trap_encounter_player[trap_encounter_count] = Loc;
-					trap_encounter_count++;
+					trap_encounter_count = trap_encounter_count + 1;
 				}
 			}
 		}
@@ -583,7 +583,55 @@ void ByRoad(bool road, PlaceId *GetReachable, int *num_places_type, PlaceId from
 //		   	  ADDITIONAL PROTOTYPES			      //
 ////////////////////////////////////////////////////////////////////////
 
+// The main analysis of past plays; used to update
+// struct.
+void PastPlayAnalysis(GameView gv) {
+	
+	int currG_round = START;
+	int currS_round = START;
+	int currH_round = START;
+	int currM_round = START;
+	int Drac_round = START;
+	int mature = START;
+	char *pastPlays = strdup (gv->Game_State);
+	char *play = strtok(pastPlays, " ");
 
+	while (play != NULL) {
+		
+		char *city;
+		city = strndup(&play[1],2);
+		PlaceId Loc = placeAbbrevToId(city);
+		Player character = DeterminePlayerId (gv, play[0]);
+		
+		int player_round = START;
+		
+		PlayerRoundAdjust(&currG_round, &currS_round, &currH_round, 
+						&currM_round, &Drac_round, 
+						&player_round, character);
+		
+		if (HUNTER(character)) {
+			
+			RestCheck(Loc, gv, character, player_round);
+
+			HunterEncounters(Loc, gv, character, play);
+
+			AdjustHunterHealth(gv, character, player_round);
+			
+		} 
+		
+		else {
+			
+			DraculaLocation(Loc, gv, character, player_round);
+
+			AdjustDraculaHealth(gv, character); 
+
+			DraculaTraps(Loc, gv, play, &mature); 			
+		}
+
+		free(city);
+		play = strtok(NULL, " ");
+	}
+}
 
 // Given abbreviation, find playerId
 Player DeterminePlayerId(GameView gv, char PlayerAbbrev) 
@@ -655,53 +703,6 @@ int GvGetScore(GameView gv)
 	return gv->curr_score;
 }
 
-void PastPlayAnalysis(GameView gv) {
-	
-	int currG_round = START;
-	int currS_round = START;
-	int currH_round = START;
-	int currM_round = START;
-	int Drac_round = START;
-	int mature = START;
-	char *pastPlays = strdup (gv->Game_State);
-	char *play = strtok(pastPlays, " ");
-
-	while (play != NULL) {
-		
-		char *city;
-		city = strndup(&play[1],2);
-		PlaceId Loc = placeAbbrevToId(city);
-		Player character = DeterminePlayerId (gv, play[0]);
-		
-		int player_round = START;
-		
-		PlayerRoundAdjust(&currG_round, &currS_round, &currH_round, 
-						&currM_round, &Drac_round, 
-						&player_round, character);
-		
-		if (HUNTER(character)) {
-			
-			RestCheck(Loc, gv, character, player_round);
-
-			HunterEncounters(Loc, gv, character, play);
-
-			AdjustHunterHealth(gv, character, player_round);
-			
-		} 
-		
-		else {
-			
-			DraculaLocation(Loc, gv, character, player_round);
-
-			AdjustDraculaHealth(gv, character); 
-
-			DraculaTraps(Loc, gv, play, &mature); 			
-		}
-
-		free(city);
-		play = strtok(NULL, " ");
-	}
-}
 
 void RestCheck(PlaceId Loc, GameView gv, Player character, int player_round) {
 
@@ -737,7 +738,6 @@ void HunterEncounters(PlaceId Loc, GameView gv, Player character,
 		}
 	}
 
-	
 }
 
 void AdjustHunterHealth(GameView gv, Player character, int player_round) 
