@@ -42,7 +42,7 @@ static PlaceId* Reachable(HunterView hv,Player hunter,int round,PlaceId p,int *n
 // TODO: ADD YOUR OWN STRUCTS HERE
 
 struct hunter{
-	PlaceId Loction;
+	PlaceId Location;
 	Health health;
 
 };
@@ -74,7 +74,7 @@ static Hunter new_player(GameView gv,Player p){
 		exit(EXIT_FAILURE);
 	}
 
-	new_hunter->Loction = GvGetPlayerLocation(gv,p);
+	new_hunter->Location = GvGetPlayerLocation(gv,p);
 	new_hunter->health = GvGetHealth(gv,p);
 
 	return new_hunter;
@@ -150,7 +150,7 @@ PlaceId HvGetPlayerLocation(HunterView hv, Player player)
 	if(player == PLAYER_DRACULA){
 		return hv->Dracula_loc;
 	}
-	return hv->hunters[player]->Loction;
+	return hv->hunters[player]->Location;
 }
 
 PlaceId HvGetVampireLocation(HunterView hv)
@@ -216,7 +216,7 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 		parent[i] = NOWHERE;
 	}
 
-	PlaceId from = hv->hunters[hunter]->Loction;
+	PlaceId from = hv->hunters[hunter]->Location;
 	
 	// Getting the new queue
 	Queue q = newQueue();
