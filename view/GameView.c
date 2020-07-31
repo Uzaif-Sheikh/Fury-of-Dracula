@@ -845,12 +845,14 @@ void DraculaTraps(PlaceId Loc, GameView gv, char *play, int *mature)
 		gv->Player[PLAYER_DRACULA]->Vampire_Encounter++;
 		gv->Vampire_Location = Loc;
 	
-	} else if (play[5] == 'V' || play[6] == 'V') {
+	} 
+	else if (play[5] == 'V' || play[6] == 'V') {
 		*mature = *mature + 1;
 		gv->mature = *mature;
 		gv->Vampire_Location = NOWHERE;
 
-	} else if (play[3] == 'T' || play[4] == 'T') {
+	} 
+	else if (play[3] == 'T' || play[4] == 'T') {
 		gv->Drac_Trap++;
 	}
 }
@@ -875,8 +877,8 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 			ConnList Rail_route = MapGetConnections(places, Rail_connecting);
 			
 			while (Rail_route) {
+				
 				if (Rail_route->type == RAIL) {
-					
 					GetReachable[rail_type_places] = Rail_route->p;
 					rail_type_places = rail_type_places + 1;
 					QueueJoin(q, Rail_route->p);

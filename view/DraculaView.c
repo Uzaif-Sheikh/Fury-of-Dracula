@@ -158,6 +158,7 @@ PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
 {	
 	int numLocs = -1;
 	PlaceId *Dv_by_type = DvWhereCanDracGoByType(dv, &numLocs, road, false, boat);
+	
 	*numReturnedLocs = numLocs;
 	return Dv_by_type;
 }
@@ -172,6 +173,12 @@ PlaceId *DvWhereCanTheyGo(DraculaView dv, Player player,
 	int numLocs = -1;
 	
 	PlaceId from = GvGetPlayerLocation(dv->gv, player);
+	
+	if (from == NOWHERE) {
+		*numReturnedLocs = 0;
+		return NULL;
+	}
+
 	int round = GvGetRound(dv->gv);
 	
 	PlaceId *locs = GvGetReachable(dv->gv, player,round, from, &numLocs);
@@ -189,6 +196,12 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 {
 	int numLocs = -1;
 	PlaceId from = GvGetPlayerLocation(dv->gv, player);
+	
+	if (from == NOWHERE) {
+		*numReturnedLocs = 0;
+		return NULL;
+	}
+	
 	int round = GvGetRound(dv->gv);
 	PlaceId *locs = GvGetReachableByType(dv->gv, player,round, from, road, rail, boat, &numLocs);
 	*numReturnedLocs = numLocs;

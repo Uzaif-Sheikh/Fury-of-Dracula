@@ -56,10 +56,35 @@ int main(void)
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
+	{///////////////////////////////////////////
+
+		printf("Checking for the Max health of Hunter and health of dracula "
+		"after encounters and staying at castle dracula\n");
+
+		char *trail =
+			"GLS.... SBD.... HSJ.... MGE.... DSZ.V.. "
+			"GSN.... SSZVD.. HSJ.... MPA.... DBET... "
+			"GMA.... SSZ.... HBETD.. MLE.... DKLT... "
+			"GCA.... SBE.... HBE.... MNA.... DCDT...";
+		
+		Message messages[32] = {};
+		DraculaView dv = DvNew(trail, messages);
+		
+		assert(DvGetHealth(dv, PLAYER_VAN_HELSING) == (GAME_START_HUNTER_LIFE_POINTS - 
+		(LIFE_LOSS_TRAP_ENCOUNTER + LIFE_LOSS_DRACULA_ENCOUNTER) + LIFE_GAIN_REST));
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == CASTLE_DRACULA);
+		assert(DvGetHealth(dv,PLAYER_DRACULA) == 30);		
+
+		DvFree(dv);
+
+		printf("Test Passed\n");
+
+	}
+	
 	{
 		printf("Test for Dracula's Teleport condition should return a NULL array\n");
 			
-			char *trail = "GMS.... SIO.... HTS.... MIO.... DAO..M. "
+			char *trail = "GMS.... SIO.... HTS.... MIO.... DAOT... "
 			"GAO.... STS.... HMS.... MTS.... DNS.... "
 			"GBB.... SMS.... HAO.... MMS.... DED.V.. "
 			"GNA.... SAO.... HEC.... MAO.... DMNT... "
@@ -200,7 +225,7 @@ int main(void)
 		DvFree(dv);
 	}
 	
-	// {///////////////////////////////////////////////////////////////////
+	{///////////////////////////////////////////////////////////////////
 	
 		printf("Test for Dracula's valid moves with one hide and double back in the trail\n");
 		
@@ -229,7 +254,7 @@ int main(void)
 		
 		printf("Test passed!\n");
 		DvFree(dv);
-	// }
+	}
 
 	{///////////////////////////////////////////////////////////////////
 	
@@ -273,16 +298,39 @@ int main(void)
 		
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
-		//for (int i = 0; i < )
 		
 		assert(numMoves == 0);
 		assert (moves == NULL);
 		free(moves);
 		
+		int numLocs = -1;
+		PlaceId *Locs = DvWhereCanIGo(dv, &numLocs);
+
+		assert(numLocs == 0);
+		assert(Locs == NULL);
+		
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
 	
+	{///////////////////////////////////////////////////////////////////
+	
+		printf("Test when MINA HARKER has had no turn, it should return a NULL array for the DvWhereCantheGo\n");
+		
+		char *trail = "GMS.... SIO.... HTS.... ";
+		
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages);
+		
+		int numLocs = -1;
+		PlaceId *Locs = DvWhereCanTheyGo(dv, PLAYER_MINA_HARKER, &numLocs);
+
+		assert(numLocs == 0);
+		assert(Locs == NULL);
+		
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
 	
 	{///////////////////////////////////////////////////////////////////
 	
@@ -416,8 +464,16 @@ int main(void)
 		assert(locs[5] == VALONA);
 		assert(locs[6] == VARNA);
 		
-		free(locs);
+		printf ("Testing for the Trap Locations\n");
+		int numTraps = -1;
+		PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
+		for (int i = 0; i < numTraps; i++) {
+			printf ("%s\n", placeIdToName(traps[i]));
+		}
+
 		
+		free(locs);
+		free (moves);
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
@@ -555,6 +611,8 @@ int main(void)
 			DvFree(dv);
 			printf("Test passed!\n");
 	}
+
+	
 	
 	return EXIT_SUCCESS;
 }
