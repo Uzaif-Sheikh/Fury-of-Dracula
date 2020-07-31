@@ -147,7 +147,8 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 	gameView->Game_State = strdup(pastPlays);
 	gameView->curr_score = GAME_START_SCORE;
 
-								// TO DO
+	// Finding the current round to assess how much 
+	// to calloc for MoveHistory
 	int n = GvGetRound(gameView) + 1;
 	for (int i = 0; i < NUM_PLAYERS; i++) {
 	    gameView->Player[i] = new_player(n);
@@ -158,7 +159,7 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 	gameView->Vampire_Location = NOWHERE;
 	gameView->mature = START;
 
-									// TO DO
+	// Update the Game data according to the last play
 	PastPlayAnalysis(gameView);
 	
 	return gameView;
@@ -502,9 +503,13 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 	
 	int num_places_unique = 0;
 	
+	// Sort the Reachable Places
 	sortPlaces(GetReachable, num_places_type);
 	
-										// TO DO
+	// Remove duplicate reachable place i.e. places
+	// which are reacheable in more than one way (e.g. if 
+	// D1 and HI give the same location, the location must appear
+	// only once)
 	for (int i = 0; i < num_places_type; i++) {
 		
 		if (i != 0) {
