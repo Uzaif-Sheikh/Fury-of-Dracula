@@ -82,7 +82,6 @@ static Hunter new_player(GameView gv,Player p){
 
 HunterView HvNew(char *pastPlays, Message messages[])
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	HunterView hunter_state = malloc(sizeof(*hunter_state));
 	if (hunter_state == NULL) {
 		fprintf(stderr, "Couldn't allocate HunterView!\n");
