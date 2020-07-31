@@ -224,7 +224,6 @@ int main(void)
 		assert(GvGetPlayer(gv) == PLAYER_DRACULA);
 		assert(GvGetScore(gv) == GAME_START_SCORE - 2 * SCORE_LOSS_DRACULA_TURN);
 		assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == ENGLISH_CHANNEL);
-		//printf("HEALTH : %d\n", GvGetHealth(gv, PLAYER_DRACULA));
 		assert(GvGetHealth(gv, PLAYER_DRACULA) ==
 				GAME_START_BLOOD_POINTS - (2 * LIFE_LOSS_SEA));
 	
@@ -519,15 +518,10 @@ int main(void)
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachable(gv, PLAYER_LORD_GODALMING,
 			                                     1, GALATZ, &numLocs);
-			 //for (int i = 0; i < numLocs; i++) {
-			 //	printf ("%s\n", placeIdToName(locs[i]));
-			 //}
+
 			assert(numLocs == 5);
-			//printf ("\n");
 			sortPlaces(locs, numLocs);
-			// for (int i = 0; i < numLocs; i++) {
-			// 	printf ("%s\n", placeIdToName(locs[i]));
-			// }
+			
 			assert(locs[0] == BUCHAREST);
 			assert(locs[1] == CASTLE_DRACULA);
 			assert(locs[2] == CONSTANTA);
@@ -545,11 +539,6 @@ int main(void)
 			                                     1, IONIAN_SEA, &numLocs);
 			
 			sortPlaces(locs, numLocs);
-			// for (int i = 0; i < numLocs; i++) {
-			//  	printf ("%s\n", placeIdToName(locs[i]));
-			// }
-			// //printf ("\n");
-			// printf ("%d\n", numLocs);
 			assert(numLocs == 7);
 			
 			assert(locs[0] == ADRIATIC_SEA);
@@ -569,9 +558,6 @@ int main(void)
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
 			                                     2, PARIS, false, true,
 			                                     false, &numLocs);
-			// for (int i = 0; i <= numLocs; i++) {
-			//   	printf ("%s\n", placeIdToName(locs[i]));
-			// }
 			assert(numLocs == 7);
 			
 			sortPlaces(locs, numLocs);
@@ -599,41 +585,69 @@ int main(void)
 
 		{
 			printf("\tChecking reachable places for dracula\n");
-			//int numLocs = -1;
-
+			
 			int numMoves = 0; bool canFree = false;
 			int numLocs = 0;
 			
 			PlaceId* LastMoves = GvGetLastMoves(gv, PLAYER_DRACULA, 12, &numMoves, &canFree);
 			PlaceId* LastLocs = GvGetLastLocations(gv, PLAYER_DRACULA, 12, &numLocs, &canFree);
 			
-			for (int i = 0; i < numMoves; i++) {
-				printf ("%s\n", placeIdToName(LastMoves[i]));
-			}
-
-			printf("\n\n");
-			for (int i = 0; i < numLocs; i++) {
-				printf ("%s\n", placeIdToName(LastLocs[i]));
-			}
-			printf ("\n\n");
-			PlaceId from = GvGetPlayerLocation(gv, PLAYER_DRACULA);
-			printf ("%s\n\n", placeIdToName(from));
+			//asserting and checking the moves in the order of what they come without sorting.
+			assert (numMoves == 12);
+			assert (LastMoves[0] == HIDE);
+			assert (LastMoves[1] == TELEPORT);
+			assert (LastMoves[2] == CASTLE_DRACULA);
+			assert (LastMoves[3] == KLAUSENBURG);
+			assert (LastMoves[4] == GALATZ);
+			assert (LastMoves[5] == DOUBLE_BACK_3);
+			assert (LastMoves[6] == HIDE);
+			assert (LastMoves[7] == TELEPORT);
+			assert (LastMoves[8] == CASTLE_DRACULA);
+			assert (LastMoves[9] == KLAUSENBURG);
+			assert (LastMoves[10] == BUCHAREST);
+			assert (LastMoves[11] == SOFIA);
 			
+			//asserting and checking the locations in the order of what they come without sorting.
+			assert (numLocs == 12);
+			assert (LastLocs[0] == EDINBURGH);
+			assert (LastLocs[1] == CASTLE_DRACULA);
+			assert (LastLocs[2] == CASTLE_DRACULA);
+			assert (LastLocs[3] == KLAUSENBURG);
+			assert (LastLocs[4] == GALATZ);
+			assert (LastLocs[5] == CASTLE_DRACULA);
+			assert (LastLocs[6] == CASTLE_DRACULA);
+			assert (LastLocs[7] == CASTLE_DRACULA);
+			assert (LastLocs[8] == CASTLE_DRACULA);
+			assert (LastLocs[9] == KLAUSENBURG);
+			assert (LastLocs[10] == BUCHAREST);
+			assert (LastLocs[11] == SOFIA);
+			
+			PlaceId from = GvGetPlayerLocation(gv, PLAYER_DRACULA);
+			assert (from == SOFIA);
 			int round = GvGetRound(gv);
-			PlaceId *locs = GvGetReachable(gv, PLAYER_DRACULA,
-			                                    round, BELGRADE, &numLocs);
-			for (int i = 0; i < numLocs; i++) {
-				printf ("%s\n", placeIdToName(locs[i]));
-			}
-			// assert(numLocs == 1);
-			// assert(locs[0] == ATHENS);
+			
+			assert (round == 29);
+			PlaceId *locs = GvGetReachable(gv, PLAYER_DRACULA, round, from, &numLocs);
+			
+			sortPlaces(locs, numLocs);
+			
+			assert (numLocs == 7);
+			assert (locs[0] == BELGRADE);
+			assert (locs[1] == BUCHAREST);
+			assert (locs[2] == SALONICA);
+			assert (locs[3] == SARAJEVO);
+			assert (locs[4] == SOFIA);
+			assert (locs[5] == VALONA);
+			assert (locs[6] == VARNA);
 			free(locs);
+			free (LastMoves);
 		}
 
 
 		GvFree(gv);
 		printf("Test passed!\n");
 	}
+
 
 	{///////////////////////////////////////////////////////////////////////
 

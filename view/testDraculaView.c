@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
 // COMP2521 20T2 ... the Fury of Dracula
 // testDraculaView.c: test the DraculaView ADT
 //
@@ -82,7 +82,7 @@ int main(void)
 	}
 	
 	{
-		printf("Test for Dracula's Teleport condition should return a NULL array\n");
+		printf ("Test for Dracula's Health reduced at every sea he visits and then \n");
 			
 			char *trail = "GMS.... SIO.... HTS.... MIO.... DAOT... "
 			"GAO.... STS.... HMS.... MTS.... DNS.... "
@@ -95,17 +95,25 @@ int main(void)
 			DraculaView dv = DvNew(trail, messages);
 			assert(DvGetRound(dv) == 6);
 			//assert(DvGetScore(dv) == GAME_START_SCORE);
-			//assert(DvGetHealth(dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
+			
+			assert(DvGetHealth(dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS - 2*(LIFE_LOSS_SEA));
 			assert(DvGetPlayerLocation(dv, PLAYER_LORD_GODALMING) == SARAGOSSA);
 			assert(DvGetPlayerLocation(dv, PLAYER_DR_SEWARD) == DUBLIN);
 			assert(DvGetPlayerLocation(dv, PLAYER_VAN_HELSING) == BRUSSELS);
 			assert(DvGetPlayerLocation(dv, PLAYER_MINA_HARKER) == PLYMOUTH);
 			assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == EDINBURGH);
 			assert(DvGetVampireLocation(dv) == EDINBURGH);
-			// int numTraps = -1;
-			// PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
-			// assert(numTraps == 0);
-			// free(traps);
+			
+			int numTraps = -1;
+			PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
+			
+			sortPlaces(traps, numTraps);
+			assert(numTraps == 4);
+			assert (traps[0] == ATLANTIC_OCEAN);
+			assert (traps[1] == EDINBURGH);
+			assert (traps[2] == EDINBURGH);
+			assert (traps[3] == MANCHESTER);
+			free(traps);
 	}
 
 	{///////////////////////////////////////////////////////////////////
@@ -501,6 +509,7 @@ int main(void)
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
+	
 	{	
 		char *trail =
 			"GGE.... SGE.... HGE.... MGE.... DKL.V.. "
@@ -582,7 +591,7 @@ int main(void)
 	}
 	
 	{	
-		printf ("Checking the vlaid moves if it produces the correct double back" 
+		printf ("Checking the valid moves if it produces the correct double back" 
 		"sequences by barring all the wrong double back moves\n");
 		
 		char *trail = "GLS.... SGE.... HGE.... MGE.... DMA.V.. " 
