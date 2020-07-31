@@ -23,6 +23,11 @@
 #include "testUtils.h"
 #include "Queue.h"
 
+////////////////////////////////////////////
+// Reference: Queue.h is adapted from one //
+// of the labs done earlier in the term   //
+////////////////////////////////////////////
+
 void PastPlayAnalysis(GameView gv);
 Player DeterminePlayerId(GameView gv, char PlayerAbbrev);
 char DeterminePlayerAbr(Player player);

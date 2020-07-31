@@ -20,12 +20,19 @@
 #include "HunterView.h"
 #include "Map.h"
 #include "Places.h"
+#include "Queue.h"
+
+////////////////////////////////////////////
+// Reference: Queue.h is adapted from one //
+// of the labs done earlier in the term   //
+////////////////////////////////////////////
 
 #define NOT_HI_DB_MOVE(id) (id != HIDE && id != DOUBLE_BACK_1 \
 				&& id != DOUBLE_BACK_2 && id != DOUBLE_BACK_3 \
 				&& id != DOUBLE_BACK_4 && id != DOUBLE_BACK_5)
-#define MAX_HUNTERS 4
-#define INF_NUM 99
+#define MAX_HUNTERS 	4
+#define INF_NUM 	99
+#define START		0
 
 typedef int Trap_Encounter;
 typedef int Player_Encounter;
@@ -36,10 +43,7 @@ typedef int Death;
 typedef int Health;
 typedef struct hunter* Hunter;
 
-#include "Queue.h"
-
 static PlaceId* Reachable(HunterView hv,Player hunter,int round,PlaceId p,int *numReturnedLocs);
-// TODO: ADD YOUR OWN STRUCTS HERE
 
 struct hunter{
 	PlaceId Location;
@@ -103,8 +107,6 @@ HunterView HvNew(char *pastPlays, Message messages[])
 	hunter_state->vampire_loc = GvGetVampireLocation(hunter_state->gv);
 	hunter_state->curr_player_turn = GvGetPlayer(hunter_state->gv);
 
-
-
 	return hunter_state;
 }
 
@@ -166,8 +168,8 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 {
 	Message messages[4] = {};
 	GameView gv = GvNew(hv->Hunter_string,messages);
-	int round_known = 0;
-	int num_move = 0;
+	int round_known = START;
+	int num_move = START;
 	int count = -1;
 	bool can_free = true;
 
@@ -204,7 +206,7 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 	Map m = MapNew();
 
 	// round keeps track of round since the hunter last moved
-	int round = 0;
+	int round = START;
 
 	int num_places = MapNumPlaces(m);
 	
@@ -223,7 +225,7 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 	parent[from] = from;
 
 	// flag keeps track of whether the destination has been found or not
-	int flag = 0;
+	int flag = START;
 
 	// while Queue is empty and destination not found
 	while(!QueueIsEmpty(q) && flag != 1){
@@ -252,13 +254,13 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 		round++;
 	}
 	PlaceId temp[50];
-	int index = 0;
+	int index = START;
 	for(PlaceId i = dest;i != from;i = parent[i]){
 		temp[index++] = i;
 	}
 
 	PlaceId* shortest_path = calloc(num_places,sizeof(PlaceId));
-	int count = 0;
+	int count = START;
 	for(PlaceId j = index-1;j >= 0;j--){
 		shortest_path[count++] = temp[j];
 	}
@@ -278,9 +280,14 @@ PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 		fprintf(stderr, "Invaild Hunter :( \n");
 		exit(EXIT_FAILURE);
 	}
+
 	if(HvGetPlayerLocation(hv,HvGetPlayer(hv)) == NOWHERE) return NULL;
-	int num_max = 0;
-	PlaceId* reachable = GvGetReachable(hv->gv,HvGetPlayer(hv),HvGetRound(hv),HvGetPlayerLocation(hv,HvGetPlayer(hv)),&num_max);
+
+	int num_max = START;
+	PlaceId* reachable = GvGetReachable(hv->gv,HvGetPlayer(hv),
+			HvGetRound(hv),HvGetPlayerLocation(hv,HvGetPlayer(hv)),
+			&num_max);
+
 	*numReturnedLocs = num_max;
 	return reachable;
 }
@@ -293,10 +300,14 @@ PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
 		fprintf(stderr, "Invaild Hunter :( \n");
 		exit(EXIT_FAILURE);
 	}
+
 	if(HvGetPlayerLocation(hv,HvGetPlayer(hv)) == NOWHERE) return NULL;
-	int num_max = 0;
-	PlaceId* reachable = GvGetReachableByType(hv->gv,HvGetPlayer(hv),HvGetRound(hv),HvGetPlayerLocation(hv,HvGetPlayer(hv)),
-	road,rail,boat,&num_max);
+
+	int num_max = START;
+	PlaceId* reachable = GvGetReachableByType(hv->gv,HvGetPlayer(hv),
+					HvGetRound(hv),HvGetPlayerLocation(hv,HvGetPlayer(hv)),
+					road,rail,boat,&num_max);
+
 	*numReturnedLocs = num_max;
 	return reachable;
 }
@@ -306,12 +317,14 @@ PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
                           int *numReturnedLocs)
 {
 	if(HvGetPlayerLocation(hv,player) == NOWHERE || HvGetPlayerLocation(hv, PLAYER_DRACULA) == CITY_UNKNOWN) return NULL;
+
 	int round = GvGetRound(hv->gv);
 	if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
 		round += 1;
 	}
-	int num_max = 0;
+	int num_max = START;
 	PlaceId* reachable = GvGetReachable(hv->gv,player,round,HvGetPlayerLocation(hv,player),&num_max);
+
 	*numReturnedLocs = num_max;
 	return reachable;
 }
@@ -321,14 +334,20 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
                                 bool road, bool rail, bool boat,
                                 int *numReturnedLocs)
 {
-	if(HvGetPlayerLocation(hv,player) == NOWHERE || HvGetPlayerLocation(hv, PLAYER_DRACULA) == CITY_UNKNOWN) return NULL;
+	if(HvGetPlayerLocation(hv,player) == NOWHERE 
+			|| HvGetPlayerLocation(hv, PLAYER_DRACULA) 
+			== CITY_UNKNOWN) return NULL;
+
 	int round = GvGetRound(hv->gv);
 	if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
 		round += 1;
 	}
-	int num_max = 0;
-	PlaceId* reachable = GvGetReachableByType(hv->gv,player,round,HvGetPlayerLocation(hv,player),
-	road,rail,boat,&num_max);
+
+	int num_max = START;
+	PlaceId* reachable = GvGetReachableByType(hv->gv,player,
+					round,HvGetPlayerLocation(hv,player),
+					road,rail,boat,&num_max);
+
 	*numReturnedLocs = num_max;
 	return reachable;
 }
@@ -341,13 +360,15 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 static PlaceId* Reachable(HunterView hv,Player hunter,int round,PlaceId p,int *numReturnedLocs){
 
 	if(HvGetPlayerLocation(hv,hunter) == NOWHERE) return NULL;
-	int turn = 0;
-	turn = GvGetRound(hv->gv) + round;
+
+	int turn = GvGetRound(hv->gv) + round;
 	if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
 		turn = 1 + turn;
 	}
-	int num_max = 0;
+
+	int num_max = START;
 	PlaceId* reachable = GvGetReachable(hv->gv,hunter,turn,p,&num_max);
+
 	*numReturnedLocs = num_max;
 	return reachable;
 }
