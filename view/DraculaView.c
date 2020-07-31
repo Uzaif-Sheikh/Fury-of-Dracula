@@ -148,6 +148,7 @@ PlaceId *DvWhereCanTheyGo(DraculaView dv, Player player,
                           int *numReturnedLocs)
 {	
 	assert(player != PLAYER_DRACULA);
+	if(DvGetPlayerLocation(dv,player) == NOWHERE) return NULL;
 	
 	int numLocs = -1;
 	
@@ -166,6 +167,7 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 {
 	int numLocs = -1;
 	PlaceId from = GvGetPlayerLocation(dv->gv, player);
+	printf ("%s\n", placeIdToName(from));
 	int round = GvGetRound(dv->gv);
 	PlaceId *locs = GvGetReachableByType(dv->gv, player,round, from, road, rail, boat, &numLocs);
 	*numReturnedLocs = numLocs;

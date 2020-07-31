@@ -146,13 +146,10 @@ int main(void)
 
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
-		//printf ("\n\n");
 		
 		assert(numMoves == 6);
 		sortPlaces(moves, numMoves);
-		// for (int i = 0; i < numMoves; i++) {
-		// 	printf ("%s\n", placeIdToName(moves[i]));
-		// }
+
 		assert(moves[0] == BRUSSELS);
 		assert(moves[1] == NANTES);
 		assert(moves[2] == PARIS);
@@ -163,9 +160,7 @@ int main(void)
 		int numLocs = -1;
 		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
 		sortPlaces(locs, numLocs);
-		// for (int i = 0; i < numLocs; i++) {
-	 	// 	printf ("%s\n", placeIdToName(locs[i]));
-	 	// }
+
 		assert (numLocs == 5);
 		assert(locs[0] == BRUSSELS);
 		assert(locs[1] == ENGLISH_CHANNEL);
@@ -195,13 +190,10 @@ int main(void)
 		
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
-		//printf ("\n\n");
 		
 		assert(numMoves == 5);
 		sortPlaces(moves, numMoves);
-		// for (int i = 0; i < numMoves; i++) {
-		// 	printf ("%s\n", placeIdToName(moves[i]));
-		// }
+
 		assert(moves[0] == BELGRADE);
 		assert(moves[1] == BUCHAREST);
 		assert(moves[2] == BUDAPEST);
@@ -226,10 +218,7 @@ int main(void)
 		
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
-		//printf ("\n\n");
-		// for (int i = 0; i < numMoves; i++) {
-		// 	printf ("%s\n", placeIdToName(moves[i]));
-		// }
+
 		assert(numMoves == 4);
 		sortPlaces(moves, numMoves);
 		assert(moves[0] == GALATZ);
@@ -284,11 +273,7 @@ int main(void)
 		DraculaView dv = DvNew(trail, messages);
 		
 		int numLocs = -1;
-		//printf ("\n\n");
 		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
-		// for (int i = 0; i < numLocs; i++) {
-		// 	printf ("%s\n", placeIdToName(locs[i]));
-		// }
 		assert(numLocs == 4);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == BELGRADE);
@@ -315,14 +300,10 @@ int main(void)
 		
 		Message messages[24] = {};
 		DraculaView dv = DvNew(trail, messages);
-		//printf ("\n\n");
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
 		
 		sortPlaces(moves, numMoves);
-		// for (int i = 0; i < numMoves; i++) {
-		//  	printf ("%s\n", placeIdToName(moves[i]));
-		// }
 		assert (numMoves == 4);
 		assert(moves[0] == SARAJEVO);
 		assert(moves[1] == SOFIA);
@@ -330,14 +311,11 @@ int main(void)
 		assert(moves[3] == HIDE);
 		
 		int numLocs = -1;
-		//printf ("\n\n");
 		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
 		
 		assert(numLocs == 4);
 		sortPlaces(locs, numLocs);
-		for (int i = 0; i < numLocs; i++) {
-			printf ("%s\n", placeIdToName(locs[i]));
-		}
+
 		assert(locs[0] == BELGRADE);
 		assert(locs[1] == SARAJEVO);
 		assert(locs[2] == SOFIA);
@@ -386,13 +364,10 @@ int main(void)
 		
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
-		//printf ("\n\n");
 		
 		assert(numMoves == 7);
 		sortPlaces(moves, numMoves);
-		// for (int i = 0; i < numMoves; i++) {
-		// 	printf ("%s\n", placeIdToName(moves[i]));
-		// }
+
 		assert(moves[0] == BELGRADE);
 		assert(moves[1] == SALONICA);
 		assert(moves[2] == SARAJEVO);
@@ -402,14 +377,11 @@ int main(void)
 		assert(moves[6] == DOUBLE_BACK_2);
 		
 		int numLocs = -1;
-		//printf ("\n\n");
 		PlaceId *locs = DvWhereCanIGoByType(dv, true, false, &numLocs);
 		
 		assert(numLocs == 7);
 		sortPlaces(locs, numLocs);
-		// for (int i = 0; i < numLocs; i++) {
-		// 	printf ("%s\n", placeIdToName(locs[i]));
-		// }
+
 		assert(locs[0] == BELGRADE);
 		assert(locs[1] == BUCHAREST);
 		assert(locs[2] == SALONICA);
@@ -439,11 +411,7 @@ int main(void)
 		DraculaView dv = DvNew(trail, messages);
 		
 		int numLocs = -1;
-		//printf ("\n\n");
 		PlaceId *locs = DvWhereCanIGoByType(dv, false, true, &numLocs);
-		// for (int i = 0; i < numLocs; i++) {
-		// 	printf ("%s\n", placeIdToName(locs[i]));
-		// }
 		assert(numLocs == 0);
 		assert (locs == NULL);
 		free(locs);
@@ -463,9 +431,7 @@ int main(void)
 		DraculaView dv = DvNew(trail, messages);
 		int numLocs = -1;
 		PlaceId *locs = DvWhereCanTheyGo(dv, PLAYER_LORD_GODALMING, &numLocs);
-		// for (int i = 0; i < numLocs; i++) {
-		// 	printf ("%s\n", placeIdToName(locs[i]));
-		// }
+
 		assert(numLocs == 6);
 	    sortPlaces(locs, numLocs);
 		assert(locs[0] == CLERMONT_FERRAND);
@@ -481,7 +447,7 @@ int main(void)
 	}
 	
 	{
-			printf("\tChecking Ionian Sea boat connections "
+			printf("Checking Ionian Sea boat connections "
 			       "(Lord Godalming, Round 1)\n");
 			char *trail =
 			"GGE.... SGE.... HGE.... MGE.... DKL.V.. "
@@ -495,11 +461,6 @@ int main(void)
 			PlaceId *locs = DvWhereCanTheyGo(dv, PLAYER_VAN_HELSING, &numLocs);
 			
 			sortPlaces(locs, numLocs);
-			// for (int i = 0; i < numLocs; i++) {
-			//  	printf ("%s\n", placeIdToName(locs[i]));
-			// }
-			// //printf ("\n");
-			// printf ("%d\n", numLocs);
 			assert(numLocs == 7);
 			
 			assert(locs[0] == ADRIATIC_SEA);
@@ -512,7 +473,32 @@ int main(void)
 			free(locs);
 			printf("Test passed!\n");
 			DvFree(dv);
-		}
+	}
 
+	{		printf("Testing connections\n");
+			char *trail =
+				"GTS.... SRO.... HBC.... MCNTD.. DBS..M. "
+				"GIO.... SBI.... HCN.... MCN.... DIO.... "
+				"GIO.... SAS.... HBS.... MCN.... DTS.... "
+				"GTS.... SAS.... HIO.... MBS.... DMS.... "
+				"GMS.... SIO.... HTS.... MIO.... DAO..M. ";
+			
+		
+			Message messages[32] = {};
+			DraculaView dv = DvNew(trail, messages);
+			
+			printf("\nTesting move/location history\n\n");
+			int numLocs = 0; 
+			PlaceId* LastMoves =  DvWhereCanTheyGoByType(dv, PLAYER_VAN_HELSING, true, true, false, &numLocs);
+			printf ("%d", numLocs);
+			for (int i = 0; i < numLocs; i++) {
+				printf ("%s\n", placeIdToName(LastMoves[i]));
+			}
+
+			free(LastMoves);
+			DvFree(dv);
+			printf("Test passed!\n");
+			
+	}
 	return EXIT_SUCCESS;
 }
