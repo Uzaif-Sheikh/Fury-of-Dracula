@@ -110,6 +110,11 @@ HunterView HvNew(char *pastPlays, Message messages[])
 // After this has been called, `hv` should not be accessed.
 void HvFree(HunterView hv)
 {
+	for(int i = 0;i < MAX_HUNTERS;i++){
+		free(hv->hunters[i]);
+	}
+	free(hv->Hunter_string);
+	GvFree(hv->gv);
 	free(hv);
 }
 

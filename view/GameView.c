@@ -242,109 +242,110 @@ PlaceId GvGetVampireLocation(GameView gv)
 // Gets the locations of all active traps.
 PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 {
-	// Copy the the past plays string
-	char *pastPlays = strdup(gv->Game_State);
-	
-	// Get Dracula's location history in a dynamic array
-	int numReturnedLocs = START;
-	bool canfree = false;
-	PlaceId *loc_his = GvGetLocationHistory(gv,PLAYER_DRACULA,
-					&numReturnedLocs,&canfree);
+	char *copy_string = strdup(gv->Game_State);
 
-	// Create array to store locaation of active traps dropped by Dracula
-	// Initialise all to NOWHERE
-	PlaceId *trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
-	for(int i = 0;i < gv->Drac_Trap;i++){
-		trap[i] = NOWHERE;
+	int num = 0;
+	int round = -1;
+	bool canfree = false;
+
+	PlaceId* loc_his = GvGetLocationHistory(gv,PLAYER_DRACULA,&num,&canfree);
+
+	PlaceId* mature_trap = malloc(gv->Drac_Trap*sizeof(PlaceId));
+	for(int v = 0;v < gv->Drac_Trap;v++){
+		mature_trap[v] = NOWHERE;
 	}
 
-	// Create array to store the numbe of trap encounters for a given player
-	PlaceId *trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
-
-	int trap_count = START;
+	PlaceId* trap = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	for(int v = 0;v < gv->Drac_Trap;v++){
+		trap[v] = NOWHERE;
+	}
+	PlaceId* trap_encounter_player = calloc(gv->Drac_Trap,sizeof(PlaceId));
+	for(int v = 0;v < gv->Drac_Trap;v++){
+		trap_encounter_player[v] = NOWHERE;
+	}
+	int mature = 0;
+	int count = 0;
+	int count1 = 0;
 	char *city;
-	int trap_encounter_count = START;
-	int round = START - 1;
-	
-	// Tokenize the past play string into individual player moves
-	char *play = strtok(pastPlays," ");
+	char *tok = strtok(copy_string," ");
+	while (tok != NULL) {
 
-	while (play != NULL) {
-
-		// Determine player 
-		Player curr_player = DeterminePlayerId(gv, play[0]);
+		Player curr_player = DeterminePlayerId(gv, tok[0]);
 		
-		// Increment round at the end of this turn if
-		// Dracula is playing, as Dracula is the last play
-		if(curr_player == PLAYER_DRACULA) round = round + 1;
+		if(curr_player == PLAYER_DRACULA) round++;
 
-		// Copy the city/move into city variable
-		city = strndup(&play[1],2);
+		city = strndup(&tok[1],2);
 
-		// Convert city/move into placeId
+		
+
 		PlaceId Loc = placeAbbrevToId(city);
 		
-		// If Dracula drops a trap, increase trap count
-		if (curr_player == PLAYER_DRACULA && play[3] == 'T') {
-			trap[trap_count] = loc_his[round];
-			trap_count = trap_count + 1;
+		if (curr_player == PLAYER_DRACULA && tok[3] == 'T') {
+			trap[count] = loc_his[round];
+			count++;
 		}
-		
-		// If Hunters encounter a trap, increase trap encounter count
-		if (HUNTER(curr_player)) {
-			for(int i = 3; i < strlen(pastPlays); i++){
-				if(play[i] == 'T'){
-					trap_encounter_player[trap_encounter_count] = Loc;
-					trap_encounter_count = trap_encounter_count + 1;
+		if(curr_player == PLAYER_DRACULA && tok[5] == 'M'){
+			mature_trap[mature++] = loc_his[round-6];
+		}
+
+		if (curr_player != PLAYER_DRACULA) {
+			for(int i = 3; i < strlen(copy_string);i++){
+				if(tok[i] == 'T'){
+					trap_encounter_player[count1] = Loc;
+					count1++;
 				}
 			}
 		}
-		
-		free(city);
-		play = strtok(NULL," ");
+
+		tok = strtok(NULL," ");
 
 	} 
 
-	// Calculate sum of trap encounters encountered
-	// by all four hunters
 	int total_trap_encounter = 0;
-	for (int i = 0; i < 4; i++) {
-		total_trap_encounter += gv->Player[i]->Trap_Encounter;
+	for (int l = 0;l < 4;l++) {
+		total_trap_encounter += gv->Player[l]->Trap_Encounter;
 		
 	}
 
-	// If the location of the traps dropped by dracula is equal to
-	// the location of the trap encountered by a hunter, this trap
-	// is not active anymore; remove from active trap array
-	for (int i = 0; i < gv->Drac_Trap; i++){
-		if (trap[i] == trap_encounter_player[i]){
-			trap[i] = NOWHERE;
-		}
-		
-	}
-
-	// Sort Places in trap array to be in ascending order
-	// of PlaceId
-	int temp = 0;
-	for (int i = 0; i < gv->Drac_Trap; i++){
-		for (int j = i + 1; j < gv->Drac_Trap; j++){
-			if(trap[i] < trap[j]){
-				temp = trap[i];
-				trap[i] = trap[j];
-				trap[j] = temp; 
-
+	for (int j = 0;j < gv->Drac_Trap;j++){
+		for(int k = 0;k < gv->Drac_Trap;k++){
+			if (trap_encounter_player[j] == trap[k]){
+				trap[k] = NOWHERE;
+				break;
 			}
 		}
-		
 	}
 
-	// Free all arrays created in this function
-	free(play);
-	free(trap_encounter_player);
-	free(pastPlays);
-	free(loc_his);
+	for (int j = 0;j < gv->Drac_Trap;j++){
+		for(int k = 0;k < gv->Drac_Trap;k++){
+			if(mature_trap[j] == trap[k]){
+				trap[k] = NOWHERE;
+				break;
+			}
+		}
+	}
 
-	*numTraps = (trap_count-total_trap_encounter);
+
+	int temp = 0;
+	for (int j = 0;j < gv->Drac_Trap;j++){
+		for (int k = j + 1; k < gv->Drac_Trap; k++){
+			if(trap[j] < trap[k]){
+				
+				temp = trap[j];
+				trap[j] = trap[k];
+				trap[k] = temp; 
+
+			}
+		}	
+	}
+
+	free(tok);
+	free(trap_encounter_player);
+	free(copy_string);
+	free(loc_his);
+	free(mature_trap);
+
+	*numTraps = (count-(total_trap_encounter+mature));
 	return trap;
 	 
 }
