@@ -60,7 +60,7 @@ typedef DraculaView View;
 # define decideMove decideDraculaMove
 # define ViewFree DvFree
 
-# define xPastPlays "GZA.... SED.... HZU.... MZU...."
+# define xPastPlays "GZA.... SED.... HZU.... MZU.... DLO...."
 # define xMsgs { "", "", "", "" }
 
 #else
@@ -71,7 +71,7 @@ typedef HunterView View;
 # define decideMove decideHunterMove
 # define ViewFree HvFree
 
-# define xPastPlays "GZA.... SED.... HZU...."
+# define xPastPlays "GZA.... SED.... HZU.... MZU...."
 # define xMsgs { "", "", "" }
 
 #endif
@@ -82,6 +82,13 @@ int main(void)
 	Message msgs[] = xMsgs;
 
 	View state = ViewNew(pastPlays, msgs);
+	// int numMoves = -1;
+	// PlaceId* Valid_moves = DvGetValidMoves(state, &numMoves);
+	
+	// for (int i = 0; i < numMoves; i++) {
+	// 	printf ("%s\n", placeIdToAbbrev(Valid_moves[i]));
+	// }
+	
 	decideMove(state);
 	ViewFree(state);
 

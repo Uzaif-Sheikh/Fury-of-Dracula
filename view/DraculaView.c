@@ -103,7 +103,7 @@ int DvGetHealth(DraculaView dv, Player player)
 // Gets the current location of a given player.
 PlaceId DvGetPlayerLocation(DraculaView dv, Player player) 
 {
-		return GvGetPlayerLocation(dv->gv, player);
+	return GvGetPlayerLocation(dv->gv, player);
 }
 
 // Gets the location of the sleeping immature vampire.
