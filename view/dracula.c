@@ -17,8 +17,12 @@
 #include <time.h>
 #include "Queue.h"
 #include "Map.h"
+#include "GameView.h"
+#define START 0
 
 int* findDistancetoallCities (PlaceId curr_location);
+static PlaceId* Reachable(DraculaView dv, Player hunter,int round,PlaceId p,int *numReturnedLocs);
+int ShortestPathforClosestHunter(DraculaView dv,Player hunter, PlaceId from, PlaceId dest);
 
 void decideDraculaMove(DraculaView dv)
 {	
@@ -123,10 +127,42 @@ void decideDraculaMove(DraculaView dv)
 	printf ("\n\n");
 	printf ("Best_Moves :");
 
+	// if (num_best_moves != 0) {
+	// 	int *depth_least = calloc (num_best_moves; sizeof(*depth_least));
+	// }
+	
 	for (int i = 0; i < num_best_moves; i++) {
 		printf ("%s\n", placeIdToName(Best_moves[i]));
 	}
 	
+	int depth_Loc = 0;
+	int min_depth = 0;
+	PlaceId Closest_hunter_Loc = NOWHERE;
+	Player closest_hunter = PLAYER_LORD_GODALMING;
+	
+	for (int k = 0; k < NUM_PLAYERS-1; k++) {
+		min_depth = depth_Loc;
+		PlaceId Location = DvGetPlayerLocation(dv, k);
+		depth_Loc = distanceFromCurrLocation[Location] - 1;
+		printf ("Location of Hunter %d: %s, depth : %d\n", k, placeIdToName(Location), depth_Loc);
+		if (min_depth <= depth_Loc) {
+			min_depth = depth_Loc;
+			Closest_hunter_Loc = Location;
+			closest_hunter = k;
+		}
+	}
+	
+	printf ("%d %s", min_depth, placeIdToName(Closest_hunter_Loc));
+	
+	int path_length = 0;
+	int path_received = 0;
+	for (int i = 0; i < num_best_moves; i++) {
+		path_length = path_received;
+		path_received = ShortestPathforClosestHunter (dv, closest_hunter, Closest_hunter_Loc, Best_moves[i]);
+		if (path_received > path_length) {
+			move = placeIdToAbbrev(Best_moves[i]);
+		}
+	}
 	registerBestPlay(move, "Mwahahahaha");
 
 }
@@ -180,5 +216,98 @@ int* findDistancetoallCities (PlaceId curr_location) {
 	}
 	distance[curr_location] = 0;
 	dropQueue (q);
+	free (m);
 	return distance;
 }
+
+int ShortestPathforClosestHunter(DraculaView dv,Player hunter, PlaceId from, PlaceId dest)
+{
+	Map m = MapNew();
+
+	// round keeps track of round since the hunter last moved
+	int round = START;
+
+	int num_places = MapNumPlaces(m);
+	
+	// Allocating space for parent array
+	PlaceId* parent = malloc(num_places*sizeof(PlaceId));
+
+	for(PlaceId i = 0;i < num_places;i++){
+		parent[i] = NOWHERE;
+	}
+
+	// PlaceId from = hv->hunters[hunter]->Location;
+	
+	// Getting the new queue
+	Queue q = newQueue();
+	QueueJoin(q,from);
+	parent[from] = from;
+
+	// flag keeps track of whether the destination has been found or not
+	int flag = START;
+
+	// while Queue is empty and destination not found
+	while(!QueueIsEmpty(q) && flag != 1){
+		PlaceId p ;
+		int size_q = QueueSize(q);
+		while(size_q > 0 && flag != 1) {
+			p = QueueLeave(q);
+			size_q--;
+			int numlocs = 0;
+
+			// Reachable helper function called
+			PlaceId *reach = Reachable(dv, hunter, round, p, &numlocs);
+			for (int j = 0; j < numlocs ; j++) {
+				if (parent[reach[j]] == NOWHERE && reach[j] != p) {
+					if (reach[j] == dest) {
+						flag++;
+						parent[dest] = p;
+						break;
+					}
+					QueueJoin(q, reach[j]);
+					parent[reach[j]] = p;
+				}
+			}
+			free(reach);
+		}
+		round++;
+	}
+	PlaceId temp[50];
+	int index = START;
+	for(PlaceId i = dest;i != from;i = parent[i]){
+		temp[index++] = i;
+	}
+
+	PlaceId* shortest_path = calloc(num_places,sizeof(PlaceId));
+	int count = START;
+	for(PlaceId j = index-1;j >= 0;j--){
+		shortest_path[count++] = temp[j];
+	}
+	
+	free(parent);
+	MapFree(m);
+	return count;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+
+// Reachable function is a helper function for shortest path which uses the current round 
+// from the hunter's provided round and location  and provides the reachable cities using
+// GvGetReachable() function from GameView
+static PlaceId* Reachable(DraculaView dv, Player hunter,int round,PlaceId p,int *numReturnedLocs){
+
+	if(DvGetPlayerLocation(dv,hunter) == NOWHERE) return NULL;
+
+	int turn = DvGetRound(dv) + round;
+	if (hunter != PLAYER_LORD_GODALMING) {
+		turn = 1 + turn;
+	}
+
+	int num_max = START;
+	PlaceId* reachable = GvGetReachable(dv->gv, hunter, turn, p, &num_max);
+
+	*numReturnedLocs = num_max;
+	return reachable;
+}
+
