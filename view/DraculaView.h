@@ -179,5 +179,7 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 // Your own interface functions
 
 // TODO
+ 
+PlaceId* DvReachablePlaces(DraculaView dv, Player hunter,int round,PlaceId p,int *numReturnedLocs);
 
 #endif // !defined(FOD__DRACULA_VIEW_H_)

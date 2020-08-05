@@ -477,3 +477,20 @@ void WhereCanHideOrDnGO(int *Hi_Db_moves, int *HI_DB_move, PlaceId *WhereCanIgo,
 		*num_hide_Db = *num_hide_Db + 1;
 	}
 }
+
+PlaceId* DvReachablePlaces(DraculaView dv, Player hunter,int round,PlaceId p,int *numReturnedLocs) {
+	
+	if(DvGetPlayerLocation(dv,hunter) == NOWHERE) return NULL;
+
+	int turn = DvGetRound(dv) + round;
+	if (hunter != PLAYER_LORD_GODALMING) {
+		turn = 1 + turn;
+	}
+
+	int num_max = START;
+	
+	PlaceId* reachable = GvGetReachable(dv->gv, hunter, turn, p, &num_max);
+
+	*numReturnedLocs = num_max;
+	return reachable;
+}
