@@ -17,8 +17,19 @@
 #include <time.h>
 #include "Queue.h"
 #include "Map.h"
-#include "GameView.h"
+
 #define START 0
+#define HIDE_MOVE(id) (id == HIDE)
+#define HUNTER(id) (id != PLAYER_DRACULA)
+#define NOT_HI_DB_MOVE(id) (id != HIDE && id != DOUBLE_BACK_1 \
+				&& id != DOUBLE_BACK_2 && id != DOUBLE_BACK_3 \
+				&& id != DOUBLE_BACK_4 && id != DOUBLE_BACK_5)
+
+#define DB_MOVE(id) (id == DOUBLE_BACK_1 || id == DOUBLE_BACK_2 \
+			|| id == DOUBLE_BACK_3 || id == DOUBLE_BACK_4 \
+			|| id == DOUBLE_BACK_5)
+			
+#define PASTPLAYS_NOT_FINISHED(c) (c != NULL)
 
 int* findDistancetoallCities (PlaceId curr_location);
 //static PlaceId* Reachable(DraculaView dv, Player hunter,int round,PlaceId p,int *numReturnedLocs);
@@ -40,14 +51,36 @@ void decideDraculaMove(DraculaView dv)
 	}
  	PlaceId* Valid_moves = DvGetValidMoves(dv, &numMoves);
 	PlaceId *Best_moves = calloc(numMoves, sizeof(*Best_moves));
+	PlaceId* HI_Dn_moves = calloc (6, sizeof(*HI_Dn_moves));
+	PlaceId *HI_Dn_Locs = calloc (6, sizeof(*HI_Dn_Locs));
+	int num_HI_Dn_moves = 0;
 	
-	srand(time(0));
+	printf ("\n\nHIde or Double Back Moves\n");
+	for (int i = 0; i < numMoves; i++) {
+		//printf("%s\n", placeIdToName(Valid_moves[i]));
+		if (HIDE_MOVE(Valid_moves[i]) || DB_MOVE(Valid_moves[i])) {
+			HI_Dn_moves[num_HI_Dn_moves] = Valid_moves[i];
+			printf ("%s\n", placeIdToName(HI_Dn_moves[num_HI_Dn_moves]));
+			num_HI_Dn_moves++;
+		}
+	}
 	
-	int num = rand() % (numMoves);
-	int moves = Valid_moves[num];
-	move = placeIdToAbbrev(moves);
+	// srand(time(0));
+	
+	// int num = rand() % (numMoves);
+	// int moves = Valid_moves[num];
+	// move = placeIdToAbbrev(moves);
 	
 	PlaceId* DraaculasLocation = DvWhereCanIGo (dv, &numLocsDracula);
+	
+	printf ("HI_DN locs\n");
+	if (num_HI_Dn_moves > 0) {
+		for (int i = 0; i < num_HI_Dn_moves; i++) {
+			HI_Dn_Locs[i] = DraaculasLocation[i];
+			printf ("%s\n", placeIdToName(HI_Dn_Locs[i]));
+		}
+	}
+	
 	printf ("\n\n");
 
 	printf ("Moves\n");
@@ -162,6 +195,16 @@ void decideDraculaMove(DraculaView dv)
 		printf ("Shortestpath to %s is %d\n", placeIdToName(Best_moves[i]), path_received);
 		if (path_received > path_length) {
 			move = placeIdToAbbrev(Best_moves[i]);
+		}
+	}
+	
+	printf ("\n\n");
+	printf ("Possible moves\n");
+	for (int i = 0; i < num_HI_Dn_moves; i++) {
+		if (placeAbbrevToId(move) == HI_Dn_Locs[i]) {
+			printf ("%s\n", move);
+			move = placeIdToAbbrev(HI_Dn_moves[i]);
+			printf ("%s\n", move);
 		}
 	}
 	

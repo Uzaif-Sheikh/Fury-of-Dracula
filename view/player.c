@@ -62,7 +62,9 @@ typedef DraculaView View;
 # define decideMove decideDraculaMove
 # define ViewFree DvFree
 
-# define xPastPlays "GZA.... SED.... HZU.... MZU.... DLO...."
+# define xPastPlays "GLS.... SBD.... HSJ.... MGE.... DSZ.V.. GSN.... SSZVD.. HSJ.... MPA.... DBET... GMA.... SSZ.... HBETD.. MLE.... DKLT... GCA.... SBE.... HBE.... MNA.... DCDT..."
+
+// "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR.... DBET... GED.... SBO.... HLI.... MPR.... DKLT... GLV.... SNA.... HNU.... MBD.... DCDT... GIR.... SPA.... HPR.... MKLT... DHIT... GAO.... SST.... HSZ.... MCDTTD. DGAT... GMS.... SFL.... HKL.... MSZ.... DCNT.V. GTS.... SRO.... HBC.... MCNTD.. DBS..M. GIO.... SBI.... HCN.... MCN.... DIO.... GIO.... SAS.... HBS.... MCN.... DTS.... GTS.... SAS.... HIO.... MBS.... DMS.... GMS.... SIO.... HTS.... MIO.... DAO..M. GAO.... STS.... HMS.... MTS.... DNS.... GBB.... SMS.... HAO.... MMS.... DED.V.. GNA.... SAO.... HEC.... MAO.... DMNT... GBO.... SIR.... HLE.... MEC.... DD2T... GSR.... SDU.... HBU.... MPL.... DHIT... GSN.... SIR.... HAM.... MLO.... DTPT... GAL.... SAO.... HCO.... MEC.... DCDT... GMS.... SMS.... HFR.... MLE.... DKLT.V. GTS.... STS.... HBR.... MCO.... DGAT.M. GIO.... SIO.... HBD.... MLI.... DD3T.M. GBS.... SBS.... HKLT... MBR.... DHI..M. GCN.... SCN.... HCDTTTD MVI.... DTPT... GGAT... SGA.... HSZ.... MBC.... DCDT... GCDTTD. SCDD... HKL.... MGA.... DKLT... GSZ.... SKLTD.. HKLD... MKLD... DBC.V.. GBD.... SBE.... HGA.... MBCVD.. DSOT... GSZ.... SSOTD.. HBC.... MSOD..."
 # define xMsgs { "", "", "", "" }
 
 #else
