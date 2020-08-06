@@ -232,16 +232,16 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 	PlaceId *Draculas_trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
 					TRAIL_SIZE-1, &Trail_moves, &canfree);
 	
-	int numMovesHist = -1;
-	printf ("\n\n");
-	printf ("Move_History\n");
+	//int numMovesHist = -1;
+	// printf ("\n\n");
+	// printf ("Move_History\n");
 	
-	PlaceId *Move_History = GvGetMoveHistory(dv->gv, PLAYER_DRACULA, &numMovesHist, &canfree);
-	printf ("%d\n", numMovesHist);
-	for (int i = 0; i < numMovesHist; i++) {
-		printf ("%d\n", i);
-		printf ("%s\n", placeIdToName(Move_History[i]));
-	}
+	// PlaceId *Move_History = GvGetMoveHistory(dv->gv, PLAYER_DRACULA, &numMovesHist, &canfree);
+	// printf ("%d\n", numMovesHist);
+	// for (int i = 0; i < numMovesHist; i++) {
+	// 	printf ("%d\n", i);
+	// 	printf ("%s\n", placeIdToName(Move_History[i]));
+	// }
 	// printf ("Dracula's Trail\n\n");
 	// for (int i = 0; i < Trail_moves; i++) {
 	// 	printf ("%s\n", placeIdToName(Draculas_trail[i]));

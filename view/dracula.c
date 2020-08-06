@@ -45,13 +45,8 @@ void decideDraculaMove(DraculaView dv)
 	
  	PlaceId* Valid_moves = DvGetValidMoves(dv, &numMoves);
 	PlaceId* DraaculasLocation = DvWhereCanIGo (dv, &numLocsDracula);
-    printf ("Valid Moves:\n\n");
-
-	for (int i = 0; i < numMoves; i++) {
-		printf ("%s\n", placeIdToName(Valid_moves[i]));
-	}
-	
-    int curr_round = DvGetRound(dv);
+    
+	int curr_round = DvGetRound(dv);
 	
 	if (curr_round == 0) {
 		srand(time(0));
