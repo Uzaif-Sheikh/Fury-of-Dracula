@@ -295,7 +295,7 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 	
 	// If a hide move is available, add current location
 	// to valid moves array
-	if (HIDEAVAILABLE(hide_moves)) {
+	if (HIDEAVAILABLE(hide_moves) && (placeIdToType(Last_loc) != SEA)) {
 		Valid_moves[ValidMovesCounter] = HIDE;
 		ValidMovesCounter++;
 	}
