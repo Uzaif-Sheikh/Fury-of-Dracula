@@ -31,8 +31,8 @@
 			
 #define PASTPLAYS_NOT_FINISHED(c) (c != NULL)
 
-int* findDistancetoallCities (PlaceId curr_location);
-
+//int* findDistancetoallCities (PlaceId curr_location);
+//static PlaceId* Reachable(DraculaView dv, Player hunter,int round,PlaceId p,int *numReturnedLocs);
 int ShortestPathforClosestHunter(DraculaView dv,Player hunter, PlaceId from, PlaceId dest);
 
 void decideDraculaMove(DraculaView dv)
@@ -40,18 +40,17 @@ void decideDraculaMove(DraculaView dv)
     char *move = calloc (3, sizeof(*move));
 	int *hunters_places_movable = calloc (NUM_REAL_PLACES*4, sizeof(*hunters_places_movable));
 	
-	PlaceId Curr_Location = DvGetPlayerLocation(dv, PLAYER_DRACULA);
-	if (Curr_Location == NOWHERE) {
-		Curr_Location = STRASBOURG;
-	}
-	int *distanceFromCurrLocation = findDistancetoallCities (Curr_Location);
-	
 	int numMoves = -1;
 	int numLocsDracula = -1;
 	
  	PlaceId* Valid_moves = DvGetValidMoves(dv, &numMoves);
 	PlaceId* DraaculasLocation = DvWhereCanIGo (dv, &numLocsDracula);
-   
+    printf ("Valid Moves:\n\n");
+
+	for (int i = 0; i < numMoves; i++) {
+		printf ("%s\n", placeIdToName(Valid_moves[i]));
+	}
+	
     int curr_round = DvGetRound(dv);
 	
 	if (curr_round == 0) {
@@ -126,34 +125,24 @@ void decideDraculaMove(DraculaView dv)
                 }
             }
             
-            int depth_Loc = 0;
-            int min_depth = 0;
-            PlaceId Closest_hunter_Loc = NOWHERE;
-            Player closest_hunter = PLAYER_LORD_GODALMING;
-            
-            for (int k = 0; k < NUM_PLAYERS-1; k++) {
-                min_depth = depth_Loc;
-                PlaceId Location = DvGetPlayerLocation(dv, k);
-                depth_Loc = distanceFromCurrLocation[Location] - 1;
-                if (min_depth <= depth_Loc) {
-                    min_depth = depth_Loc;
-                    Closest_hunter_Loc = Location;
-                    closest_hunter = k;
-                }
-            }
-            
             int path_length = 0;
             int path_received = 0;
             
-            for (int i = 0; i < num_best_moves; i++) {
-                path_length = path_received;
-                path_received = ShortestPathforClosestHunter (dv, closest_hunter, Closest_hunter_Loc, Best_moves[i]);
-                if (path_received >= path_length) {
-                    move = placeIdToAbbrev(Best_moves[i]);
+            if (num_best_moves > 0) {
+                for (int i = 0; i < num_best_moves; i++) {
+                    path_length = path_received;
+                    for (int k = 0; k < NUM_PLAYERS-1; k++) {
+                        PlaceId Location = DvGetPlayerLocation(dv, k);
+                        path_received = ShortestPathforClosestHunter (dv, k, Location, Best_moves[i]);
+                        if (path_received >= path_length) {
+                            move = placeIdToAbbrev(Best_moves[i]);
+                        }
+                    }
+
                 }
             }
-            
-            for (int i = num_HI_Dn_moves-1; i >= 0; i--) {
+        
+            for (int i = 0; i < num_HI_Dn_moves; i++) {
                 if (placeAbbrevToId(move) == HI_Dn_Locs[i]) {
                     move = placeIdToAbbrev(HI_Dn_moves[i]);
                 }
@@ -165,56 +154,7 @@ void decideDraculaMove(DraculaView dv)
 	registerBestPlay(move, "Mwahahahaha");
 }
 
-int* findDistancetoallCities (PlaceId curr_location) {
-	
-	Map m = MapNew();
-	int *distance = calloc(NUM_REAL_PLACES+1, sizeof(*distance));
 
-	distance[curr_location] = 1;
-	
-	Queue q = newQueue();
-	QueueJoin(q, curr_location);
-	
-	int distance_from_curr = 1;
-
-	while (!QueueIsEmpty(q)) {
-		
-		int num_places_curr_level = QueueSize(q);
-		
-		while (num_places_curr_level> 0) {
-			
-			PlaceId distance_check_from_curr = QueueLeave(q);
-			ConnList Places_next_depth = MapGetConnections(m, distance_check_from_curr);
-			
-			while (Places_next_depth) {
-				
-				if (Places_next_depth->type != RAIL) {
-					if (distance[Places_next_depth->p] == 0) {
-						distance[Places_next_depth->p] = distance_from_curr;
-						QueueJoin(q, Places_next_depth->p);
-					}
-					else if (distance[Places_next_depth->p] != 0) {
-						if (distance_from_curr <= distance[Places_next_depth->p]) {
-							distance[Places_next_depth->p] = distance_from_curr;
-						}
-					}
-				}
-
-				Places_next_depth = Places_next_depth->next;
-			}
-
-			num_places_curr_level = num_places_curr_level - 1;
-		}	
-		
-		
-		distance_from_curr++;
-		
-	}
-	distance[curr_location] = 0;
-	dropQueue (q);
-	free (m);
-	return distance;
-}
 
 int ShortestPathforClosestHunter(DraculaView dv,Player hunter, PlaceId from, PlaceId dest)
 {

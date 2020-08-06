@@ -230,15 +230,32 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 	
 	char *visited = calloc(NUM_REAL_PLACES, sizeof(*visited));
 	PlaceId *Draculas_trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
-					TRAIL_SIZE, &Trail_moves, &canfree);
-
+					TRAIL_SIZE-1, &Trail_moves, &canfree);
+	
+	int numMovesHist = -1;
+	printf ("\n\n");
+	printf ("Move_History\n");
+	
+	PlaceId *Move_History = GvGetMoveHistory(dv->gv, PLAYER_DRACULA, &numMovesHist, &canfree);
+	printf ("%d\n", numMovesHist);
+	for (int i = 0; i < numMovesHist; i++) {
+		printf ("%d\n", i);
+		printf ("%s\n", placeIdToName(Move_History[i]));
+	}
+	// printf ("Dracula's Trail\n\n");
+	// for (int i = 0; i < Trail_moves; i++) {
+	// 	printf ("%s\n", placeIdToName(Draculas_trail[i]));
+	// }
+	// printf ("\n\n");
 	PlaceId *Valid_moves = calloc (NUM_REAL_PLACES+6, sizeof (*Valid_moves));
 
 	
 	MoveOrLocation(&Trail_moves, Draculas_trail, &visited_places, 
 					&hide_moves, &DB_moves, visited);
 	
-	
+	// for (int i = 0; i < NUM_REAL_PLACES; i++) {
+	// 	printf ("%s\n", visited)
+	// }
 	int num_reachable = START;
 	int teleport_check = START;
 	int round = DvGetRound(dv);
@@ -246,12 +263,15 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 							round, Last_loc, road, rail, 
 							boat, &num_reachable);	
 
+	// for (int i = 0; i < num_reachable; i++) {
+	// 	printf ("%s\n", placeIdToName(Reachable_places[i]));
+	// }
 	// If the only option is to TELEPORT, then return NULL and set
 	// the numReturnedMoves to 0
-	if (num_reachable == 1 && Reachable_places[0] == Last_loc) {
-		*numReturnedMoves = START;
-		return NULL;
-	}		
+	// if (num_reachable == 1 && Reachable_places[0] == Last_loc) {
+	// 	*numReturnedMoves = START;
+	// 	return NULL;
+	// }		
 
 	int ValidMovesCounter = START;
 	
@@ -287,7 +307,10 @@ PlaceId* DvGetValidMovesbyType(DraculaView dv,int *numReturnedMoves, bool road, 
 	 	Valid_moves = NULL;
 	 	ValidMovesCounter = START;
 	}
-	
+	// printf ("Valid Moves inside:\n");
+	// for (int i = 0; i < ValidMovesCounter; i++) {
+	// 	printf ("%s\n", placeIdToName(Valid_moves[i]));
+	// }
 	free (Draculas_trail);
 	*numReturnedMoves = ValidMovesCounter;
 	return Valid_moves;

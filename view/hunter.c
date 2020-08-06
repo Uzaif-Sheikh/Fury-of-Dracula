@@ -13,6 +13,8 @@
 #include "hunter.h"
 #include "HunterView.h"
 #include <string.h>
+#include <time.h>
+
 
 void decideHunterMove(HunterView hv)
 {
@@ -23,7 +25,7 @@ void decideHunterMove(HunterView hv)
 
 	int numPlace = 0;
 	PlaceId* where_dracula_can_go = HvWhereCanTheyGo(hv,PLAYER_DRACULA,&numPlace);
-	char city[2];
+	char *city = calloc (3, sizeof(*city));
 
 	if(HvGetHealth(hv,curr_player) <= 4 && HvGetHealth(hv,curr_player) != 0){
 		strcpy(city,placeIdToAbbrev(curr_loc_hunter));
@@ -36,6 +38,8 @@ void decideHunterMove(HunterView hv)
 		PlaceId* where_i_can_go = HvWhereCanIGo(hv,&numPlace1);
 		if(numPlace1 > 0){
 			strcpy(city,placeIdToAbbrev(where_i_can_go[0]));
+		} else {
+			strcpy(city,placeIdToAbbrev(0));
 		}
 
 	}
@@ -60,3 +64,4 @@ void decideHunterMove(HunterView hv)
 
 	registerBestPlay(city, "Have we nothing Toulouse?");
 }
+

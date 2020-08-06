@@ -115,7 +115,7 @@ struct gameView {
 ////////////////////////////////////////////////////////////////////////
 
 // Create new player, and intialize all attributes
-static Game_Player new_player (int i) {
+static Game_Player new_player (int round) {
 	
 	Game_Player play = malloc(sizeof(*play));
 	
@@ -133,7 +133,10 @@ static Game_Player new_player (int i) {
 	play->Vampire_Encounter = START;
 	play->Player_Encounter = START;
 	play->death = START;
-	play->MoveHistory = calloc(i, sizeof(int));
+	play->MoveHistory = malloc((round+1)*sizeof(int));
+	for (int i = 0; i <= round; i++) {
+		play->MoveHistory[i] = -7;
+	}
 	return play;
 }
 
@@ -419,7 +422,9 @@ PlaceId *GvGetMoveHistory(GameView gv, Player player,
 {
 	// Calculate the numReturnedMoves
 	int numMoves = 0;
-	while (gv->Player[player]->MoveHistory[numMoves]) {
+	printf ("Move History in GameView.c\n\n");
+	while (gv->Player[player]->MoveHistory[numMoves] != -7) {
+		printf ("%s\n", placeIdToName(gv->Player[player]->MoveHistory[numMoves]));
 		numMoves++;
 	}
 	
@@ -690,7 +695,10 @@ void PastPlayAnalysis(GameView gv) {
 		else {
 			
 			DraculaLocation(Loc, gv, character, player_round);
-
+			printf ("Move_history in the pastPlayAnalysis\n");
+			for (int i = 0; i <= player_round; i++) {
+				printf ("%s\n", placeIdToName(gv->Player[PLAYER_DRACULA]->MoveHistory[i]));
+			}
 			AdjustDraculaHealth(gv, character); 
 
 			DraculaTraps(Loc, gv, play, &mature); 			
@@ -854,7 +862,13 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 
 // Find Dracula Location
 void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_round) 
-{
+{	
+	int flag = 0;
+	if (Loc == ADRIATIC_SEA) {
+		printf ("\n\n");
+		printf ("Adraitic Sea fOUNd\n");
+		flag = 1;
+	}
 	if (DB_MOVE(Loc)) {
 		
 		int DB_value = Loc - HIDE;
@@ -892,6 +906,15 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 		gv->Player[PLAYER_DRACULA]->Location = Loc;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 	}
+	if (flag == 1) {
+		printf ("Check Adriatic Sea Added or not\n");
+		printf ("Location: %s\n", placeIdToName(gv->Player[PLAYER_DRACULA]->MoveHistory[player_round]));
+		// printf ("Move history after adding Adriatic Sea\n\n");
+		// for (int i = 0; i <= player_round; i++) {
+		// 	printf ("%s\n", placeIdToName(gv->Player[PLAYER_DRACULA]->MoveHistory[i]));
+		// }
+	}
+    
 }
 
 // Adjust Dracula's health depending on game actions

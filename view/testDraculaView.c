@@ -62,10 +62,7 @@ int main(void)
 		"after encounters and staying at castle dracula\n");
 
 		char *trail =
-			"GLS.... SBD.... HSJ.... MGE.... DSZ.V.. "
-			"GSN.... SSZVD.. HSJ.... MPA.... DBET... "
-			"GMA.... SSZ.... HBETD.. MLE.... DKLT... "
-			"GCA.... SBE.... HBE.... MNA.... DCDT...";
+			"GLS.... SBD.... HSJ.... MGE.... DSZ.V.. GSN.... SSZVD.. HSJ.... MPA.... DBET... GMA.... SSZ.... HBETD.. MLE.... DKLT... GCA.... SBE.... HBE.... MNA.... DCDT..."
 		
 		Message messages[32] = {};
 		DraculaView dv = DvNew(trail, messages);
@@ -112,12 +109,7 @@ int main(void)
 	{
 		printf ("Test for Dracula's Health reduced at every sea he visits and then \n");
 			
-			char *trail = "GMS.... SIO.... HTS.... MIO.... DAOT... "
-			"GAO.... STS.... HMS.... MTS.... DNS.... "
-			"GBB.... SMS.... HAO.... MMS.... DED.V.. "
-			"GNA.... SAO.... HEC.... MAO.... DMNT... "
-			"GBO.... SIR.... HLE.... MEC.... DD2T... "
-			"GSR.... SDU.... HBU.... MPL.... DHIT... ";
+			char *trail = "GMS.... SIO.... HTS.... MIO.... DAOT... GAO.... STS.... HMS.... MTS.... DNS.... GBB.... SMS.... HAO.... MMS.... DED.V.. GNA.... SAO.... HEC.... MAO.... DMNT... GBO.... SIR.... HLE.... MEC.... DD2T... GSR.... SDU.... HBU.... MPL.... DHIT...";
 			
 			Message messages[9] = {};
 			DraculaView dv = DvNew(trail, messages);
