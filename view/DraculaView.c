@@ -483,10 +483,7 @@ PlaceId* DvReachablePlaces(DraculaView dv, Player hunter,int round,PlaceId p,int
 	if(DvGetPlayerLocation(dv,hunter) == NOWHERE) return NULL;
 
 	int turn = DvGetRound(dv) + round;
-	if (hunter != PLAYER_LORD_GODALMING) {
-		turn = 1 + turn;
-	}
-
+	
 	int num_max = START;
 	
 	PlaceId* reachable = GvGetReachable(dv->gv, hunter, turn, p, &num_max);

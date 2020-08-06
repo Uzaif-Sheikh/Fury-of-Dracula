@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 // COMP2521 20T2 ... the Fury of Dracula
 // dracula.c: your "Fury of Dracula" Dracula AI
 //
@@ -153,7 +153,7 @@ void decideDraculaMove(DraculaView dv)
                 }
             }
             
-            for (int i = num_HI_Dn_moves-1; i >= 0; i--) {
+            for (int i = num_HI_Dn_moves; i > 0; i--) {
                 if (placeAbbrevToId(move) == HI_Dn_Locs[i]) {
                     move = placeIdToAbbrev(HI_Dn_moves[i]);
                 }
