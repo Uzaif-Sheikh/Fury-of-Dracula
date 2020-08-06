@@ -54,7 +54,10 @@ void decideDraculaMove(DraculaView dv)
     int curr_round = DvGetRound(dv);
 	
 	if (curr_round == 0) {
-		move = placeIdToAbbrev(STRASBOURG);
+		srand(time(0));
+        int num = rand() % (NUM_REAL_PLACES);
+        move = placeIdToAbbrev(num);
+		//move = placeIdToAbbrev(STRASBOURG);
 	}
 
 	else if (Valid_moves == NULL && curr_round != 0) {
