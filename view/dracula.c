@@ -123,12 +123,6 @@ void decideDraculaMove(DraculaView dv)
                 }
             }
             
-			for (int i = num_HI_Dn_moves-1; i >= 0; i--) {
-                if (placeAbbrevToId(move) == HI_Dn_Locs[i]) {
-                    move = placeIdToAbbrev(HI_Dn_moves[i]);
-                }
-            }
-            
 			int path_length = 0;
             int path_received = 0;
             
@@ -145,7 +139,12 @@ void decideDraculaMove(DraculaView dv)
 
                 }
             }
-        
+
+			for (int i = num_HI_Dn_moves-1; i >= 0; i--) {
+                if (placeAbbrevToId(move) == HI_Dn_Locs[i]) {
+                    move = placeIdToAbbrev(HI_Dn_moves[i]);
+                }
+            }
             
         }
 
