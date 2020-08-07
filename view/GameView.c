@@ -911,6 +911,11 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 		gv->Player[PLAYER_DRACULA]->Location = Loc;
 		gv->Player[PLAYER_DRACULA]->MoveHistory[player_round] = Loc;
 	}
+	
+	if (gv->Player[PLAYER_DRACULA]->Location == TELEPORT) {
+		gv->Player[PLAYER_DRACULA]->Location = CASTLE_DRACULA;
+	}
+	
 	// if (flag == 1) {
 	// 	printf ("Check Adriatic Sea Added or not\n");
 	// 	printf ("Location: %s\n", placeIdToName(gv->Player[PLAYER_DRACULA]->MoveHistory[player_round]));
