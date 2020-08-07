@@ -62,8 +62,7 @@ typedef DraculaView View;
 # define decideMove decideDraculaMove
 # define ViewFree DvFree
 
-# define xPastPlays 
-//"GMA.... SMN.... HBC.... MPA.... DST.V.. GAL.... SED.... HBE.... MBU.... DZUT... GAL.... SED.... HBE.... MAM.... DMIT... GAL.... SED.... HBE.... MAM.... DVET... GAL.... SED.... HBE.... MAM.... DGOT... GAL.... SED.... HBE.... MAM.... DTS.... GAL.... SNS.... HSJ.... MBU.... DROT.V. GBO.... SAM.... HZA.... MST.... DNPT.M. GCF.... SBU.... HMU.... MCO.... DBIT.M. GCF.... SBU.... HMU.... MCO.... DAS..M. GGE.... SMR.... HVE.... MFR.... DIO..M. GFL.... SGO.... HMI.... MBR.... DVAT... GFL.... SGO.... HMI.... MBR.... DSOT.M. GRO.... SFL.... HNPT... MLI.... DVR.V.. GBIT... SRO.... HBI.... MFR...."
+# define xPastPlays "GMA.... SMN.... HBC.... MPA.... DTS...."
 
 //"GMN.... SVR.... HGR.... MBR.... DST.V.. GLO.... SBE.... HAL.... MPR.... DZUT... GEC.... SBD.... HSR.... MVI.... DMIT... GLE.... SZA.... HTO.... MBD.... DGOT... GBU.... SMU.... HBO.... MSO.... DFLT... GSTV... SZA.... HBU.... MSJ.... DROT... GZUT... SMU.... HST.... MZA.... DTS.... GGE.... SMU.... HST.... MMU.... DNPT... GGE.... SMU.... HPA.... MVI.... DBIT.M. GMR.... SMU.... HGE.... MMU.... DAS..M. GMS.... SMU.... HGE.... MMU.... DIO..M. GMR.... SMU.... HGE.... MMU.... DVAT.M. GTO.... SVI.... HMI.... MFR.... DSOT... GMR.... SMU.... HMU.... MST.... DVR.VM. GGE.... SMI.... HZU.... MST.... DCNT.M. GPA.... SMI.... HMI.... MLI...."
 
@@ -92,7 +91,7 @@ typedef HunterView View;
 # define decideMove decideHunterMove
 # define ViewFree HvFree
 
-# define xPastPlays "GZA.... SED.... HZU.... MZU.... DLO...."
+# define xPastPlays "GZU.... SVI.... HVR.... MTS.... DC?.V.. GMR.... SPR.... HBS.... MGO.... DD1T... GMS.... SNU.... HVR.... MGO.... DS?.... GAO.... SLI.... HVR.... MMR.... DC?T... GMS.... SCO.... HBS.... MBU.... DNPT... GAO.... SFR.... HVR.... MBU.... DC?T... GMS.... SST.... HVR.... MBU.... DS?..V. GAO.... SST.... HVR.... MPA.... DS?..M. GMS.... SST.... HBS.... MBO.... DC?T... GAO.... SMI.... HVR.... MBO.... DC?T.M. GMS.... SNPT... HVR.... MBO.... DHIT... GAO.... STS.... HVR.... MMR.... DD3T.M. GMS.... SGO.... HBS.... MBU.... DC?T... GAO.... SMR.... HVR.... MBU.... DC?.V.. GMS.... SBU.... HVR.... MBU.... DC?T.M. GAO.... SBU.... HVR.... MPA.... DCDT.M. GMS.... SBU.... HBS.... MCF.... DC?T.M. GAO.... SPA.... HVR.... MCF.... DHIT.M. GMS.... SBO.... HVR.... MCF.... DD4T.M. GAO.... SBO.... HVR.... MCF.... DC?T.V. GMS.... SBO.... HBS.... MCF.... DKLT.M. GAO.... SMR.... HVR.... MCF.... DCDT.M. GMS.... SBU.... HVR.... MGE.... DGAT.M. GBA.... SBU.... HCN.... MZU.... DCNT.M. GMS.... SBU.... HGAT... MMR.... DC?T.M. GBA.... SFR.... HKLT... MMS.... DC?T.M. GBO.... SST.... HBD.... MBA.... DC?.V.. GSN.... SMU...."
 # define xMsgs { "", "", "" }
 
 #endif

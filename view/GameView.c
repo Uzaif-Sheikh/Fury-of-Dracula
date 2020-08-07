@@ -153,10 +153,11 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 	
 	gameView->Game_State = strdup(pastPlays);
 	gameView->curr_score = GAME_START_SCORE;
-
+	int size_Game_State = strlen(pastPlays);
+	int Round_number = (size_Game_State)/MAX_ROUND_STRING;
 	// Finding the current round to assess how much 
 	// to calloc for MoveHistory
-	int n = GvGetRound(gameView) + 1;
+	int n = Round_number + 1;
 	for (int i = 0; i < NUM_PLAYERS; i++) {
 	    gameView->Player[i] = new_player(n);
 	}
@@ -189,10 +190,6 @@ void GvFree(GameView gv) {
 // Get the current round of play for any given player
 Round GvGetRound(GameView gv) 
 {	
-	int size_Game_State = strlen(gv->Game_State);
-	int Round_number = (size_Game_State)/MAX_ROUND_STRING;
-	gv->curr_round = Round_number;
-
 	return gv->curr_round;
 }
 
@@ -694,6 +691,8 @@ void PastPlayAnalysis(GameView gv) {
 		
 		else {
 			
+			gv->curr_round++;
+
 			DraculaLocation(Loc, gv, character, player_round);
 			// printf ("Move_history in the pastPlayAnalysis\n");
 			// for (int i = 0; i <= player_round; i++) {
@@ -974,11 +973,11 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 	QueueJoin(q, from);
 	
 	//num_rail_moves used to find the max rail distance allowed and add the elements in queue
-	int num_rail_moves = 1;
+	int num_rail_moves = 0;
 	int rail_type_places = 1;
 	
 	//Adds all the elements in the Queue until the the depth is max_rail_size it uses standard bfs.
-	while (!QueueIsEmpty(q) && num_rail_moves <= max_rail_size) {
+	while (!QueueIsEmpty(q) && num_rail_moves < max_rail_size) {
 
 		//finds the element in the Queue at the current level
 		int num_curr_level_rail = QueueSize(q);

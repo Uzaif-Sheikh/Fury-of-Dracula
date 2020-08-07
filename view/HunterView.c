@@ -134,7 +134,10 @@ Player HvGetPlayer(HunterView hv)
 }
 
 int HvGetScore(HunterView hv)
-{
+{	
+	if (hv->curr_score <= 0) {
+		hv->curr_score = 0;
+	} 
 	return hv->curr_score;
 }
 
@@ -319,9 +322,9 @@ PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
 	if(HvGetPlayerLocation(hv,player) == NOWHERE || HvGetPlayerLocation(hv, PLAYER_DRACULA) == CITY_UNKNOWN || HvGetPlayerLocation(hv, PLAYER_DRACULA) == SEA_UNKNOWN) return NULL;
 
 	int round = GvGetRound(hv->gv);
-	if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
-		round += 1;
-	}
+	// if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
+	// 	round += 1;
+	// }
 	int num_max = START;
 	PlaceId* reachable = GvGetReachable(hv->gv,player,round,HvGetPlayerLocation(hv,player),&num_max);
 
@@ -339,9 +342,9 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 			== CITY_UNKNOWN || HvGetPlayerLocation(hv, PLAYER_DRACULA) == SEA_UNKNOWN) return NULL;
 
 	int round = GvGetRound(hv->gv);
-	if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
-		round += 1;
-	}
+	// if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
+	// 	round += 1;
+	// }
 
 	int num_max = START;
 	PlaceId* reachable = GvGetReachableByType(hv->gv,player,

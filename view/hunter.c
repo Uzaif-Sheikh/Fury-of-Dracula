@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////
 // COMP2521 20T2 ... the Fury of Dracula
 // hunter.c: your "Fury of Dracula" hunter AI.
@@ -13,55 +14,86 @@
 #include "hunter.h"
 #include "HunterView.h"
 #include <string.h>
+#include <stdio.h>
+#include "Places.h"
 #include <time.h>
-
+#include <stdlib.h>
 
 void decideHunterMove(HunterView hv)
 {
-	//int round = HvGetRound(hv);
+	//int round = 0;
+	
 	Player curr_player = HvGetPlayer(hv);
-	PlaceId curr_loc_hunter = HvGetPlayerLocation(hv,curr_player);
-	PlaceId vampire_loc = HvGetVampireLocation(hv);
+	//PlaceId curr_loc_known = HvGetLastKnownDraculaLocation(hv,&round);
+	int hv_round = HvGetRound(hv);
 
-	int numPlace = 0;
-	PlaceId* where_dracula_can_go = HvWhereCanTheyGo(hv,PLAYER_DRACULA,&numPlace);
-	char *city = calloc (3, sizeof(*city));
+	// int numPlace = 0;
+	// PlaceId* where_dracula_can_go = HvWhereCanTheyGo(hv,PLAYER_DRACULA,&numPlace);
+	char city[2];
 
-	if(HvGetHealth(hv,curr_player) <= 4 && HvGetHealth(hv,curr_player) != 0){
-		strcpy(city,placeIdToAbbrev(curr_loc_hunter));
+	if(hv_round == 0 && curr_player != PLAYER_DRACULA){
+		int index = 70 - (curr_player * 2);
+		strcpy(city,placeIdToAbbrev(index));
 	}
-	else if(HvGetHealth(hv,curr_player) == 0){
-		strcpy(city,placeIdToAbbrev(HOSPITAL_PLACE));
-	}
-	else if(where_dracula_can_go == NULL && vampire_loc == NOWHERE){
+	else{
 		int numPlace1 = 0;
-		PlaceId* where_i_can_go = HvWhereCanIGo(hv,&numPlace1);
-		if(numPlace1 > 0){
-			strcpy(city,placeIdToAbbrev(where_i_can_go[0]));
-		} else {
-			strcpy(city,placeIdToAbbrev(0));
+		PlaceId* where_can_i_go = HvWhereCanIGo(hv,&numPlace1);
+		printf("%d numPlace \n",numPlace1);
+		for(int i = 0;i < numPlace1;i++){
+			printf("curr loc known = nowhere %s --\n",placeIdToAbbrev(where_can_i_go[i]));
 		}
-
+		srand(time(NULL));
+		int id = (rand() % numPlace1);
+		printf("%d --\n",id); 
+		strcpy(city,placeIdToAbbrev(where_can_i_go[id]));
 	}
-	else if(where_dracula_can_go == NULL && vampire_loc != NOWHERE){
+	// else if(curr_loc_known == NOWHERE){
+	// 	int numPlace1 = 0;
+	// 	PlaceId* where_can_i_go = HvWhereCanIGo(hv,&numPlace1);
+	// 	printf("%d numPlace \n",numPlace1);
+	// 	for(int i = 0;i < numPlace1;i++){
+	// 		printf("curr loc known = nowhere %s --\n",placeIdToAbbrev(where_can_i_go[i]));
+	// 	}
+	// 	int id = (rand() % numPlace1);
+	// 	printf("%d --\n",id); 
+	// 	strcpy(city,placeIdToAbbrev(where_can_i_go[id]));
+		
+	// }
+	// else if(curr_loc_known != NOWHERE){
+	// 	//if(HvGetPlayerLocation(hv,curr_player) == curr_loc_known){
+	// 		int numPlace1 = 0;
+	// 		PlaceId* where_can_i_go = HvWhereCanIGo(hv,&numPlace1);
+	// 		printf("%d numPlace \n",numPlace1);
+	// 		for(int i = 0;i < numPlace1;i++){
+	// 			printf("curr loc known != nowhere %s --\n",placeIdToAbbrev(where_can_i_go[i]));
+	// 		}
+	// 		int id = (rand() % numPlace1);
+	// 		printf("%d --\n",id); 
+	// 		strcpy(city,placeIdToAbbrev(where_can_i_go[id]));
+	// 	//}
+	// 	/*else{
+	// 		int numPath = 0;
+	// 		PlaceId* shortest_path = HvGetShortestPathTo(hv,curr_player,curr_loc_known,&numPath);
+	// 		printf("%d numPlace \n",numPath);
+	// 		for(int i = 0;i < numPath;i++){
+	// 			printf("shortesh path %s --\n",placeIdToAbbrev(shortest_path[i]));
+	// 		}
+	// 		strcpy(city,placeIdToAbbrev(shortest_path[0]));
+	// 	}*/
+	// }
+	// else{
+	// 	int numPlace1 = 0;
+	// 	PlaceId* where_can_i_go = HvWhereCanIGo(hv,&numPlace1);
+	// 	printf("%d numPlace \n",numPlace1);
+	// 	for(int i = 0;i < numPlace1;i++){
+	// 		printf("where the fuck i can go %s --\n",placeIdToAbbrev(where_can_i_go[i]));
+	// 	}
+	// 	int id = (rand() % numPlace1);
+	// 	printf("%d --\n",id); 
+	// 	strcpy(city,placeIdToAbbrev(where_can_i_go[id]));
+		
+	// }
 
-		int numPlace2 = 0;
-		PlaceId* shortest_path = HvGetShortestPathTo(hv,curr_player,vampire_loc,&numPlace2);
-		if(numPlace2 > 0){
-			strcpy(city,placeIdToAbbrev(shortest_path[0]));
-		}
-
-	}
-	else if(where_dracula_can_go != NULL){
-		if(numPlace > 0){
-			int numPlace2 = 0;
-			PlaceId* shortest_path = HvGetShortestPathTo(hv,curr_player,where_dracula_can_go[0],&numPlace2);
-			if(numPlace2 > 0){
-				strcpy(city,placeIdToAbbrev(shortest_path[0]));
-			}
-		}
-	}
-
-	registerBestPlay(city, "Have we nothing Toulouse?");
+	registerBestPlay(&city[0], "Have we nothing Toulouse?");
 }
 
