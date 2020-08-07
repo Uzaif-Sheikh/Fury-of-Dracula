@@ -17,6 +17,7 @@
 #include <time.h>
 #include "Queue.h"
 #include "Map.h"
+#include "testUtils.h"
 
 #define START 0
 #define HIDE_MOVE(id) (id == HIDE)
@@ -45,23 +46,70 @@ void decideDraculaMove(DraculaView dv)
 	
  	PlaceId* Valid_moves = DvGetValidMoves(dv, &numMoves);
 	PlaceId* DraaculasLocation = DvWhereCanIGo (dv, &numLocsDracula);
+	
 
 	PlaceId Curr_Location = DvGetPlayerLocation(dv, PLAYER_DRACULA);
-	
-	if (Curr_Location == NOWHERE) {
-		srand(time(0));
-        int num = rand() % (NUM_REAL_PLACES);
-		Curr_Location = num;
-	}
-
-    int *distanceFromCurrLocation = findDistancetoallCities (Curr_Location);
-
 	int curr_round = DvGetRound(dv);
-	
-	if (curr_round == 0) {
+
+	if (Curr_Location == NOWHERE) {
+
+		int numLocs = 0;
+        int numPlacesHunter = 0;
+        int k = 0;
+        int *Reachable_Places = malloc ((NUM_REAL_PLACES+1)*sizeof(*Reachable_Places));
+        
+		for (int i = 0; i < NUM_REAL_PLACES+1; i++) {
+			Reachable_Places[i] = -1;
+		}
+ 		
+		 for (int i = 0; i < NUM_PLAYERS-1; i++) {
+            
+            PlaceId *WherecantheyGo = DvWhereCanTheyGo(dv, i, &numLocs);
+            int j = 0;
+            numPlacesHunter = k;
+            
+            for (k = numPlacesHunter; k < numLocs+numPlacesHunter; k++) {
+                hunters_places_movable[k] = WherecantheyGo[j];
+				Reachable_Places[hunters_places_movable[k]] = 0;
+                j++;
+            }
+            
+        }
+        
+        int total_reachable_places_H = k; 
+		
+		// printf ("Reachable Places\n");
+		// for (int i = 0; i < total_reachable_places_H; i++) {
+		// 	printf (" %d PLace : %s\n", i, placeIdToName(hunters_places_movable[i]));
+		// }
+		
+		int unreachable_places = NUM_REAL_PLACES - total_reachable_places_H;
+		
+		int *Movable_places = calloc (unreachable_places+1, sizeof(*Movable_places));
+		
+		int t = 0;
+		for (int i = 0; i < NUM_REAL_PLACES; i++) {
+			if (Reachable_Places[i] != 0 && placeIdToType(i) != SEA && i != ST_JOSEPH_AND_ST_MARY && i != CASTLE_DRACULA) {
+				Movable_places[t] = i;
+				t++;
+			}
+		}
+
+		// printf ("\n\n");
+		// printf ("Movable places\n");
+		
+		int unreachable_places_excluding_sea = t;
+		// for (int i = 0; i < unreachable_places_excluding_sea; i ++) {
+		// 	printf ("%d Place : %s\n", i, placeIdToName(Movable_places[i]));
+		// }
+		
 		srand(time(0));
-        int num = rand() % (NUM_REAL_PLACES);
-        move = placeIdToAbbrev(num);
+        int num = rand() % (unreachable_places_excluding_sea);
+		int moves = Movable_places[num];
+    	move = placeIdToAbbrev(moves);
+		//printf ("\n%s", move);
+		free (Reachable_Places);
+        
 	}
 
 	else if (Valid_moves == NULL && curr_round != 0) {
@@ -70,6 +118,7 @@ void decideDraculaMove(DraculaView dv)
 	
 	else if (Valid_moves != NULL && curr_round != 0) {
 	    
+		int *distanceFromCurrLocation = findDistancetoallCities (Curr_Location);
         PlaceId *Best_moves = calloc(numMoves, sizeof(*Best_moves));
         int numLocs = 0;
         int numPlacesHunter = 0;
