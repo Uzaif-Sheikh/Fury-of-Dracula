@@ -62,7 +62,7 @@ int main(void)
 		"after encounters and staying at castle dracula\n");
 
 		char *trail =
-			"GLS.... SBD.... HSJ.... MGE.... DSZ.V.. GSN.... SSZVD.. HSJ.... MPA.... DBET... GMA.... SSZ.... HBETD.. MLE.... DKLT... GCA.... SBE.... HBE.... MNA.... DCDT..."
+			"GLS.... SBD.... HSJ.... MGE.... DSZ.V.. GSN.... SSZVD.. HSJ.... MPA.... DBET... GMA.... SSZ.... HBETD.. MLE.... DKLT... GCA.... SBE.... HBE.... MNA.... DCDT...";
 		
 		Message messages[32] = {};
 		DraculaView dv = DvNew(trail, messages);

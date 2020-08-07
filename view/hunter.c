@@ -35,6 +35,9 @@ void decideHunterMove(HunterView hv)
 		int index = 70 - (curr_player * 2);
 		strcpy(city,placeIdToAbbrev(index));
 	}
+	else if (HvGetHealth(hv, curr_player) <= 0) {
+		strcpy(city,placeIdToAbbrev(HOSPITAL_PLACE));
+	}
 	else{
 		int numPlace1 = 0;
 		PlaceId* where_can_i_go = HvWhereCanIGo(hv,&numPlace1);

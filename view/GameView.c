@@ -784,7 +784,7 @@ int GvGetScore(GameView gv)
 void RestCheck(PlaceId Loc, GameView gv, Player character, int player_round) 
 {
 	if (Loc == gv->Player[character]->Location) {
-		gv->Player[character]->Rest++;
+			gv->Player[character]->Rest++;
 		gv->Player[character]->MoveHistory[player_round] = Loc;
 	} 
 	
@@ -830,33 +830,39 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 	int dracula_num_encount = gv->Player[PLAYER_DRACULA]->Player_Encounter;
 	
 	// Calculate the total HP
-	int HP =  GAME_START_HUNTER_LIFE_POINTS - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
+	gv->Player[character]->health =  gv->Player[character]->health - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
 							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount) 
 							+ (LIFE_GAIN_REST * num_rest);
 
+	if (num_encount && num_rest) {
+		gv->Player[character]->health =  gv->Player[character]->health - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
+							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount); 
+	}
+
 	gv->Player[PLAYER_DRACULA]->health = gv->Player[PLAYER_DRACULA]->health 
 						- (LIFE_LOSS_HUNTER_ENCOUNTER * dracula_num_encount);
+	
 	gv->Player[PLAYER_DRACULA]->Player_Encounter = 0;
 	
 	// Hunter can't have more than 9 life points
-	if (HP > GAME_START_HUNTER_LIFE_POINTS) {
-		HP = GAME_START_HUNTER_LIFE_POINTS;
+	if (gv->Player[character]->health > GAME_START_HUNTER_LIFE_POINTS) {
 		gv->Player[character]->Rest = 0;
-		gv->Player[character]->health = HP;
+		gv->Player[character]->health = GAME_START_HUNTER_LIFE_POINTS;
 	} 
 	
 	// Case of death of Hunter
-	else if (HP <= 0) {
+	else if (gv->Player[character]->health <= 0) {
 		gv->Player[character]->death++;
 		gv->Player[character]->Location = HOSPITAL_PLACE;
 		gv->Player[character]->trap_player = START;
 		gv->Player[character]->Player_Encounter = START;
 		gv->Player[character]->health = START;
 	} 
-	
-	else {
-		gv->Player[character]->health = HP;
-	}
+
+
+	gv->Player[character]->trap_player = START;
+	gv->Player[character]->Player_Encounter = START;
+	gv->Player[character]->Rest = START;
 }
 
 // Find Dracula Location

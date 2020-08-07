@@ -501,181 +501,181 @@ int main(void)
 		printf("\033[32m" "Test Passed! :)" "\033[0m\n");
 	}
 
-	{///////////////////////////////////////////////////////////////////
+	// {///////////////////////////////////////////////////////////////////
 	
-		printf("Testing connections\n");
+	// 	printf("Testing connections\n");
 		
-		char *trail = "GSW.... SLS.... HMR.... MHA.... DSJ.V.. "
-		"GLO.... SAL.... HCO.... MBR.... DBET... "
-		"GED.... SBO.... HLI.... MPR.... DKLT... "
-		"GLV.... SNA.... HNU.... MBD.... DCDT... "
-		"GIR.... SPA.... HPR.... MKLT... DHIT... "
-		"GAO.... SST.... HSZ.... MCDTTD. DGAT... "
-		"GMS.... SFL.... HKL.... MSZ.... DCNT.V. "
-		"GTS.... SRO.... HBC.... MCNTD.. DBS..M. "
-		"GIO.... SBI.... HCN.... MCN.... DIO.... "
-		"GIO.... SAS.... HBS.... MCN.... DTS.... "
-		"GTS.... SAS.... HIO.... MBS.... DMS.... "
-		"GMS.... SIO.... HTS.... MIO.... DAO..M. "
-		"GAO.... STS.... HMS.... MTS.... DNS.... "
-		"GBB.... SMS.... HAO.... MMS.... DED.V.. "
-		"GNA.... SAO.... HEC.... MAO.... DMNT... "
-		"GBO.... SIR.... HLE.... MEC.... DD2T... "
-		"GSR.... SDU.... HBU.... MPL.... DHIT... "
-		"GSN.... SIR.... HAM.... MLO.... DTPT... "
-		"GAL.... SAO.... HCO.... MEC.... DCDT... "
-		"GMS.... SMS.... HFR.... MLE.... DKLT.V. "
-		"GTS.... STS.... HBR.... MCO.... DGAT.M. "
-		"GIO.... SIO.... HBD.... MLI.... DD3T.M. "
-		"GBS.... SBS.... HKLT... MBR.... DHI..M. "
-		"GCN.... SCN.... HCDTTTD MVI.... DTPT... "
-		"GGAT... SGA.... HSZ.... MBC.... DCDT... "
-		"GCDTTD. SCDD... HKL.... MGA.... DKLT... "
-		"GSZ.... SKLTD.. HKLD... MKLD... DBC.V.. "
-		"GBD.... SBE.... HGA.... MBCVD.. DSOT... "
-		"GSZ.... SSOTD.. HBC.... MSOD...";
-		Message messages[] = {};
-		GameView gv = GvNew(trail, messages);
+	// 	char *trail = "GSW.... SLS.... HMR.... MHA.... DSJ.V.. "
+	// 	"GLO.... SAL.... HCO.... MBR.... DBET... "
+	// 	"GED.... SBO.... HLI.... MPR.... DKLT... "
+	// 	"GLV.... SNA.... HNU.... MBD.... DCDT... "
+	// 	"GIR.... SPA.... HPR.... MKLT... DHIT... "
+	// 	"GAO.... SST.... HSZ.... MCDTTD. DGAT... "
+	// 	"GMS.... SFL.... HKL.... MSZ.... DCNT.V. "
+	// 	"GTS.... SRO.... HBC.... MCNTD.. DBS..M. "
+	// 	"GIO.... SBI.... HCN.... MCN.... DIO.... "
+	// 	"GIO.... SAS.... HBS.... MCN.... DTS.... "
+	// 	"GTS.... SAS.... HIO.... MBS.... DMS.... "
+	// 	"GMS.... SIO.... HTS.... MIO.... DAO..M. "
+	// 	"GAO.... STS.... HMS.... MTS.... DNS.... "
+	// 	"GBB.... SMS.... HAO.... MMS.... DED.V.. "
+	// 	"GNA.... SAO.... HEC.... MAO.... DMNT... "
+	// 	"GBO.... SIR.... HLE.... MEC.... DD2T... "
+	// 	"GSR.... SDU.... HBU.... MPL.... DHIT... "
+	// 	"GSN.... SIR.... HAM.... MLO.... DTPT... "
+	// 	"GAL.... SAO.... HCO.... MEC.... DCDT... "
+	// 	"GMS.... SMS.... HFR.... MLE.... DKLT.V. "
+	// 	"GTS.... STS.... HBR.... MCO.... DGAT.M. "
+	// 	"GIO.... SIO.... HBD.... MLI.... DD3T.M. "
+	// 	"GBS.... SBS.... HKLT... MBR.... DHI..M. "
+	// 	"GCN.... SCN.... HCDTTTD MVI.... DTPT... "
+	// 	"GGAT... SGA.... HSZ.... MBC.... DCDT... "
+	// 	"GCDTTD. SCDD... HKL.... MGA.... DKLT... "
+	// 	"GSZ.... SKLTD.. HKLD... MKLD... DBC.V.. "
+	// 	"GBD.... SBE.... HGA.... MBCVD.. DSOT... "
+	// 	"GSZ.... SSOTD.. HBC.... MSOD...";
+	// 	Message messages[] = {};
+	// 	GameView gv = GvNew(trail, messages);
 
-		{
-			printf("Checking Galatz road connections "
-			       "(Lord Godalming, Round 1)\n");
-			int numLocs = -1;
-			PlaceId *locs = GvGetReachable(gv, PLAYER_LORD_GODALMING,
-			                                     1, GALATZ, &numLocs);
+	// 	{
+	// 		printf("Checking Galatz road connections "
+	// 		       "(Lord Godalming, Round 1)\n");
+	// 		int numLocs = -1;
+	// 		PlaceId *locs = GvGetReachable(gv, PLAYER_LORD_GODALMING,
+	// 		                                     1, GALATZ, &numLocs);
 
-			assert(numLocs == 5);
-			sortPlaces(locs, numLocs);
+	// 		assert(numLocs == 5);
+	// 		sortPlaces(locs, numLocs);
 			
-			assert(locs[0] == BUCHAREST);
-			assert(locs[1] == CASTLE_DRACULA);
-			assert(locs[2] == CONSTANTA);
-			assert(locs[3] == GALATZ);
-			assert(locs[4] == KLAUSENBURG);
-			free(locs);
-			printf("\033[32m" "Test Passed! :)" "\033[0m\n");
-		}
+	// 		assert(locs[0] == BUCHAREST);
+	// 		assert(locs[1] == CASTLE_DRACULA);
+	// 		assert(locs[2] == CONSTANTA);
+	// 		assert(locs[3] == GALATZ);
+	// 		assert(locs[4] == KLAUSENBURG);
+	// 		free(locs);
+	// 		printf("\033[32m" "Test Passed! :)" "\033[0m\n");
+	// 	}
 
-		{
-			printf("Checking Ionian Sea boat connections "
-			       "(Lord Godalming, Round 1)\n");
+	// 	{
+	// 		printf("Checking Ionian Sea boat connections "
+	// 		       "(Lord Godalming, Round 1)\n");
 			
-			int numLocs = -1;
-			PlaceId *locs = GvGetReachable(gv, PLAYER_LORD_GODALMING,
-			                                     1, IONIAN_SEA, &numLocs);
+	// 		int numLocs = -1;
+	// 		PlaceId *locs = GvGetReachable(gv, PLAYER_LORD_GODALMING,
+	// 		                                     1, IONIAN_SEA, &numLocs);
 			
-			sortPlaces(locs, numLocs);
-			assert(numLocs == 7);
+	// 		sortPlaces(locs, numLocs);
+	// 		assert(numLocs == 7);
 			
-			assert(locs[0] == ADRIATIC_SEA);
-			assert(locs[1] == ATHENS);
-			assert(locs[2] == BLACK_SEA);
-			assert(locs[3] == IONIAN_SEA);
-			assert(locs[4] == SALONICA);
-			assert(locs[5] == TYRRHENIAN_SEA);
-			assert(locs[6] == VALONA);
-			free(locs);
-			printf("\033[32m" "Test Passed! :)" "\033[0m\n");
-		}
+	// 		assert(locs[0] == ADRIATIC_SEA);
+	// 		assert(locs[1] == ATHENS);
+	// 		assert(locs[2] == BLACK_SEA);
+	// 		assert(locs[3] == IONIAN_SEA);
+	// 		assert(locs[4] == SALONICA);
+	// 		assert(locs[5] == TYRRHENIAN_SEA);
+	// 		assert(locs[6] == VALONA);
+	// 		free(locs);
+	// 		printf("\033[32m" "Test Passed! :)" "\033[0m\n");
+	// 	}
 
-		{
-			printf("Checking Paris rail connections "
-			       "(Lord Godalming, Round 2)\n");
-			int numLocs = -1;
-			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     2, PARIS, false, true,
-			                                     false, &numLocs);
-			assert(numLocs == 7);
+	// 	{
+	// 		printf("Checking Paris rail connections "
+	// 		       "(Lord Godalming, Round 2)\n");
+	// 		int numLocs = -1;
+	// 		PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
+	// 		                                     2, PARIS, false, true,
+	// 		                                     false, &numLocs);
+	// 		assert(numLocs == 7);
 			
-			sortPlaces(locs, numLocs);
-			assert(locs[0] == BORDEAUX);
-			assert(locs[1] == BRUSSELS);
-			assert(locs[2] == COLOGNE);
-			assert(locs[3] == LE_HAVRE);
-			assert(locs[4] == MARSEILLES);
-			assert(locs[5] == PARIS);
-			assert(locs[6] == SARAGOSSA);
-			free(locs);
-			printf("\033[32m" "Test Passed! :)" "\033[0m\n");
-		}
+	// 		sortPlaces(locs, numLocs);
+	// 		assert(locs[0] == BORDEAUX);
+	// 		assert(locs[1] == BRUSSELS);
+	// 		assert(locs[2] == COLOGNE);
+	// 		assert(locs[3] == LE_HAVRE);
+	// 		assert(locs[4] == MARSEILLES);
+	// 		assert(locs[5] == PARIS);
+	// 		assert(locs[6] == SARAGOSSA);
+	// 		free(locs);
+	// 		printf("\033[32m" "Test Passed! :)" "\033[0m\n");
+	// 	}
 		
-		{
-			printf("Checking Athens rail connections (none)\n");
-			int numLocs = -1;
-			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     1, ATHENS, false, true,
-			                                     false, &numLocs);
+	// 	{
+	// 		printf("Checking Athens rail connections (none)\n");
+	// 		int numLocs = -1;
+	// 		PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
+	// 		                                     1, ATHENS, false, true,
+	// 		                                     false, &numLocs);
 			
-			assert(numLocs == 1);
-			assert(locs[0] == ATHENS);
-			free(locs);
-			printf("\033[32m" "Test Passed! :)" "\033[0m\n");
-		}
+	// 		assert(numLocs == 1);
+	// 		assert(locs[0] == ATHENS);
+	// 		free(locs);
+	// 		printf("\033[32m" "Test Passed! :)" "\033[0m\n");
+	// 	}
 
-		{
-			printf("Checking reachable places for dracula\n");
+	// 	{
+	// 		printf("Checking reachable places for dracula\n");
 			
-			int numMoves = 0; bool canFree = false;
-			int numLocs = 0;
+	// 		int numMoves = 0; bool canFree = false;
+	// 		int numLocs = 0;
 			
-			PlaceId* LastMoves = GvGetLastMoves(gv, PLAYER_DRACULA, 12, &numMoves, &canFree);
-			PlaceId* LastLocs = GvGetLastLocations(gv, PLAYER_DRACULA, 12, &numLocs, &canFree);
+	// 		PlaceId* LastMoves = GvGetLastMoves(gv, PLAYER_DRACULA, 12, &numMoves, &canFree);
+	// 		PlaceId* LastLocs = GvGetLastLocations(gv, PLAYER_DRACULA, 12, &numLocs, &canFree);
 			
-			//asserting and checking the moves in the order of what they come without sorting.
-			assert (numMoves == 12);
-			assert (LastMoves[0] == HIDE);
-			assert (LastMoves[1] == TELEPORT);
-			assert (LastMoves[2] == CASTLE_DRACULA);
-			assert (LastMoves[3] == KLAUSENBURG);
-			assert (LastMoves[4] == GALATZ);
-			assert (LastMoves[5] == DOUBLE_BACK_3);
-			assert (LastMoves[6] == HIDE);
-			assert (LastMoves[7] == TELEPORT);
-			assert (LastMoves[8] == CASTLE_DRACULA);
-			assert (LastMoves[9] == KLAUSENBURG);
-			assert (LastMoves[10] == BUCHAREST);
-			assert (LastMoves[11] == SOFIA);
+	// 		//asserting and checking the moves in the order of what they come without sorting.
+	// 		assert (numMoves == 12);
+	// 		assert (LastMoves[0] == HIDE);
+	// 		assert (LastMoves[1] == TELEPORT);
+	// 		assert (LastMoves[2] == CASTLE_DRACULA);
+	// 		assert (LastMoves[3] == KLAUSENBURG);
+	// 		assert (LastMoves[4] == GALATZ);
+	// 		assert (LastMoves[5] == DOUBLE_BACK_3);
+	// 		assert (LastMoves[6] == HIDE);
+	// 		assert (LastMoves[7] == TELEPORT);
+	// 		assert (LastMoves[8] == CASTLE_DRACULA);
+	// 		assert (LastMoves[9] == KLAUSENBURG);
+	// 		assert (LastMoves[10] == BUCHAREST);
+	// 		assert (LastMoves[11] == SOFIA);
 			
-			//asserting and checking the locations in the order of what they come without sorting.
-			assert (numLocs == 12);
-			assert (LastLocs[0] == EDINBURGH);
-			assert (LastLocs[1] == CASTLE_DRACULA);
-			assert (LastLocs[2] == CASTLE_DRACULA);
-			assert (LastLocs[3] == KLAUSENBURG);
-			assert (LastLocs[4] == GALATZ);
-			assert (LastLocs[5] == CASTLE_DRACULA);
-			assert (LastLocs[6] == CASTLE_DRACULA);
-			assert (LastLocs[7] == CASTLE_DRACULA);
-			assert (LastLocs[8] == CASTLE_DRACULA);
-			assert (LastLocs[9] == KLAUSENBURG);
-			assert (LastLocs[10] == BUCHAREST);
-			assert (LastLocs[11] == SOFIA);
+	// 		//asserting and checking the locations in the order of what they come without sorting.
+	// 		assert (numLocs == 12);
+	// 		assert (LastLocs[0] == EDINBURGH);
+	// 		assert (LastLocs[1] == CASTLE_DRACULA);
+	// 		assert (LastLocs[2] == CASTLE_DRACULA);
+	// 		assert (LastLocs[3] == KLAUSENBURG);
+	// 		assert (LastLocs[4] == GALATZ);
+	// 		assert (LastLocs[5] == CASTLE_DRACULA);
+	// 		assert (LastLocs[6] == CASTLE_DRACULA);
+	// 		assert (LastLocs[7] == CASTLE_DRACULA);
+	// 		assert (LastLocs[8] == CASTLE_DRACULA);
+	// 		assert (LastLocs[9] == KLAUSENBURG);
+	// 		assert (LastLocs[10] == BUCHAREST);
+	// 		assert (LastLocs[11] == SOFIA);
 			
-			PlaceId from = GvGetPlayerLocation(gv, PLAYER_DRACULA);
-			assert (from == SOFIA);
-			int round = GvGetRound(gv);
+	// 		PlaceId from = GvGetPlayerLocation(gv, PLAYER_DRACULA);
+	// 		assert (from == SOFIA);
+	// 		int round = GvGetRound(gv);
 			
-			assert (round == 29);
-			PlaceId *locs = GvGetReachable(gv, PLAYER_DRACULA, round, from, &numLocs);
+	// 		assert (round == 29);
+	// 		PlaceId *locs = GvGetReachable(gv, PLAYER_DRACULA, round, from, &numLocs);
 			
-			sortPlaces(locs, numLocs);
+	// 		sortPlaces(locs, numLocs);
 			
-			assert (numLocs == 7);
-			assert (locs[0] == BELGRADE);
-			assert (locs[1] == BUCHAREST);
-			assert (locs[2] == SALONICA);
-			assert (locs[3] == SARAJEVO);
-			assert (locs[4] == SOFIA);
-			assert (locs[5] == VALONA);
-			assert (locs[6] == VARNA);
-			free(locs);
-			free (LastMoves);
-		}
+	// 		assert (numLocs == 7);
+	// 		assert (locs[0] == BELGRADE);
+	// 		assert (locs[1] == BUCHAREST);
+	// 		assert (locs[2] == SALONICA);
+	// 		assert (locs[3] == SARAJEVO);
+	// 		assert (locs[4] == SOFIA);
+	// 		assert (locs[5] == VALONA);
+	// 		assert (locs[6] == VARNA);
+	// 		free(locs);
+	// 		free (LastMoves);
+	// 	}
 
 
-		GvFree(gv);
-		printf("\033[32m" "Test Passed! :)" "\033[0m\n");
-	}
+	// 	GvFree(gv);
+	// 	printf("\033[32m" "Test Passed! :)" "\033[0m\n");
+	// }
 
 
 	{///////////////////////////////////////////////////////////////////////
@@ -683,18 +683,13 @@ int main(void)
 		printf("Checking for the Max health of Hunter\n");
 
 		char *trail =
-			"GLS.... SGE.... HGE.... MGE.... DMA.V.. "
-			"GSN.... SST.... HFL.... MPA.... DCAT... "
-			"GMAV... SST.... HVE.... MLE.... DGRT... "
-			"GCAT... SZU.... HAS.... MNA.... DALT... "
-			"GCA.... SZU.... HAS.... MNA.... DD4T... "
-			"GCA.... SGO....";
+			"GZU.... SVI.... HVR.... MTS.... DCG.V.. GST.... SSZ.... HVR.... MTS.... DD1T... GFR.... SSA.... HBS.... MTS.... DTS.... GLI.... SIO.... HBS.... MTS.... DMS.... GLI.... SVA.... HBS.... MTS.... DMRT... GLI.... SSO.... HBS.... MTS.... DTOT... GCO.... SBC.... HBS.... MTS.... DSRT.V. GHA.... SKL.... HBS.... MTS.... DSNT.M. GHA.... SSZ.... HBS.... MTS.... DMAT... GHA.... SBD.... HBS.... MTS.... DGRT... GNS.... SGA.... HBS.... MTS.... DCAT.M. GHA.... SCN.... HBS.... MTS.... DLST.M. GHA.... SCN.... HBS.... MTS.... DHIT.M. GHA.... SSZ.... HBS.... MTS.... DSN.VM. GNS.... SSA.... HBS.... MTS.... DSRT.M. GHA.... SIO.... HBS.... MTS.... DTOT.M. GHA.... SVA.... HBS.... MTS.... DCFT.M. GHA.... SSO.... HBS.... MTS.... DNAT.M. GNS.... SBC.... HBS.... MTS.... DLET.M. GHA.... SKL.... HBS.... MTS.... DPAT.V. GHA.... SSZ.... HBS.... MTS.... DSTT.M. GHA.... SBD.... HBS.... MTS.... DNUT.M. GNS.... SGA.... HBS.... MTS.... DPRT.M. GHA.... SCN.... HBS.... MTS.... DBRT.M. GHA.... SGA.... HCN.... MGO.... DD2T.M. GLI.... SSZ.... HGA.... MVE.... DHIT.M. GFR.... SSO.... HGA.... MFL.... DVI.VM. GLI.... SBC.... HGA.... MRO.... DBDT.M. GNU.... SBC.... HSZ.... MGE.... DZAT.M. GST.... SKL.... HSO.... MZU.... DSZT.M. GST.... SBC.... HBC.... MZU.... DD2T.M. GBU.... SSO.... HBC.... MGE.... DHIT.M. GST.... SBC.... HKL.... MGO.... DSJT.V. GFR.... SKL.... HBC.... MVE.... DVAT.M. GNU.... SBC.... HSO.... MFL.... DATT.M. GFR.... SSO.... HBC.... MRO.... DIO..M. GNU.... SBC.... HKL.... MGE.... DSAT.M. GST.... SKL.... HBC.... MZU.... DHIT.M. GST.... SBC.... HSO.... MZU.... DD3..M. GBU.... SSO.... HBC.... MGE.... DBS..M. GST.... SBC.... HKL.... MGO.... DVRT.M. GFR.... SKL.... HBC.... MVE.... DSOT... GNU.... SBC.... HSOTD.. MFL.... DSJT.M. GFR.... SSO.... HBC.... MRO.... DZAT.M. GNU.... SBC.... HKL.... MGE.... DVIT... GST.... SKL.... HBC.... MZU.... DPRT... GST.... SBC.... HSO.... MZU.... DBRT.M. GBU.... SSO.... HBC.... MGE.... DHAT... GST.... SBC.... HKL.... MGO.... DNS..M. GFR.... SKL.... HBC.... MVE.... DEC..M. GNU.... SBC.... HSO.... MFL.... DPLT.M. GFR.... SSO.... HBC.... MRO.... DLOT.M. GNU.... SBC.... HKL.... MGE.... DSW.VM. GST.... SKL.... HBC.... MZU.... DLVT.M. GST.... SBC.... HSO.... MZU.... DMNT... GBU.... SSO.... HBC.... MGE.... DHIT... GST.... SBC.... HKL.... MGO.... DD2T.M. GFR.... SKL.... HBC.... MVE.... DLOT.M. GNU.... SBC.... HSO.... MFL.... DSWT.V. GFR.... SSO.... HBC.... MRO.... DLVT.M. GNU.... SBC.... HKL.... MGE.... DMNT.M. GST.... SKL.... HBC.... MZU.... DHIT.M. GBU.... SCD.... HBC.... MMR.... DD2T.M. GAM.... SGA.... HGA.... MMS.... DLOT.M. GNS.... SGA.... HCD.... MCG.... DSWT.M. GAO.... SCD.... HGA.... MMS.... DLV.VM. GGW.... SGA.... HGA.... MCG.... DMNT.M. GDU.... SGA.... HGA.... MMS.... DHIT.M. GGW.... SGA.... HCD.... MCG.... DD2T.M. GDU.... SCD.... HGA.... MMS.... DLOT.M. GGW.... SGA.... HGA.... MCG.... DSWT.M. GDU.... SGA.... HGA.... MMS.... DLVT.V. GGW.... SGA.... HCD.... MCG.... DMNT.M. GDU.... SCD.... HGA.... MMS.... DHIT.M. GGW.... SGA.... HGA.... MCG.... DD2T.M. GDU.... SGA.... HGA.... MMS.... DLOT.M. GGW.... SGA.... HCD.... MCG.... DSWT.M. GDU.... SCD.... HGA.... MMS.... DLVT.M. GGW.... SGA.... HGA.... MCG.... DMN.VM. GDU.... SGA.... HGA.... MMS.... DHIT.M. GGW.... SGA.... HCD.... MCG.... DD2T.M. GDU.... SCD.... HGA.... MMS.... DLOT.M. GGW.... SGA.... HGA.... MCG.... DSWT.M. GDU.... SGA.... HGA.... MMS.... DLVT.M. GGW.... SGA.... HCD.... MCG.... DMNT.V. GDU.... SCD.... HGA.... MMS.... DHIT.M. GGW.... SGA.... HGA.... MCG.... DD2T.M. GDU.... SGA.... HGA.... MMS.... DLOT.M. GGW.... SGA.... HCD.... MCG.... DSWT.M. GDU.... SCD.... HGA.... MMS.... DLVT.M. GDU.... SCD.... HBC.... MAL.... DMNT.M. GDU.... SCD.... HBE.... MGR.... DHI.VM. GDU.... SCD.... HBE.... MGR.... DD2T.M. GDU.... SCD.... HSA.... MGR.... DLOT.M. GDU.... SCD.... HSO.... MGR.... DSWT.M. GDU.... SCD.... HBE.... MGR.... DLVT.M. GDU.... SCD.... HBE.... MGR.... DMNT.M. GDU.... SCD.... HSA.... MGR.... DHIT.V. GDU.... SCD.... HSO.... MGR.... DD2T.M. GDU.... SCD.... HBE.... MGR.... DLOT.M. GDU.... SCD.... HBE.... MGR.... DSWT.M. GDU.... SCD.... HSA.... MGR.... DLVT.M. GDU.... SCD.... HSO.... MGR.... DMNT.M. GDU.... SCD.... HBE.... MGR.... DHIT.M. GDU.... SCD.... HBE.... MGR.... DD2.VM. GDU.... SCD.... HSA.... MGR.... DLOT.M. GDU.... SCD.... HSO.... MGR.... DSWT.M. GDU.... SCD.... HBE.... MGR.... DLVT.M. GDU.... SCD.... HBE.... MGR.... DMNT.M. GDU.... SCD.... HSA.... MAL.... DHIT.M. GIR.... SKL.... HIO.... MGR.... DD2T.V. GSWT... SBE.... HAS.... MAL.... DEDT.M. GIR.... SBE.... HAS.... MMA.... DNS.... GSW.... SSA.... HAS.... MAL.... DHAT.M. GSW.... SBE.... HAS.... MGR.... DLIT.M. GLV.... SBE.... HAS.... MAL.... DNUT.M. GIR.... SBE.... HAS.... MMA.... DPRT.M. GSW.... SSA.... HAS.... MAL.... DVI.VM. GSW.... SBE.... HAS.... MGR.... DZAT... GLV.... SBE.... HAS.... MAL.... DBDT.M. GIR.... SBE.... HAS.... MMA.... DHIT.M. GSW.... SSA.... HAS.... MAL.... DD1T.M. GSW.... SBE.... HAS.... MGR.... DKLT.M. GLV.... SBE.... HAS.... MAL.... DCDT.V. GIR.... SBE.... HAS.... MMA.... DGAT.M. GSW.... SSA.... HAS.... MAL.... DBCT.M. GSW.... SBE.... HAS.... MGR.... DBET.M. GLV.... SBETD.. HAS.... MAL.... DD1T.M. GIR.... SBETD.. HAS.... MMA.... DSZT.M. GLV....";
 		
 		Message messages[32] = {};
 		GameView gv = GvNew(trail, messages);
 		
-		assert(GvGetHealth(gv, PLAYER_LORD_GODALMING) == GAME_START_HUNTER_LIFE_POINTS);
-		assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == MADRID);		
+		assert(GvGetHealth(gv, PLAYER_DR_SEWARD) == 0);
+		//assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == MADRID);		
 
 		GvFree(gv);
 
