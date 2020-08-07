@@ -872,12 +872,6 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 // Find Dracula Location
 void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_round) 
 {	
-	// int flag = 0;
-	// if (Loc == ADRIATIC_SEA) {
-	// 	printf ("\n\n");
-	// 	printf ("Adraitic Sea fOUNd\n");
-	// 	flag = 1;
-	// }
 	if (DB_MOVE(Loc)) {
 		
 		int DB_value = Loc - HIDE;
@@ -920,14 +914,6 @@ void DraculaLocation(PlaceId Loc, GameView gv, Player character, int player_roun
 		gv->Player[PLAYER_DRACULA]->Location = CASTLE_DRACULA;
 	}
 	
-	// if (flag == 1) {
-	// 	printf ("Check Adriatic Sea Added or not\n");
-	// 	printf ("Location: %s\n", placeIdToName(gv->Player[PLAYER_DRACULA]->MoveHistory[player_round]));
-	// 	// printf ("Move history after adding Adriatic Sea\n\n");
-	// 	// for (int i = 0; i <= player_round; i++) {
-	// 	// 	printf ("%s\n", placeIdToName(gv->Player[PLAYER_DRACULA]->MoveHistory[i]));
-	// 	// }
-	// }
     
 }
 

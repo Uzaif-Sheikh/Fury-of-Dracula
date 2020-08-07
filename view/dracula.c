@@ -56,13 +56,9 @@ void decideDraculaMove(DraculaView dv)
 		int numLocs = 0;
         int numPlacesHunter = 0;
         int k = 0;
-        int *Reachable_Places = malloc ((NUM_REAL_PLACES+1)*sizeof(*Reachable_Places));
+        int *Reachable_Places = calloc (NUM_REAL_PLACES+1, sizeof(*Reachable_Places));
         
-		for (int i = 0; i < NUM_REAL_PLACES+1; i++) {
-			Reachable_Places[i] = -1;
-		}
- 		
-		 for (int i = 0; i < NUM_PLAYERS-1; i++) {
+		for (int i = 0; i < NUM_PLAYERS-1; i++) {
             
             PlaceId *WherecantheyGo = DvWhereCanTheyGo(dv, i, &numLocs);
             int j = 0;
@@ -70,26 +66,32 @@ void decideDraculaMove(DraculaView dv)
             
             for (k = numPlacesHunter; k < numLocs+numPlacesHunter; k++) {
                 hunters_places_movable[k] = WherecantheyGo[j];
-				Reachable_Places[hunters_places_movable[k]] = 0;
+				if (Reachable_Places[WherecantheyGo[j]] != 1) {
+					Reachable_Places[hunters_places_movable[k]] = 1;
+				}
+				
                 j++;
             }
             
         }
         
-        int total_reachable_places_H = k; 
+        //int total_reachable_places_H = k; 
 		
 		// printf ("Reachable Places\n");
 		// for (int i = 0; i < total_reachable_places_H; i++) {
 		// 	printf (" %d PLace : %s\n", i, placeIdToName(hunters_places_movable[i]));
 		// }
+		// printf ("Reachable Places\n");
+		// for (int i = 0; i < NUM_REAL_PLACES; i++) {
+		// 	printf ("%d %d\n",i, Reachable_Places[i]);
+		// }
+		//int unreachable_places = NUM_REAL_PLACES - total_reachable_places_H;
 		
-		int unreachable_places = NUM_REAL_PLACES - total_reachable_places_H;
-		
-		int *Movable_places = calloc (unreachable_places+1, sizeof(*Movable_places));
+		int *Movable_places = calloc (NUM_REAL_PLACES, sizeof(*Movable_places));
 		
 		int t = 0;
 		for (int i = 0; i < NUM_REAL_PLACES; i++) {
-			if (Reachable_Places[i] != 0 && placeIdToType(i) != SEA && i != ST_JOSEPH_AND_ST_MARY && i != CASTLE_DRACULA) {
+			if (Reachable_Places[i] != 1 && placeIdToType(i) != SEA && i != ST_JOSEPH_AND_ST_MARY && i != CASTLE_DRACULA) {
 				Movable_places[t] = i;
 				t++;
 			}
@@ -106,9 +108,10 @@ void decideDraculaMove(DraculaView dv)
 		srand(time(0));
         int num = rand() % (unreachable_places_excluding_sea);
 		int moves = Movable_places[num];
+		//printf ("%d\n", moves);
     	move = placeIdToAbbrev(moves);
 		//printf ("\n%s", move);
-		free (Reachable_Places);
+		//free (Reachable_Places);
         
 	}
 

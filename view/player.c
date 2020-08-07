@@ -62,7 +62,19 @@ typedef DraculaView View;
 # define decideMove decideDraculaMove
 # define ViewFree DvFree
 
-# define xPastPlays "GST.... SSR.... HBC.... MCD.... DST.V.. GNU.... SPA.... HVI.... MKL.... DZUT... GSTV... SST.... HMU.... MBD.... DMRT... GGE.... SNU.... HST.... MPR.... DTOT... GST.... SST.... HBU.... MFR.... DSRT... GNU.... SFR.... HST.... MST.... DSNT... GST.... SST.... HZUT... MZU.... DMAT... GZU.... SZU.... HMU.... MMI.... DLST... GZU.... SZU.... HMU.... MMI.... DCAT.M. GZU.... SMR.... HMI.... MMR.... DGRT.M. GZU.... SMR.... HMI.... MMR.... DHIT.M. GZU.... SMS.... HMR.... MBO.... DD2T.M. GZU.... SMS.... HMR.... MBO.... DALT.M. GZU.... SALTD.. HMS.... MSR.... DSR.VM. GMR.... SSRVD.. HAL.... MTO.... DSNT.M. GSR.... SZA.... HSR.... MSR.... DBB..M. GAL.... SMU.... HAL.... MTO.... DAO..M. GSR.... SMI.... HSR.... MSR.... DNS..M. GSNT... SMR.... HSN.... MSN.... DHAT... GSR.... SMS.... HMA.... MLS.... DLIT... GSN.... SAL.... HSN.... MSN.... DNUT... GSN.... SAL.... HSN.... MSN.... DPRT... GSN.... SLS.... HBB.... MBB.... DVIT... GSN.... SLS.... HBB.... MBB.... DZAT... GSN.... SAO.... HAO.... MAO.... DSJT.M. GSN.... SAO.... HAO.... MAO.... DBET.M. GSN.... SNS.... HNS.... MNS.... DSO.VM. GSN.... SNS.... HNS.... MNS.... DVRT.M. GSN.... SHA.... HHA.... MHA.... DBS..M. GSN.... SHA.... HHA.... MHA.... DIO..M. GSN.... SVI.... HBR.... MBR.... DVAT.M. GSN.... SVI.... HBR.... MBR.... DSAT.M. GSN.... SBD.... HVI.... MBD.... DHIT.V. GSN.... SBD.... HVI.... MBD.... DD3T.M. GSN.... SCN.... HBD.... MSZ.... DATT... GSN.... SCN.... HBD.... MSZ...."
+# define xPastPlays "GTO.... STO.... HTO.... MTO...."
+//"GJM.... SJM.... HJM.... MJM...."
+//"GAL.... SAL.... HAL.... MAL...."
+//"GMR.... SMR.... HMR.... MMR...."
+//"GMR.... SMR.... HMR.... MMR...."
+//"GBD.... SKL.... HGA.... MCN...."
+//"GTO.... STO.... HTO.... MTO...."
+//"GBD.... SKL.... HGA.... MCN...."
+//"GSO.... SSO.... HSO.... MSO...."
+//"GJM.... SJM.... HJM.... MJM...."
+//"GLE.... SLE.... HLE.... MLE...."
+//"GTO.... STO.... HTO.... MTO...."
+//"GST.... SSR.... HBC.... MCD.... DST.V.. GNU.... SPA.... HVI.... MKL.... DZUT... GSTV... SST.... HMU.... MBD.... DMRT... GGE.... SNU.... HST.... MPR.... DTOT... GST.... SST.... HBU.... MFR.... DSRT... GNU.... SFR.... HST.... MST.... DSNT... GST.... SST.... HZUT... MZU.... DMAT... GZU.... SZU.... HMU.... MMI.... DLST... GZU.... SZU.... HMU.... MMI.... DCAT.M. GZU.... SMR.... HMI.... MMR.... DGRT.M. GZU.... SMR.... HMI.... MMR.... DHIT.M. GZU.... SMS.... HMR.... MBO.... DD2T.M. GZU.... SMS.... HMR.... MBO.... DALT.M. GZU.... SALTD.. HMS.... MSR.... DSR.VM. GMR.... SSRVD.. HAL.... MTO.... DSNT.M. GSR.... SZA.... HSR.... MSR.... DBB..M. GAL.... SMU.... HAL.... MTO.... DAO..M. GSR.... SMI.... HSR.... MSR.... DNS..M. GSNT... SMR.... HSN.... MSN.... DHAT... GSR.... SMS.... HMA.... MLS.... DLIT... GSN.... SAL.... HSN.... MSN.... DNUT... GSN.... SAL.... HSN.... MSN.... DPRT... GSN.... SLS.... HBB.... MBB.... DVIT... GSN.... SLS.... HBB.... MBB.... DZAT... GSN.... SAO.... HAO.... MAO.... DSJT.M. GSN.... SAO.... HAO.... MAO.... DBET.M. GSN.... SNS.... HNS.... MNS.... DSO.VM. GSN.... SNS.... HNS.... MNS.... DVRT.M. GSN.... SHA.... HHA.... MHA.... DBS..M. GSN.... SHA.... HHA.... MHA.... DIO..M. GSN.... SVI.... HBR.... MBR.... DVAT.M. GSN.... SVI.... HBR.... MBR.... DSAT.M. GSN.... SBD.... HVI.... MBD.... DHIT.V. GSN.... SBD.... HVI.... MBD.... DD3T.M. GSN.... SCN.... HBD.... MSZ.... DATT... GSN.... SCN.... HBD.... MSZ...."
 
 //"GMA.... SMN.... HBC.... MPA.... DTS...."
 
