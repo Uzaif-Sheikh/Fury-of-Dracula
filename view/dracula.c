@@ -75,18 +75,6 @@ void decideDraculaMove(DraculaView dv)
             
         }
         
-        //int total_reachable_places_H = k; 
-		
-		// printf ("Reachable Places\n");
-		// for (int i = 0; i < total_reachable_places_H; i++) {
-		// 	printf (" %d PLace : %s\n", i, placeIdToName(hunters_places_movable[i]));
-		// }
-		// printf ("Reachable Places\n");
-		// for (int i = 0; i < NUM_REAL_PLACES; i++) {
-		// 	printf ("%d %d\n",i, Reachable_Places[i]);
-		// }
-		//int unreachable_places = NUM_REAL_PLACES - total_reachable_places_H;
-		
 		int *Movable_places = calloc (NUM_REAL_PLACES, sizeof(*Movable_places));
 		
 		int t = 0;
@@ -96,24 +84,15 @@ void decideDraculaMove(DraculaView dv)
 				t++;
 			}
 		}
-
-		// printf ("\n\n");
-		// printf ("Movable places\n");
 		
 		int unreachable_places_excluding_sea = t;
-		// for (int i = 0; i < unreachable_places_excluding_sea; i ++) {
-		// 	printf ("%d Place : %s\n", i, placeIdToName(Movable_places[i]));
-		// }
 		
 		srand(time(0));
         int num = rand() % (unreachable_places_excluding_sea);
 		int moves = Movable_places[num];
-		//printf ("%d\n", moves);
-    	move = placeIdToAbbrev(moves);
-		//printf ("\n%s", move);
-		//free (Reachable_Places);
-        
-	}
+		move = placeIdToAbbrev(moves);
+		
+    }
 
 	else if (Valid_moves == NULL && curr_round != 0) {
 	 	move = placeIdToAbbrev(TELEPORT);
