@@ -192,6 +192,7 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 	GvFree(gv);
 
 	*round = round_known;
+	hv->last_know_loc_dracula = known_loc;
 	return known_loc;
 }
 
@@ -319,14 +320,22 @@ PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
 PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
                           int *numReturnedLocs)
 {
-	if(HvGetPlayerLocation(hv,player) == NOWHERE || HvGetPlayerLocation(hv, PLAYER_DRACULA) == CITY_UNKNOWN || HvGetPlayerLocation(hv, PLAYER_DRACULA) == SEA_UNKNOWN) return NULL;
+	if(HvGetPlayerLocation(hv,player) == NOWHERE) return NULL;
 
 	int round = GvGetRound(hv->gv);
 	// if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
 	// 	round += 1;
 	// }
+	PlaceId loc;
+	if(player == PLAYER_DRACULA){
+		loc = hv->last_know_loc_dracula;
+	}
+	else{
+		loc = HvGetPlayerLocation(hv,player);
+	}
+
 	int num_max = START;
-	PlaceId* reachable = GvGetReachable(hv->gv,player,round,HvGetPlayerLocation(hv,player),&num_max);
+	PlaceId* reachable = GvGetReachable(hv->gv,player,round,loc,&num_max);
 
 	*numReturnedLocs = num_max;
 	return reachable;
@@ -337,18 +346,24 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
                                 bool road, bool rail, bool boat,
                                 int *numReturnedLocs)
 {
-	if(HvGetPlayerLocation(hv,player) == NOWHERE 
-			|| HvGetPlayerLocation(hv, PLAYER_DRACULA ) 
-			== CITY_UNKNOWN || HvGetPlayerLocation(hv, PLAYER_DRACULA) == SEA_UNKNOWN) return NULL;
+	if(HvGetPlayerLocation(hv,player) == NOWHERE) return NULL;
 
 	int round = GvGetRound(hv->gv);
 	// if (HvGetPlayer(hv) != PLAYER_LORD_GODALMING) {
 	// 	round += 1;
 	// }
 
+	PlaceId loc;
+	if(player == PLAYER_DRACULA){
+		loc = hv->last_know_loc_dracula;
+	}
+	else{
+		loc = HvGetPlayerLocation(hv,player);
+	}
+
 	int num_max = START;
 	PlaceId* reachable = GvGetReachableByType(hv->gv,player,
-					round,HvGetPlayerLocation(hv,player),
+					round,loc,
 					road,rail,boat,&num_max);
 
 	*numReturnedLocs = num_max;

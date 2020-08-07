@@ -91,9 +91,7 @@ typedef HunterView View;
 # define decideMove decideHunterMove
 # define ViewFree HvFree
 
-# define xPastPlays "GAS.... SAS.... HAS.... MAS.... DC?.V.."
-
-// "GZU.... SVI.... HVR.... MTS.... DGW.V.. GMR.... SPR.... HSZ.... MRO.... DDUT... GMS.... SBD.... HBD.... MFL.... DD2T... GMS.... SKL.... HKL.... MMI.... DHIT... GMS.... SKL.... HKL.... MNP.... DAO.... GMS.... SKL.... HKL.... MTS.... DLST... GMS.... SKL.... HKL.... MRO.... DSNT.V. GMS.... SKL.... HKL.... MFL.... DMAT.M. GMS.... SKL.... HKL.... MFL.... DGRT.M. GMS.... SKL.... HKL.... MVE.... DHIT.M. GMS.... SKL.... HKL.... MVE.... DCAT... GMS.... SKL.... HKL.... MVE.... DD4T.M. GMS.... SKL.... HKL.... MMI.... DSRT.M. GMS.... SKL.... HKL.... MMR.... DSN.VM. GMS.... SKL.... HKL.... MTO.... DMAT.M. GMS.... SKL.... HKL.... MBO.... DGRT.M. GMS.... SKL.... HKL.... MBO.... DHIT.M. GMS.... SKL.... HKL.... MBO.... DD3T.M. GMS.... SKL.... HKL.... MSRT... DLST... GMS.... SKL.... HKL.... MSR.... DCAT.V. GMS.... SKL.... HKL.... MMR.... DMAT.M. GMS.... SKL.... HKL.... MMR.... DSNT.M. GMS.... SKL.... HKL.... MTO.... DHIT.M. GMS.... SKL.... HKL.... MBO.... DD2T.M. GMS.... SKL.... HSZ.... MNA.... DSRT.M. GTS.... SSZ.... HVI.... MBO.... DBAT.M. GTS.... SVI.... HVI.... MTO.... DTO.VM. GTS.... SVI.... HMU.... MBO.... DCFT.M. GTS.... SMU.... HMI.... MNA.... DGET.M. GTS.... SMI.... HNP.... MBO.... DPAT.M. GTS.... SNP.... HTS.... MTOV... DNAT.M. GTS.... STS.... HTS.... MBO.... DHIT.M. GTS.... STS.... HTS.... MNATTD. DLET... GTS.... STS.... HTS....";
+# define xPastPlays "GZU.... SVI.... HVR.... MTS.... DS?.... GST.... SVI.... HSO.... MNP.... DS?.... GFR.... SVI.... HSO.... MRO.... DD2.... GMI.... SMU.... HSO.... MRO.... DC?T... GVE.... SZA.... HVA.... MMI.... DVAT... GVI.... SBD.... HSO.... MMU.... DSOT... GBD.... SSOTD.. HSOD... MVE.... DC?T..."
 # define xMsgs { "", "", "" }
 
 #endif

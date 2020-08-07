@@ -830,14 +830,18 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 	int dracula_num_encount = gv->Player[PLAYER_DRACULA]->Player_Encounter;
 	
 	// Calculate the total HP
-	gv->Player[character]->health =  gv->Player[character]->health - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
-							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount) 
-							+ (LIFE_GAIN_REST * num_rest);
-
+	
 	if (num_encount && num_rest) {
 		gv->Player[character]->health =  gv->Player[character]->health - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
 							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount); 
 	}
+	else{
+		gv->Player[character]->health =  gv->Player[character]->health - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
+							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount) 
+							+ (LIFE_GAIN_REST * num_rest);
+
+	}
+	
 
 	gv->Player[PLAYER_DRACULA]->health = gv->Player[PLAYER_DRACULA]->health 
 						- (LIFE_LOSS_HUNTER_ENCOUNTER * dracula_num_encount);
