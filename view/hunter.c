@@ -28,14 +28,17 @@ void decideHunterMove(HunterView hv)
 	PlaceId curr_loc_known = HvGetLastKnownDraculaLocation(hv,&round);
 	int hv_round = HvGetRound(hv);
 	char city[2];
+	printf("%d\n", HvGetPlayer(hv));
+	printf("%d\n", HvGetHealth(hv,curr_player));
 	if(hv_round == 0 && curr_player != PLAYER_DRACULA){
 		int index = 70 - (curr_player * 2);
 		strcpy(city,placeIdToAbbrev(index));
 	}
 	else if(HvGetHealth(hv,curr_player) <= 0){
+		printf("Sending To Hospital: %d\n", HvGetHealth(hv,curr_player));
 		strcpy(city,placeIdToAbbrev(HOSPITAL_PLACE));
 	}
-	else if(curr_loc_known != NOWHERE){
+	else if(curr_loc_known != NOWHERE) {
 
 		int numPlace = 0;
 	    PlaceId* where_dracula_can_go = HvWhereCanTheyGo(hv,PLAYER_DRACULA,&numPlace);

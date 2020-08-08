@@ -784,7 +784,7 @@ int GvGetScore(GameView gv)
 void RestCheck(PlaceId Loc, GameView gv, Player character, int player_round) 
 {
 	if (Loc == gv->Player[character]->Location) {
-			gv->Player[character]->Rest++;
+		gv->Player[character]->Rest++;
 		gv->Player[character]->MoveHistory[player_round] = Loc;
 	} 
 	
@@ -830,7 +830,13 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 	int dracula_num_encount = gv->Player[PLAYER_DRACULA]->Player_Encounter;
 	
 	// Calculate the total HP
-	
+	// if (gv->Player[character]->health == 0) {
+	// 	gv->Player[character]->health = GAME_START_HUNTER_LIFE_POINTS;
+	// }
+	if (gv->Player[character]->health <= 0) {
+		gv->Player[character]->health = GAME_START_HUNTER_LIFE_POINTS;
+	}
+
 	if (num_encount && num_rest) {
 		gv->Player[character]->health =  gv->Player[character]->health - (LIFE_LOSS_TRAP_ENCOUNTER * num_traps) 
 							- (LIFE_LOSS_DRACULA_ENCOUNTER * num_encount); 
@@ -842,7 +848,6 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 
 	}
 	
-
 	gv->Player[PLAYER_DRACULA]->health = gv->Player[PLAYER_DRACULA]->health 
 						- (LIFE_LOSS_HUNTER_ENCOUNTER * dracula_num_encount);
 	
@@ -860,7 +865,7 @@ void AdjustHunterHealth(GameView gv, Player character, int player_round)
 		gv->Player[character]->Location = HOSPITAL_PLACE;
 		gv->Player[character]->trap_player = START;
 		gv->Player[character]->Player_Encounter = START;
-		gv->Player[character]->health = START;
+		gv->Player[character]->health = 0;
 	} 
 
 
