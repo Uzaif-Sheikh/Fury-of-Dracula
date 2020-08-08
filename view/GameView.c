@@ -975,7 +975,7 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 	//Creates a new Queue
 	Queue q = newQueue();
 
-	// Adds the current location to queuw
+	// Adds the current location to queue
 	QueueJoin(q, from);
 	
 	//num_rail_moves used to find the max rail distance allowed and add the elements in queue
@@ -1006,7 +1006,7 @@ int RailRoutesFind (int max_rail_size, PlaceId *GetReachable,Map places, PlaceId
 
 				Rail_route = Rail_route->next;
 			}
-			//checks all the elementt in the queue.
+			//checks all the element in the queue.
 			num_curr_level_rail = num_curr_level_rail - 1;
 		}	
 		
