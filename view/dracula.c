@@ -29,23 +29,6 @@
 // stylistically revert a varibale back to zero
 #define START		0
 
-#define TRUE		1
-#define	FALSE		0
-
-#define NO_BEST_MOVES_AVAILABLE		0
-
-#define HIDE_MOVE(id) (id == HIDE)
-#define HUNTER(id) (id != PLAYER_DRACULA)
-#define NOT_HI_DB_MOVE(id) (id != HIDE && id != DOUBLE_BACK_1 \
-				&& id != DOUBLE_BACK_2 && id != DOUBLE_BACK_3 \
-				&& id != DOUBLE_BACK_4 && id != DOUBLE_BACK_5)
-
-#define DB_MOVE(id) (id == DOUBLE_BACK_1 || id == DOUBLE_BACK_2 \
-			|| id == DOUBLE_BACK_3 || id == DOUBLE_BACK_4 \
-			|| id == DOUBLE_BACK_5)
-			
-#define PASTPLAYS_NOT_FINISHED(c) (c != NULL)
-
 int* findDistancetoallCities (PlaceId curr_location);
 int ShortestPathforClosestHunter(DraculaView dv,Player hunter, PlaceId from, PlaceId dest);
 
