@@ -18,107 +18,85 @@
 #include <time.h>
 #include <stdlib.h>
 
-// static void random_moves(HunterView hv,char city[2]);
-// static bool check_moves(PlaceId* array,PlaceId player_loc,int num);
+// START is simply a #define used to initialise 
+// integer variables in a stylistic way, or to
+// stylistically revert a varibale back to zero
+#define START		0
+
+#define TRUE		1
+#define	FALSE		0
+
+#define NO_BEST_MOVES_AVAILABLE		0
+
+#define HIDE_MOVE(id) (id == HIDE)
+#define HUNTER(id) (id != PLAYER_DRACULA)
+#define NOT_HI_DB_MOVE(id) (id != HIDE && id != DOUBLE_BACK_1 \
+				&& id != DOUBLE_BACK_2 && id != DOUBLE_BACK_3 \
+				&& id != DOUBLE_BACK_4 && id != DOUBLE_BACK_5)
+
+#define DB_MOVE(id) (id == DOUBLE_BACK_1 || id == DOUBLE_BACK_2 \
+				|| id == DOUBLE_BACK_3 || id == DOUBLE_BACK_4 \
+				|| id == DOUBLE_BACK_5)
+			
+#define PASTPLAYS_NOT_FINISHED(c) (c != NULL)
 
 void decideHunterMove(HunterView hv)
 {
-	int round = 0;
+	int round = START;
 	Player curr_player = HvGetPlayer(hv);
 	PlaceId curr_loc_known = HvGetLastKnownDraculaLocation(hv,&round);
 	int hv_round = HvGetRound(hv);
 	char city[2];
-	// printf("%d\n", HvGetPlayer(hv));
-	// printf("%d\n", HvGetHealth(hv,curr_player));
-	if(hv_round == 0 && curr_player != PLAYER_DRACULA){
+	
+	// If its is the first round, find a random city for the hunter
+	// and store this in the city variable
+	if(hv_round == START && curr_player != PLAYER_DRACULA) {
 		int index = 70 - (curr_player * 2);
 		strcpy(city,placeIdToAbbrev(index));
 	}
-	else if(HvGetHealth(hv,curr_player) <= 0){
-		//printf("Sending To Hospital: %d\n", HvGetHealth(hv,curr_player));
+
+	// if the hunter is dead, send them to the hospital
+	else if(HvGetHealth(hv,curr_player) <= 0) {
 		strcpy(city,placeIdToAbbrev(HOSPITAL_PLACE));
 	}
+
+	// If the current location of the hunter is NOWHERE
+	// then we are in the first round. Randomly select the first
+	// city to go to
 	else if(curr_loc_known != NOWHERE) {
 
-		int numPlace = 0;
-	    PlaceId* where_dracula_can_go = HvWhereCanTheyGo(hv,PLAYER_DRACULA,&numPlace);
-		// for(int i = 0;i < numPlace;i++){
-		// 	printf("%s dracula loc \n",placeIdToAbbrev(where_dracula_can_go[i]));
-		// }
+		int numPlace = START;
+	    	PlaceId* where_dracula_can_go = HvWhereCanTheyGo(hv,PLAYER_DRACULA,&numPlace);
+		
 		srand(time(NULL));
 		int id = (rand() % numPlace);
-		int path_length = 0;
+		int path_length = START;
 		PlaceId * shortest_path = HvGetShortestPathTo(hv, curr_player, where_dracula_can_go[id], &path_length);
-		// for(int i = 0;i < path_length;i++){
-		// 	printf("%s shortest path \n",placeIdToAbbrev(shortest_path[i]));
-		// }
-		if(path_length != 0){
+		
+		if(path_length != 0) {
 			strcpy(city,placeIdToAbbrev(shortest_path[0]));
 		}
+
 		else{
-			int numPlace1 = 0;
+			int numPlace1 = START;
 			PlaceId* where_can_i_go = HvWhereCanIGo(hv,&numPlace1);
-			// for(int i = 0;i < numPlace1;i++){
-			// 	printf("curr loc known = nowhere %s --\n",placeIdToAbbrev(where_can_i_go[i]));
-			// }
+			
 			srand(time(NULL));
 			int id = (rand() % numPlace1);
 			strcpy(city,placeIdToAbbrev(where_can_i_go[id]));
 		}
 		
-		
-
-		/*if(check_moves(where_dracula_can_go,HvGetPlayerLocation(hv,curr_player),numPlace)){
-			random_moves(hv,city);
-		}
-
-		if(HvGetPlayerLocation(hv,curr_player) == curr_loc_known){
-			int numPlace1 = 0;
-			PlaceId* where_can_i_go = HvWhereCanIGo(hv,&numPlace1);
-			printf("%d numPlace \n",numPlace1);
-			for(int i = 0;i < numPlace1;i++){
-				printf("curr loc known != nowhere %s --\n",placeIdToAbbrev(where_can_i_go[i]));
-			}
-			int id = (rand() % numPlace1);
-			printf("%d --\n",id); 
-			strcpy(city,placeIdToAbbrev(where_can_i_go[id]));
-		}*/
-		
 	}
-	else{
-		int numPlace1 = 0;
+
+	// If we are not in the first round, then select a random city again
+	else {
+		int numPlace1 = START;
 		PlaceId* where_can_i_go = HvWhereCanIGo(hv,&numPlace1);
-		//printf("%d numPlace \n",numPlace1);
-		// for(int i = 0;i < numPlace1;i++){
-		// 	printf("curr loc known = nowhere %s --\n",placeIdToAbbrev(where_can_i_go[i]));
-		// }
+		
 		srand(time(NULL));
 		int id = (rand() % numPlace1);
-		//printf("%d --\n",id); 
 		strcpy(city,placeIdToAbbrev(where_can_i_go[id]));
 	}
 
 	registerBestPlay(&city[0], "Have we nothing Toulouse?");
 }
-
-// static void random_moves(HunterView hv,char city[2]){
-// 	int numPlace1 = 0;
-// 	PlaceId* where_can_i_go = HvWhereCanIGo(hv,&numPlace1);
-// 	printf("%d numPlace \n",numPlace1);
-// 	for(int i = 0;i < numPlace1;i++){
-// 		printf("curr loc known = nowhere %s --\n",placeIdToAbbrev(where_can_i_go[i]));
-// 	}
-// 	srand(time(NULL));
-// 	int id = (rand() % numPlace1);
-// 	//printf("%d --\n",id); 
-// 	strcpy(city,placeIdToAbbrev(where_can_i_go[id]));
-// }
-
-// static bool check_moves(PlaceId* array,PlaceId player_loc,int num){
-	
-// 	for(int i = 0;i < num;i++){
-// 		if(array[i] == player_loc) return true;
-// 	}
-
-// 	return false;
-// }

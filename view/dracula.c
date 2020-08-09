@@ -257,8 +257,8 @@ void decideDraculaMove(DraculaView dv)
 
 // Find the distance from a current player loaction to all the cities
 // On the map using a queue
-int* findDistancetoallCities (PlaceId curr_location) {
-	
+int* findDistancetoallCities (PlaceId curr_location) 
+{
 	Map m = MapNew();
 	int *distance = calloc(NUM_REAL_PLACES+1, sizeof(*distance));
 
