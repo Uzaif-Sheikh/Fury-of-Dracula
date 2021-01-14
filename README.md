@@ -1,18 +1,3 @@
 # FURY OF DRACULA
 
-kartiakye KARTIKAYE CHANDHOK z5285022 F11A
-
-Uzaif-Sheikh
-Uzaif Sheikh
-z5252826
-F09B
-
-Shubhamjohar03
-Shubham johar
-z5284381
-F15A
-
-usmaan23
-Usmaan Mohideen
-z5320452
-T15B
+An AI based Heuristic game based on graph algorithms, which is played by predicting the next move of the hunter by dracula based on the previous set of visible moves of hunter. We use basic djikstra's and breadth first search for the purpose of this project with a slight variation of minimax algorithm to predit the next move.
