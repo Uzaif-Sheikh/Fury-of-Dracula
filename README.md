@@ -6,7 +6,7 @@ An AI based Heuristic game based on graph algorithms, which is played by predict
 
 ## Design:
 
-So, in order to abstract out the complexity and hidden the implement we have created a views for each component in the game.
+So, in order to abstract out the complexity and hide the implement we have created a views for each component in the game.
 here is an example of the files.
 ```python
 Game.h             # definitions of game constants; interface to game engine
