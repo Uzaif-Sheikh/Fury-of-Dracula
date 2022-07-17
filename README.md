@@ -2,6 +2,10 @@
 
 An AI based Heuristic game based on graph algorithms, which is played by predicting the next move of hunter by dracula based on the previous set of hunter's visible moves. We use basic djikstra's and breadth first search for the purpose of this project with a slight variation of minimax algorithm to predit the next move.
 
+![drac](https://user-images.githubusercontent.com/50875291/179397855-52892535-c31e-4bff-8073-1802540d10a4.png)
+
+The game takes place in Europe during 1898.The game involves the arch-vampire Dracula, four intrepid vampire hunters and the splendid cities of Victorian Europe. The aim for Dracula is to evade the hunters for long enough to realise his Grand Plan - to release hordes of vampires all over Europe, while the aim for the hunters is to kill Dracula before he can do so.
+
 ![alt text](https://www.cse.unsw.edu.au/~cs2521/20T2/ass/ass2/Pics/map0.png)
 
 ## Design:
